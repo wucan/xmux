@@ -214,5 +214,11 @@ int dvbSI_GenSS(unsigned int ss);
 
 /*---------------------------------------------------------------------------------------------*/
 
+/*
+ * hook up timer check func for Dec_Xxx()
+ */
+void uvPSI_SetTimeoutFunc(int (*func)());
+
+
 #endif
 

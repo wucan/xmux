@@ -12,6 +12,7 @@
 #include <stdlib.h>
 //#include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #if defined(HAVE_INTTYPES_H)
 #include <inttypes.h>
@@ -23,6 +24,11 @@
 #include "gen_dvb_si.h"
 
 
+static int DefaultTimeoutChecker()
+{
+	return 0;
+}
+static int (*TimeoutChecker)() = DefaultTimeoutChecker;
 
 /*---------------------------------------------------------------------------------------------*/
 //	Uttilities 
@@ -212,6 +218,12 @@ int dvbSI_Dec_PAT(uv_pat_data *p_pat_data, uv_pat_pid_data *p_pid_data, uint16_t
 		//b_ok = ReadPacket(i_fd, sg_share_buf);
 		b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,0);
 		i++;
+
+		/* check timeouted of parsing */
+		if (TimeoutChecker()) {
+			ret = -ETIMEDOUT;
+			break;
+		}
 	}
 
 	dvbpsi_DetachPAT(h_dvbpsi);
@@ -1295,3 +1307,9 @@ int ReadPacket(int i_fd, uint8_t* p_dst)
 	
 	return (i == 0) ? 1 : 0;
 }
+
+void uvPSI_SetTimeoutFunc(int (*func)())
+{
+	TimeoutChecker = func;
+}
+
