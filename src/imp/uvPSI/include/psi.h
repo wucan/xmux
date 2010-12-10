@@ -102,7 +102,7 @@ SDT对应5个节点，PMT对应32个节点（每个节点对应一个section），
 typedef struct {
 	uint8_t ch_s; 				// MSB is ch8
 	uint8_t tbl_s[8][5];  
-} uv_cha_si_stat;
+} uv_cha_si_stat __attribute__((packed));
 
 typedef struct _uv_param{
 	//--------------------------------------------------------------
