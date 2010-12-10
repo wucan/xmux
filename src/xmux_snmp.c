@@ -284,7 +284,7 @@ static int start_parse_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *
 			break;
 		case 0x3030: // for my test case
 		case 0x0000:
-			uvSI_psi_parse_stop();
+			psi_worker_stop_parse_psi();
 			break;
 		default:
 			trace_err("unknow start parse psi oper %#x!", oper);

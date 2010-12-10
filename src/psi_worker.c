@@ -118,6 +118,7 @@ int psi_worker_request_download_psi(int chid, void *psi_data, int len)
 
 void psi_worker_stop_parse_psi()
 {
+	uvSI_psi_parse_stop();
 }
 
 /*
