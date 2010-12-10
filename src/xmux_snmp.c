@@ -4,6 +4,7 @@
 
 #include "wu/message.h"
 
+#include "up_support.h"
 #include "wu_snmp_agent.h"
 
 #include "psi_worker.h"
@@ -237,6 +238,9 @@ static int net_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int net_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(&sg_mib_IP_info, v->data, v->size);
+	up_set_net_param(0, sg_mib_IP_info.ip, sg_mib_IP_info.netmask);
+	up_set_gateway(sg_mib_IP_info.gateway);
+	up_set_mac(0, sg_mib_IP_info.mac);
 
 	return 0;
 }
