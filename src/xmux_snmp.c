@@ -265,8 +265,7 @@ static int start_parse_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *
 	/*
 	 * FIXME: request run it in psi_worker thread!
 	 */
-//	uvSI_psi_parse();
-	test_gen_psi();
+	uvSI_psi_parse();
 
 	return 0;
 }
