@@ -1,4 +1,5 @@
 #include <string.h>
+#include <signal.h>
 
 #include "wu/message.h"
 
@@ -25,6 +26,31 @@ uint8_t sg_mib_nit[CHANNEL_MAX_NUM][SECTION_MAX_SIZE];
 uint8_t sg_mib_sdt[CHANNEL_MAX_NUM][SDT_SECTION_NUM][SECTION_MAX_SIZE];
 uint8_t sg_mib_eit[CHANNEL_MAX_NUM][EIT_SECTION_NUM][SECTION_MAX_SIZE];
 
+/*
+ * psi parse timeout manangement
+ */
+static int psi_parse_timeout_sec = 20;
+static int psi_parse_timeouted;
+int psi_parse_timer_is_timeouted()
+{
+	return psi_parse_timeouted;
+}
+static void sig_alarm(int signo)
+{
+	psi_parse_timeouted = 1;
+}
+static void psi_parse_timer_start()
+{
+	uvPSI_SetTimeoutFunc(psi_parse_timer_is_timeouted);
+	signal(SIGALRM, sig_alarm);
+	psi_parse_timeouted = 0;
+	alarm(psi_parse_timeout_sec);
+}
+static void psi_parse_timer_stop()
+{
+	alarm(0);
+	psi_parse_timeouted = 0;
+}
 
 int psi_parsing()
 {
@@ -81,7 +107,7 @@ static uint16_t stream_num;
 
 static int parse_pat()
 {
-	int i;
+	int i, rc;
 	unsigned short len;
 
 	pid_num = 0;
@@ -90,7 +116,13 @@ static int parse_pat()
 	sg_si_param.type = EUV_BOTH;
 	sg_si_param.tbl_type = EUV_TBL_PAT;
 	sg_si_param.sec[0] = sg_mib_pat[sg_si_param.cha];
-	dvbSI_Dec_PAT(&pat, pid_data, &pid_num);
+	psi_parse_timer_start();
+	rc = dvbSI_Dec_PAT(&pat, pid_data, &pid_num);
+	psi_parse_timer_stop();
+	if (rc) {
+		printf("pat parse failed! rc %d\n", rc);
+		return -1;
+	}
 	memcpy(&len, sg_mib_pat[sg_si_param.cha], 2);
 	printf("[uvSI] channel %d got pat section, len %d\n",
 		sg_si_param.cha + 1, len);
