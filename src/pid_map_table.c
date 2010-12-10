@@ -25,3 +25,16 @@ void pid_map_table_reset()
 	hfpga_write_pid_map(pid_map);
 }
 
+int pid_map_table_apply(void *pid_map_data, int size)
+{
+	ACCESS_HFPGA_PID_MAP pid_map;
+
+	if (size != sizeof(pid_map.pid_map))
+		return;
+
+	pid_map.cha = 0xFF;
+	memcpy(pid_map.pid_map, pid_map_data, sizeof(pid_map.pid_map));
+
+	hfpga_write_pid_map(pid_map);
+}
+

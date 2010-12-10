@@ -20,6 +20,7 @@ pid_map_table_set_out_pid(ACCESS_HFPGA_PID_MAP *pid_map,
 }
 
 void pid_map_table_reset();
+int pid_map_table_apply(void *pid_map_data, int size);
 
 
 #endif /* _PID_MAP_TABLE_H_ */
