@@ -464,6 +464,10 @@ int xmux_snmp_register_all_oids()
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		register_channel_oids(chan_idx);
 	}
+	/*
+	 * register output stuff
+	 */
+	register_channel_oids(CHANNEL_MAX_NUM);
 
 	register_input_trans_oids();
 	register_solo_oids();
