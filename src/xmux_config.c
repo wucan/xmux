@@ -35,6 +35,8 @@ static void xmux_root_param_init_default(struct xmux_root_param *p)
  */
 void xmux_config_load_from_eeprom()
 {
+	xmux_config_load_management_mode();
+
 	eeprom_read(0, (uint8_t *)&g_xmux_root_param, sizeof(g_xmux_root_param));
 	/* checkint */
 	if (!xmux_root_param_validate(&g_xmux_root_param)) {
@@ -59,5 +61,17 @@ void xmux_config_save_management_mode()
 		default: return; break;
 	}
 	eeprom_write(0xFFFF, &byte, 1);
+}
+
+void xmux_config_load_management_mode()
+{
+	uint8_t byte;
+
+	eeprom_read(0xFFFF, &byte, 1);
+	switch (byte) {
+		default:
+		case 0x55: management_mode = MANAGEMENT_MODE_SNMP; break;
+		case 0xAA: management_mode = MANAGEMENT_MODE_FP; break;
+	}
 }
 

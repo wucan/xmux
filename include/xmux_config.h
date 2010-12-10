@@ -15,6 +15,7 @@ void xmux_config_load_from_eeprom();
 void xmux_config_update_output_bitrate(uint32_t bitrate);
 
 void xmux_config_save_management_mode();
+void xmux_config_load_management_mode();
 
 
 #endif /* _XMUX_CONFIG_H_ */
