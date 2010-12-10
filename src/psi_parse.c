@@ -140,7 +140,7 @@ static int parse_pmt()
 {
 	unsigned int cnt = 0;
 	unsigned short len;
-	int i;
+	int i, rc;
 	unsigned char sg_mib_curpmt[SECTION_MAX_SIZE];
 
 	/* skip NIT */
@@ -155,7 +155,13 @@ static int parse_pmt()
 		sg_si_param.type = EUV_SECTION;
 		sg_si_param.tbl_type = EUV_TBL_PMT;
 		sg_si_param.sec[0] = sg_mib_curpmt;
-		dvbSI_Dec_PMT(&pmt, es, &es_num);
+		psi_parse_timer_start();
+		rc = dvbSI_Dec_PMT(&pmt, es, &es_num);
+		psi_parse_timer_stop();
+		if (rc) {
+			printf("pmt parse failed! rc %d\n", rc);
+			return -1;
+		}
 		memcpy(&len, sg_mib_curpmt, 2);
 		printf("[uvSI] pmt pid %#x, got section, len %d\n",
 			pmt.i_pmt_pid, len);
@@ -168,12 +174,19 @@ static int parse_pmt()
 static int parse_cat()
 {
 	unsigned short len;
+	int rc;
 
 	sg_si_param.cur_cnt = 0;
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_CAT;
 	sg_si_param.sec[0] = sg_mib_cat[sg_si_param.cha];
-	dvbSI_Dec_CAT(cat_descr, &cat_descr_num);
+	psi_parse_timer_start();
+	rc = dvbSI_Dec_CAT(cat_descr, &cat_descr_num);
+	psi_parse_timer_stop();
+	if (rc) {
+		printf("cat parse failed! rc %d\n", rc);
+		return -1;
+	}
 
 	return 0;
 }
@@ -181,12 +194,19 @@ static int parse_cat()
 static int parse_sdt()
 {
 	unsigned short len;
+	int rc;
 
 	sg_si_param.cur_cnt = 0;
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_SDT;
 	sg_si_param.sec[0] = sg_mib_sdt[sg_si_param.cha][0];
-	dvbSI_Dec_SDT(&sdt, serv, &serv_num);
+	psi_parse_timer_start();
+	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
+	psi_parse_timer_stop();
+	if (rc) {
+		printf("sdt parse failed! rc %d\n", rc);
+		return -1;
+	}
 	memcpy(&len, sg_mib_sdt[sg_si_param.cha], 2);
 	printf("[uvSI] got sdt section, len %d\n", len);
 	printf("[uvSI] there are total %d services\n", serv_num);
@@ -197,12 +217,19 @@ static int parse_sdt()
 static int parse_nit()
 {
 	unsigned short len;
+	int rc;
 
 	sg_si_param.cur_cnt = 0;
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_NIT;
 	sg_si_param.sec[0] = sg_mib_nit[sg_si_param.cha];
-	dvbSI_Dec_NIT(&nit, stream, &stream_num);
+	psi_parse_timer_start();
+	rc = dvbSI_Dec_NIT(&nit, stream, &stream_num);
+	psi_parse_timer_stop();
+	if (rc) {
+		printf("nit parse failed! rc %d\n", rc);
+		return -1;
+	}
 	memcpy(&len, sg_mib_nit[sg_si_param.cha], 2);
 	printf("[uvSI] got nit section, len %d\n", len);
 
