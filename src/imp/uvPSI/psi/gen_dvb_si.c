@@ -157,7 +157,6 @@ void outputHex(unsigned char *data, unsigned int len, unsigned char width)
 
 int dvbSI_Dec_PAT(uv_pat_data *p_pat_data, uv_pat_pid_data *p_pid_data, uint16_t *p_pid_num)
 {
-	FILE* fp;
 	int ret = 0;
 	int i=0;
 	
@@ -186,17 +185,7 @@ int dvbSI_Dec_PAT(uv_pat_data *p_pat_data, uv_pat_pid_data *p_pid_data, uint16_t
 		param.type = 1;
 	}
 
-	fp=fopen("./PAT_hubei.ts","wb"); 
-	
 	b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,1);
-	if(188 != fwrite(sg_share_buf, 1, 188, fp))
-	{
-		dbg_prt("err_write\n");
-	}
-	dbg_prt("pat_write_%d\n",i);
-	//fwrite();
-	//outputHex(sg_share_buf, 188, 16);
- 	 //dbg_prt("---%---\n");
 	while(b_ok)
 	{
 		uint16_t i_pid = ((uint16_t)(sg_share_buf[1] & 0x1f) << 8) + sg_share_buf[2];
@@ -222,15 +211,8 @@ int dvbSI_Dec_PAT(uv_pat_data *p_pat_data, uv_pat_pid_data *p_pid_data, uint16_t
 		}
 		//b_ok = ReadPacket(i_fd, sg_share_buf);
 		b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,0);
-		if(188 != fwrite(sg_share_buf, 1, 188, fp))
-		{
-			dbg_prt("err_write_02\n");
-		}
 		i++;
-		dbg_prt("pat_write_%d\n",i);
-
 	}
-	fclose(fp);
 
 	dvbpsi_DetachPAT(h_dvbpsi);
 	
@@ -291,7 +273,6 @@ int dvbSI_Dec_PMT(uv_pmt_data *p_pmt_data, uv_pmt_es_data *p_pmt_es_data, uint16
 {
 	int ret = 0;
 	int i=0;
-	FILE* fp;
 	dvbpsi_handle h_dvbpsi;
 	int b_ok;
 	uint16_t i_program_number, i_pmt_pid;
@@ -322,28 +303,7 @@ int dvbSI_Dec_PMT(uv_pmt_data *p_pmt_data, uv_pmt_es_data *p_pmt_es_data, uint16
 		param.type = 1;
 	}
 
-
-	fp=fopen("./PMT_test.ts","a");
-	if(fp==NULL)	
-		printf("err_fopen");
-	else printf("ok_fopen");
-
-	//return 0;
-   	
-
 	b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,1);
-#if 1
-	if(b_ok)
-	{
-		if(188 != fwrite(sg_share_buf, 1, 188, fp))
-		{
-			dbg_prt("err_write\n");
-		}
-		dbg_prt("pmt_write_%d\n",i);
-	}
-
-	printf("b_ok=%d\n",b_ok);
-#endif
 	while(b_ok)
 	{
 #if 1
@@ -368,18 +328,7 @@ int dvbSI_Dec_PMT(uv_pmt_data *p_pmt_data, uv_pmt_es_data *p_pmt_es_data, uint16
 		//b_ok = ReadPacket(i_fd, data);
 #endif
 		b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,0);
-		if(b_ok)
-		{
-			i++;
-			if(188 != fwrite(sg_share_buf, 1, 188, fp))
-			{
-				dbg_prt("err_write\n");
-			}
-			dbg_prt("pmt_write_%d\n",i);
-		}
-		//break;
 	}
-	fclose(fp);
 
 	dvbpsi_DetachPMT(h_dvbpsi);
 	
