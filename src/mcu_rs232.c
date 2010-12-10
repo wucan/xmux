@@ -179,17 +179,15 @@ static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 		{
 			int nlen;
 			uint16_t ts_status;
-			CHN_TS_T chnts;
-
-			chnts.ts = 0;
+			uint8_t ts_status_u8 = 0;
 
 			if (hfpga_get_ts_status(0, &ts_status) >= 0)
-				chnts.ts = (uint8_t) ts_status;
-			cmd_header->len = sizeof(CHN_TS_T);
+				ts_status_u8 = (uint8_t)ts_status;
+			cmd_header->len = 1;
 			nlen = cmd_header->len + sizeof(struct fp_cmd_header);
 			*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
 			mcu_arm_head_t_to_buf(cmd_header, resp_msg_buf);
-			memcpy(resp_msg_buf + sizeof(struct fp_cmd_header), &chnts, cmd_header->len);
+			memcpy(resp_msg_buf + sizeof(struct fp_cmd_header), &ts_status_u8, cmd_header->len);
 			*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
 			return 1;
 		}

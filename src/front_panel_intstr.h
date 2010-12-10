@@ -49,10 +49,6 @@ typedef struct {
 	uint8_t num[CHANNEL_MAX_NUM];
 } __attribute__ ((__packed__)) CHN_NUM_T;
 
-typedef struct {
-	uint8_t ts;
-} __attribute__ ((__packed__)) CHN_TS_T;
-
 extern PROG_INFO_T g_prog_info_table[];
 extern CHN_NUM_T g_chan_num;
 
