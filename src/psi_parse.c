@@ -239,6 +239,7 @@ static int parse_nit()
 int uvSI_psi_parse()
 {
 	int i, k;
+	int rc;
 	uint16_t ts_status;
 
 	for (k = 0; k < CHANNEL_MAX_NUM; k++) {
@@ -257,23 +258,35 @@ int uvSI_psi_parse()
 		dvbSI_Start(&hfpga_dev);
 
 		printf("[uvSI] decode PAT ...\n");
-		parse_pat();
+		rc = parse_pat();
+		if (rc)
+			goto channel_analyse_done;
 
 		printf("[uvSI] decode PMT ...\n");
-		parse_pmt();
+		rc = parse_pmt();
+		if (rc)
+			goto channel_analyse_done;
 
 		printf("[uvSI] decode CAT ...\n");
-		parse_cat();
+		rc = parse_cat();
+		if (rc)
+			goto channel_analyse_done;
 
 		printf("[uvSI] decode SDT ...\n");
-		parse_sdt();
+		rc = parse_sdt();
+		if (rc)
+			goto channel_analyse_done;
 
 		printf("[uvSI] decode NIT ...\n");
-		parse_nit();
-
-		dvbSI_Stop();
+		rc = parse_nit();
+		if (rc)
+			goto channel_analyse_done;
 
 		sg_si_param.cur_stat->ch_s |= 0x01 << k;
+
+channel_analyse_done:
+		dvbSI_Stop();
+
 		printf("[uvSI] channel %d psi parse finished.", sg_si_param.cha + 1);
 	}
 
