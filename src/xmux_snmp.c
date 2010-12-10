@@ -11,6 +11,7 @@
 #include "gen_dvb_si.h"
 #include "hfpga.h"
 #include "pid_map_table.h"
+#include "xmux_snmp_intstr.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
@@ -29,14 +30,13 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 #define INPUT_TRANS_INFO_SIZE		1082
 #define LOAD_INFO_SIZE				34
 #define HEART_DEVICE_SIZE			4
-#define IP_INFO_SIZE				22
 #define USER_INFO_SIZE				6
 
 static uint8_t sg_mib_trans[PID_TRANS_SIZE];
 static uint8_t sg_mib_loadinfo[LOAD_INFO_SIZE];
 static uint8_t sg_mib_heartDevice[HEART_DEVICE_SIZE];
 static uint8_t sg_mib_Inptu_Trans_info[INPUT_TRANS_INFO_NUM][INPUT_TRANS_INFO_SIZE];
-static uint8_t sg_mib_IP_info[IP_INFO_SIZE];
+static struct ip_info_snmp_data sg_mib_IP_info;
 static uint8_t sg_mib_User_info[USER_INFO_SIZE];
 
 
@@ -230,13 +230,13 @@ static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int net_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	v->size = IP_INFO_SIZE;
-	v->data = sg_mib_IP_info;
+	v->data = &sg_mib_IP_info;
 
 	return 0;
 }
 static int net_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	memcpy(sg_mib_IP_info, v->data, v->size);
+	memcpy(&sg_mib_IP_info, v->data, v->size);
 
 	return 0;
 }
