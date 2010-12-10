@@ -50,3 +50,14 @@ void xmux_config_update_output_bitrate(uint32_t bitrate)
 	g_xmux_root_param.sys.output_bitrate = bitrate;
 }
 
+void xmux_config_save_management_mode()
+{
+	uint8_t byte;
+	switch (management_mode) {
+		case MANAGEMENT_MODE_SNMP: byte = 0x55; break;
+		case MANAGEMENT_MODE_FP: byte = 0xAA; break;
+		default: return; break;
+	}
+	eeprom_write(0xFFFF, &byte, 1);
+}
+
