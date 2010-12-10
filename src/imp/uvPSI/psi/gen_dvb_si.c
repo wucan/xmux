@@ -340,6 +340,12 @@ int dvbSI_Dec_PMT(uv_pmt_data *p_pmt_data, uv_pmt_es_data *p_pmt_es_data, uint16
 		//b_ok = ReadPacket(i_fd, data);
 #endif
 		b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,0);
+
+		/* check timeouted of parsing */
+		if (TimeoutChecker()) {
+			ret = -ETIMEDOUT;
+			break;
+		}
 	}
 
 	dvbpsi_DetachPMT(h_dvbpsi);
@@ -450,6 +456,12 @@ int dvbSI_Dec_SDT(uv_sdt_data *p_sdt_data, uv_sdt_serv_data *p_sdt_serv_data, ui
 		}
 		//b_ok = ReadPacket(i_fd, sg_share_buf);
 		b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,0);
+
+		/* check timeouted of parsing */
+		if (TimeoutChecker()) {
+			ret = -ETIMEDOUT;
+			break;
+		}
 	}
 
 	dvbpsi_DetachDemux(h_dvbpsi);
@@ -544,6 +556,12 @@ int dvbSI_Dec_CAT(uv_descriptor *p_descr, uint16_t *p_descr_num)
 		}
 		//b_ok = ReadPacket(i_fd, sg_share_buf);
 		b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,0);
+
+		/* check timeouted of parsing */
+		if (TimeoutChecker()) {
+			ret = -ETIMEDOUT;
+			break;
+		}
 	}
 
 	dvbpsi_DetachCAT(h_dvbpsi);
@@ -656,6 +674,12 @@ int dvbSI_Dec_NIT(uv_nit_data *p_nit_data, uv_nit_stream_data *p_stream_data, ui
 		}
 		//b_ok = ReadPacket(i_fd, sg_share_buf);
 		b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,0);
+
+		/* check timeouted of parsing */
+		if (TimeoutChecker()) {
+			ret = -ETIMEDOUT;
+			break;
+		}
 	}
 
 	dvbpsi_DetachNIT(h_dvbpsi);
@@ -763,6 +787,12 @@ int dvbSI_Dec_EIT(uv_eit_data *p_eit_data, uv_eit_event_data *p_event_data,  uin
 		}
 		//b_ok = ReadPacket(i_fd, sg_share_buf);
 		b_ok = dvb_io_dev.read(sg_share_buf, 188, &param,0);
+
+		/* check timeouted of parsing */
+		if (TimeoutChecker()) {
+			ret = -ETIMEDOUT;
+			break;
+		}
 	}
 
 	dvbpsi_DetachEIT(h_dvbpsi);
