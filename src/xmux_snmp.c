@@ -6,6 +6,8 @@
 
 #include "psi_parse.h"
 #include "gen_dvb_si.h"
+#include "hfpga.h"
+#include "pid_map_table.h"
 
 
 #define OID_CHAN_IDX				6
@@ -213,6 +215,7 @@ static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(sg_mib_trans, v->data, v->size);
 	eeprom_write(sg_mib_trans, PID_TRANS_SIZE, TRAN_PID_OFFSET);
+	pid_map_table_apply(sg_mib_trans + 7, 1024);
 
 	return 0;
 }
