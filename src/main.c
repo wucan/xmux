@@ -13,6 +13,8 @@
 
 int management_mode = MANAGEMENT_MODE_SNMP;
 
+static void restore_work_field();
+
 int main(int argc, char **argv)
 {
 	printf("xmux %s\n", XMUX_VERSION_STR);
@@ -21,6 +23,11 @@ int main(int argc, char **argv)
 
 	xmux_config_init();
 	xmux_config_load_from_eeprom();
+
+	/*
+	 * restore all system to work again!
+	 */
+	restore_work_field();
 
 	front_panel_open();
 	psi_worker_open();
@@ -47,4 +54,8 @@ int main(int argc, char **argv)
 	exit(EXIT_SUCCESS);
 }
 
+static void restore_work_field()
+{
+	/* TODO */
+}
 
