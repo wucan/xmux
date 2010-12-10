@@ -165,7 +165,7 @@ static int parse_pmt()
 		memcpy(&len, sg_mib_curpmt, 2);
 		printf("[uvSI] pmt pid %#x, got section, len %d\n",
 			pmt.i_pmt_pid, len);
-		memcpy(sg_mib_pmt[sg_si_param.cha][i - cnt], sg_mib_curpmt, len);
+		memcpy(sg_mib_pmt[sg_si_param.cha][i - cnt], sg_mib_curpmt, len + 2);
 	}
 
 	return 0;
