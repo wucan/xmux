@@ -180,7 +180,7 @@ static int parse_nit()
 int uvSI_psi_parse()
 {
 	int i, k;
-	unsigned char ts_status;
+	uint16_t ts_status;
 
 	for (k = 0; k < CHANNEL_MAX_NUM; k++) {
 		if (hfpga_get_ts_status(k, &ts_status) <= 0) {
