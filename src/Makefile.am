@@ -51,6 +51,8 @@ xmux_SOURCES = \
 	xmux_snmp.c \
 	wu_snmp_agent.c \
 	xmux.c \
+	up_sys.c \
+	net.c \
 	$(NULL_FILE)
 
 SUBDIRS = imp psisi libwu

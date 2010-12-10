@@ -42,6 +42,15 @@
 
 #define HAD_SNMPAGENT				1
 
+/*
+ * uCbootstrap, we use it to set and get bootrom env
+ */
+#ifdef _UCLINUX_
+	#define HAD_UCBOOTSTRAP		1
+#else
+	#define HAD_UCBOOTSTRAP		0
+#endif
+
 
 #endif /* _UP_CONFIG_H_ */
 
