@@ -1,10 +1,15 @@
 #include "wu/wu_base_type.h"
+#include "wu/message.h"
 #include "wu/thread.h"
 #include "wu/wu_errno.h"
 #include "wu/message_queue.h"
 #include "psi_worker.h"
 #include "psi_parse.h"
 
+
+static msgobj mo = {MSG_INFO, ENCOLOR, "psi_worker"};
+
+int psi_parsing_active_manager = -1;
 
 enum {
 	PSI_WORKER_MB_TYPE_BASE = 0x1000,
@@ -48,7 +53,12 @@ static int psi_worker_thread(void *data)
 		mb = message_queue_get_message_block(psi_worker_mq, MQ_WAIT_FOREVER);
 		switch (mb->type) {
 			case PSI_WORKER_MB_TYPE_PARSE_PSI:
-				psi_parsing();
+				if (psi_parsing_active_manager == MANAGEMENT_MODE_FP) {
+					psi_parsing();
+				} else {
+					uvSI_psi_parse();
+				}
+				psi_parsing_active_manager = -1;
 				break;
 			case MB_TYPE_QUIT:
 				psi_worker_thread_quit = true;
@@ -77,14 +87,21 @@ int psi_worker_run()
  * request psi worker to do psi parsing
  * return error if it's busy or it's not the time to performance parseing.
  */
-int psi_worker_request_parse_psi(int chan_mask, void (*parse_done)(void *))
+int psi_worker_request_parse_psi(int chan_mask, void (*parse_done)(void *),
+		int request_manager)
 {
 	MessageBlock *mb;
+
+	if (psi_parsing_active_manager != -1) {
+		trace_info("psi parsing busy!");
+		return -1;
+	}
 
 	mb = message_block_new(NULL);
 	if (!mb) {
 		return -ENOMEM;
 	}
+	psi_parsing_active_manager = request_manager;
 	mb->type = PSI_WORKER_MB_TYPE_PARSE_PSI;
 	message_queue_put_message_block(psi_worker_mq, mb);
 

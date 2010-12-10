@@ -6,7 +6,8 @@ int psi_worker_open();
 int psi_worker_close();
 int psi_worker_run();
 
-int psi_worker_request_parse_psi(int chan_mask, void (*parse_done)(void *));
+int psi_worker_request_parse_psi(int chan_mask, void (*parse_done)(void *),
+		int request_manager);
 int psi_worker_request_download_psi(int chid, void *psi_data, int len);
 
 void psi_worker_stop_parse_psi();

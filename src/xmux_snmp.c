@@ -6,6 +6,7 @@
 
 #include "wu_snmp_agent.h"
 
+#include "psi_worker.h"
 #include "psi_parse.h"
 #include "gen_dvb_si.h"
 #include "hfpga.h"
@@ -276,13 +277,12 @@ static int start_parse_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *
 	}
 	memcpy(&oper, v->data, v->size);
 	switch (oper) {
+		case 0x3131: // for my test case
 		case 0x55AA:
 			parse_psi_status++;
-			/*
-			 * FIXME: request run it in psi_worker thread!
-			 */
-			uvSI_psi_parse();
+			psi_worker_request_parse_psi(0, NULL, MANAGEMENT_MODE_SNMP);
 			break;
+		case 0x3030: // for my test case
 		case 0x0000:
 			uvSI_psi_parse_stop();
 			break;
