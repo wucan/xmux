@@ -30,7 +30,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 #define LOAD_INFO_SIZE				34
 #define HEART_DEVICE_SIZE			4
 #define IP_INFO_SIZE				22
-#define USER_INFO_SIZE				32
+#define USER_INFO_SIZE				6
 
 static uint8_t sg_mib_trans[PID_TRANS_SIZE];
 static uint8_t sg_mib_loadinfo[LOAD_INFO_SIZE];
