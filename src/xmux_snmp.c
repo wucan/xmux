@@ -2,6 +2,8 @@
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
+#include "wu/message.h"
+
 #include "wu_snmp_agent.h"
 
 #include "psi_parse.h"
@@ -9,6 +11,8 @@
 #include "hfpga.h"
 #include "pid_map_table.h"
 
+
+static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 
 #define OID_CHAN_IDX				6
 #define OID_CHAN_PMT_PROG_IDX		8
@@ -264,11 +268,29 @@ static int start_parse_psi_get(struct wu_oid_object *obj, struct wu_snmp_value *
 }
 static int start_parse_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	parse_psi_status++;
-	/*
-	 * FIXME: request run it in psi_worker thread!
-	 */
-	uvSI_psi_parse();
+	uint16_t oper;
+
+	if (v->size != 2) {
+		trace_err("start parse psi want 2 bytes data, but got %d!", v->size);
+		return -1;
+	}
+	memcpy(&oper, v->data, v->size);
+	switch (oper) {
+		case 0x55AA:
+			parse_psi_status++;
+			/*
+			 * FIXME: request run it in psi_worker thread!
+			 */
+			uvSI_psi_parse();
+			break;
+		case 0x0000:
+			uvSI_psi_parse_stop();
+			break;
+		default:
+			trace_err("unknow start parse psi oper %#x!", oper);
+			return -1;
+			break;
+	}
 
 	return 0;
 }
@@ -372,7 +394,7 @@ static struct wu_oid_object solo_oid_objs[] = {
 	// START PARSE PSI
 	{"START_PARSE_PSI", {XMUX_ROOT_OID, 15}, 7,
 	 0, OID_STATUS_RWRITE,
-	 start_parse_psi_get, start_parse_psi_set, 1,
+	 start_parse_psi_get, start_parse_psi_set, 2,
 	},
 	// PSI STATUS
 	{"PSI_STATUS", {XMUX_ROOT_OID, 16}, 7,

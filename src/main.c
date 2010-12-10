@@ -57,5 +57,6 @@ int main(int argc, char **argv)
 static void restore_work_field()
 {
 	/* TODO */
+	/* download psi and pid map table */
 }
 

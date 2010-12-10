@@ -293,3 +293,8 @@ channel_analyse_done:
 	return 0;
 }
 
+void uvSI_psi_parse_stop()
+{
+	// TODO
+}
+
