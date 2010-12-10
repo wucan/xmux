@@ -17,6 +17,7 @@ extern int openport();
 static Thread *fp_thr;
 static bool fp_thread_quit;
 static int fd;
+static time_t fp_access_time;
 
 int front_panel_open()
 {
@@ -58,11 +59,21 @@ static int fp_thread(void *data)
 	while (!fp_thread_quit) {
 		FD_ZERO(&rset);
 		FD_SET(fd, &rset);
-		tv.tv_sec = 10;
+		tv.tv_sec = 1;
 		tv.tv_usec = 0;
 
 		rc = select(fd + 1, &rset, NULL, NULL, &tv);
 		if (rc <= 0) {
+			if (management_mode == MANAGEMENT_MODE_FP) {
+				/*
+				 * switch to snmp mode when fp idle for at least 5 seconds
+				 */
+				time_t now = time(NULL);
+				if (now - fp_access_time >= 5) {
+					trace_info("swtich to snmp management mode");
+					management_mode = MANAGEMENT_MODE_SNMP;
+				}
+			}
 			continue;
 		} else if (FD_ISSET(fd, &rset)) {
 			int i;
@@ -82,6 +93,14 @@ static int fp_thread(void *data)
 						if (cmd_len > FP_RECV_MSG_MAX_SIZE)
 							break;
 						if (nlen >= cmd_len) {
+							fp_access_time = time(NULL);
+							/*
+							 * local user had something to do, order to him
+							 */
+							if (management_mode == MANAGEMENT_MODE_SNMP) {
+								trace_info("swtich to fp management mode");
+								management_mode = MANAGEMENT_MODE_FP;
+							}
 							parse_mcu_cmd(fd, recv_buf);
 							break;
 						} else
