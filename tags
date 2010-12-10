@@ -1,0 +1,146 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ENUMS_MAX_CNT	libsnmpagent/oid_mib_load.c	10;"	d	file:
+HANDLER_CAN_SET_ONLY	libsnmpagent/snmp_data_oidops.c	26;"	d	file:
+NET_SNMP_HEAD	libsnmpagent/snmp_agent.c	6;"	d	file:
+NET_SNMP_HEAD	libsnmpagent/snmp_agent_entry.c	6;"	d	file:
+NET_SNMP_HEAD	libsnmpagent/snmp_agent_register.c	4;"	d	file:
+NET_SNMP_HEAD	libsnmpagent/snmp_data_oidops.c	8;"	d	file:
+NODE_SIZE	libsnmpagent/up_mib.c	14;"	d	file:
+RANGES_MAX_CNT	libsnmpagent/oid_mib_load.c	11;"	d	file:
+SNMPAgentDebugLevel_get	libsnmpagent/snmp_agent.c	/^int SNMPAgentDebugLevel_get (OIDOps *oidops, ValueUnion *vu)$/;"	f
+SNMPAgentDebugLevel_set	libsnmpagent/snmp_agent.c	/^int SNMPAgentDebugLevel_set (OIDOps *oidops, ValueUnion *vu)$/;"	f
+SNMPAgentInit	libsnmpagent/snmp_agent_entry.c	/^BOOL SNMPAgentInit (const char *inst_name)$/;"	f
+SNMPAgentInitTrap	libsnmpagent/snmp_agent_entry.c	/^BOOL SNMPAgentInitTrap (IPAddress ip)$/;"	f
+SNMPAgentSendTrap	libsnmpagent/snmp_agent_entry.c	/^void SNMPAgentSendTrap (oid_t *o, int oidlen,$/;"	f
+SNMPAgentShutdown	libsnmpagent/snmp_agent_entry.c	/^void SNMPAgentShutdown ()$/;"	f
+SNMPAgentStartup	libsnmpagent/snmp_agent_entry.c	/^BOOL SNMPAgentStartup ()$/;"	f
+SNMPDebugLevel_get	libsnmpagent/snmp_agent_entry.c	/^int SNMPDebugLevel_get (OIDOps *oidops, ValueUnion *vu)$/;"	f
+SNMPDebugLevel_set	libsnmpagent/snmp_agent_entry.c	/^int SNMPDebugLevel_set (OIDOps *oidops, ValueUnion *vu)$/;"	f
+XMUX_VERSION_STR	src/main.c	14;"	d	file:
+_UPMIB	libsnmpagent/up_mib.c	/^struct _UPMIB {$/;"	s	file:
+agent_inst_name	libsnmpagent/snmp_agent_entry.c	/^const char *agent_inst_name = "UP";$/;"	v
+agentx_subagent	libsnmpagent/snmp_agent.c	/^int agentx_subagent = 0;  \/* Change this if you're a master agent. *\/$/;"	v
+cnt	libsnmpagent/up_mib.c	/^	int cnt;$/;"	m	struct:_UPMIB	file:
+datasize	libsnmpagent/snmp_agent_register.c	/^static int datasize;$/;"	v	file:
+enums	libsnmpagent/oid_mib_load.c	/^static struct enum_list enums[ENUMS_MAX_CNT];$/;"	v	typeref:struct:enum_list	file:
+fill_enums	libsnmpagent/oid_mib_load.c	/^static int fill_enums (OIDOps *oidops, unsigned char **data)$/;"	f	file:
+fill_ranges	libsnmpagent/oid_mib_load.c	/^static int fill_ranges (OIDOps *oidops, unsigned char **data)$/;"	f	file:
+find_mib_info	libsnmpagent/oid_mib_load.c	/^static unsigned char * find_mib_info (oid_t *oid, int oidlen)$/;"	f	file:
+fp_dict_get_trans	libsnmpagent/up_mib_wrap.c	/^const char * fp_dict_get_trans(const char *word)$/;"	f
+gd_upmib	libsnmpagent/snmp_agent_entry.c	/^UPMIB *gd_upmib;$/;"	v
+handle_sigpipe	libsnmpagent/snmp_agent.c	/^static void handle_sigpipe (int signo)$/;"	f	file:
+lock	libsnmpagent/up_mib.c	/^	Lock lock;$/;"	m	struct:_UPMIB	file:
+main	src/main.c	/^int main(int argc, char **argv)$/;"	f
+management_mode	src/main.c	/^int management_mode = MANAGEMENT_MODE_SNMP;$/;"	v
+mib_buf	libsnmpagent/oid_mib_load.c	/^static unsigned char *mib_buf, *oid_buf;$/;"	v	file:
+mib_tree_head	libsnmpagent/snmp_data_oidops.c	/^static WuTreeNode *mib_tree_head;$/;"	v	file:
+mo	libsnmpagent/oid_mib_load.c	/^static msgobj mo;$/;"	v	file:
+mo	libsnmpagent/snmp_agent.c	/^static msgobj mo;$/;"	v	file:
+mo	libsnmpagent/snmp_agent_entry.c	/^static msgobj mo;$/;"	v	file:
+mo	libsnmpagent/snmp_agent_register.c	/^static msgobj mo;$/;"	v	file:
+mo	libsnmpagent/snmp_data_oidops.c	/^static msgobj mo;$/;"	v	file:
+mo	libsnmpagent/up_mib.c	/^static msgobj mo;$/;"	v	file:
+name	libsnmpagent/up_mib.c	/^	char *name;$/;"	m	struct:_UPMIB	file:
+next_enum_idx	libsnmpagent/oid_mib_load.c	/^static int next_enum_idx;$/;"	v	file:
+next_range_idx	libsnmpagent/oid_mib_load.c	/^static int next_range_idx;$/;"	v	file:
+oid_buf	libsnmpagent/oid_mib_load.c	/^static unsigned char *mib_buf, *oid_buf;$/;"	v	file:
+oid_cnt	libsnmpagent/oid_mib_load.c	/^static int oid_cnt;$/;"	v	file:
+oid_dump	libsnmpagent/up_mib.c	/^void oid_dump (oid_t *oid, int oidlen)$/;"	f
+oid_dump_mo	libsnmpagent/up_mib.c	/^void oid_dump_mo (oid_t *oid, int oidlen, msgobj *mo)$/;"	f
+oid_mib_dump_info	libsnmpagent/oid_mib_load.c	/^void oid_mib_dump_info ()$/;"	f
+oid_mib_load_from_file	libsnmpagent/oid_mib_load.c	/^int oid_mib_load_from_file ()$/;"	f
+oid_tree	libsnmpagent/up_mib.c	/^	WuTree *oid_tree;$/;"	m	struct:_UPMIB	file:
+oidops_dump	libsnmpagent/up_mib.c	/^void oidops_dump (OIDOps *oidops)$/;"	f
+oidops_dump_mo	libsnmpagent/up_mib.c	/^void oidops_dump_mo (OIDOps *oidops, msgobj *mo)$/;"	f
+oidops_get	libsnmpagent/up_mib.c	/^int oidops_get (OIDOps *oidops, ValueUnion *vu)$/;"	f
+oidops_load_oid_mib	libsnmpagent/oid_mib_load.c	/^int oidops_load_oid_mib (OIDOps *oidops)$/;"	f
+oidops_set	libsnmpagent/up_mib.c	/^int oidops_set (OIDOps *oidops, ValueUnion *vu)$/;"	f
+parse_and_fill_oidops	libsnmpagent/oid_mib_load.c	/^parse_and_fill_oidops (OIDOps *oidops, unsigned char *mibinfo)$/;"	f	file:
+pdata	libsnmpagent/snmp_agent_register.c	/^static unsigned char *pdata;$/;"	v	file:
+process_get_data	libsnmpagent/snmp_agent_entry.c	/^int process_get_data (oid *o, int olen, int type, unsigned char **pdata, int *datasize)$/;"	f
+process_set_data	libsnmpagent/snmp_agent_entry.c	/^int process_set_data (oid *o, int olen, int type, unsigned char *pdata, int datasize)$/;"	f
+quit	libsnmpagent/snmp_agent_entry.c	/^static BOOL quit;$/;"	v	file:
+ranges	libsnmpagent/oid_mib_load.c	/^static struct range_list ranges[RANGES_MAX_CNT];$/;"	v	typeref:struct:range_list	file:
+reg_func	libsnmpagent/up_mib.c	/^	OIDOpsRegisterFunc reg_func;$/;"	m	struct:_UPMIB	file:
+restart	libsnmpagent/snmp_agent.c	/^static int restart;$/;"	v	file:
+root_none_leaf_oidops_register	libsnmpagent/none_leaf_oidops.c	/^int root_none_leaf_oidops_register ()$/;"	f
+root_oid	libsnmpagent/up_mib.c	/^	oid_t root_oid[OID_MAX_SIZE];$/;"	m	struct:_UPMIB	file:
+root_oidlen	libsnmpagent/up_mib.c	/^	int root_oidlen;$/;"	m	struct:_UPMIB	file:
+root_oidops	libsnmpagent/none_leaf_oidops.c	/^static OIDOps root_oidops[] = {$/;"	v	file:
+root_tree_node	libsnmpagent/up_mib.c	/^	WuTreeNode *root_tree_node;$/;"	m	struct:_UPMIB	file:
+sa_thread	libsnmpagent/snmp_agent_entry.c	/^static int sa_thread (void *data)$/;"	f	file:
+snmp_agent_init	libsnmpagent/snmp_agent.c	/^int snmp_agent_init ()$/;"	f
+snmp_agent_ipaddr_handler	libsnmpagent/snmp_agent_register.c	/^snmp_agent_ipaddr_handler (netsnmp_mib_handler *handler,$/;"	f	file:
+snmp_agent_main	libsnmpagent/snmp_agent.c	/^int snmp_agent_main ()$/;"	f
+snmp_agent_opaque_handler	libsnmpagent/snmp_agent_register.c	/^snmp_agent_opaque_handler (netsnmp_mib_handler *handler,$/;"	f	file:
+snmp_agent_opaque_handler	src/main.c	/^snmp_agent_opaque_handler (netsnmp_mib_handler *handler,$/;"	f	file:
+snmp_agent_register_init	libsnmpagent/snmp_agent_register.c	/^void snmp_agent_register_init ()$/;"	f
+snmp_agent_register_ipaddr	libsnmpagent/snmp_agent_register.c	/^int snmp_agent_register_ipaddr (oid_t *oid, int oidlen, int mode)$/;"	f
+snmp_agent_register_oid	libsnmpagent/snmp_agent_register.c	/^int snmp_agent_register_oid (oid_t *oid, int oidlen, int type, int mode)$/;"	f
+snmp_agent_register_oidops_hack	libsnmpagent/snmp_agent_entry.c	/^int snmp_agent_register_oidops_hack (OIDOps *oidops)$/;"	f
+snmp_agent_register_opaque	libsnmpagent/snmp_agent_register.c	/^int snmp_agent_register_opaque (oid_t *oid, int oidlen, int mode)$/;"	f
+snmp_agent_register_opaque_x	src/main.c	/^int snmp_agent_register_opaque_x (oid_t *oid, int oidlen, int mode)$/;"	f
+snmp_agent_register_scalar	libsnmpagent/snmp_agent_register.c	/^static int snmp_agent_register_scalar (oid_t *oid, int oidlen, int mode)$/;"	f	file:
+snmp_agent_register_set_debug_level	libsnmpagent/snmp_agent_register.c	/^void snmp_agent_register_set_debug_level (int verbose)$/;"	f
+snmp_agent_register_string	libsnmpagent/snmp_agent_register.c	/^int snmp_agent_register_string (oid_t *oid, int oidlen, int mode)$/;"	f
+snmp_agent_register_timeticks	libsnmpagent/snmp_agent_register.c	/^static int snmp_agent_register_timeticks (oid_t *oid, int oidlen, int mode)$/;"	f	file:
+snmp_agent_register_unsigned32	libsnmpagent/snmp_agent_register.c	/^static int snmp_agent_register_unsigned32 (oid_t *oid, int oidlen, int mode)$/;"	f	file:
+snmp_agent_scalar_handler	libsnmpagent/snmp_agent_register.c	/^snmp_agent_scalar_handler (netsnmp_mib_handler *handler,$/;"	f	file:
+snmp_agent_startup	libsnmpagent/snmp_agent.c	/^void snmp_agent_startup ()$/;"	f
+snmp_agent_string_handler	libsnmpagent/snmp_agent_register.c	/^snmp_agent_string_handler (netsnmp_mib_handler *handler,$/;"	f	file:
+snmp_agent_timeticks_handler	libsnmpagent/snmp_agent_register.c	/^snmp_agent_timeticks_handler (netsnmp_mib_handler *handler,$/;"	f	file:
+snmp_agent_unsigned32_handler	libsnmpagent/snmp_agent_register.c	/^snmp_agent_unsigned32_handler (netsnmp_mib_handler *handler,$/;"	f	file:
+snmp_data_can_goto_next_node	libsnmpagent/snmp_data_oidops.c	/^BOOL snmp_data_can_goto_next_node (snmp_data_tree *pcur)$/;"	f
+snmp_data_can_goto_parent_node	libsnmpagent/snmp_data_oidops.c	/^BOOL snmp_data_can_goto_parent_node (snmp_data_tree *pcur)$/;"	f
+snmp_data_can_goto_prev_node	libsnmpagent/snmp_data_oidops.c	/^BOOL snmp_data_can_goto_prev_node (snmp_data_tree *pcur)$/;"	f
+snmp_data_can_goto_son_node	libsnmpagent/snmp_data_oidops.c	/^BOOL snmp_data_can_goto_son_node (snmp_data_tree *pcur)$/;"	f
+snmp_data_check_integer	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_check_integer (oid_t *oid, int oidlen, long *integer)$/;"	f
+snmp_data_editable	libsnmpagent/snmp_data_oidops.c	/^BOOL snmp_data_editable (snmp_data_tree *pcur)$/;"	f
+snmp_data_fix_oidops	libsnmpagent/snmp_data_oidops.c	/^void snmp_data_fix_oidops (snmp_data_tree *pcur, OIDOps *oidops)$/;"	f
+snmp_data_get_cur_type_and_handler_mode	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_get_cur_type_and_handler_mode (snmp_data_tree *pcur,$/;"	f
+snmp_data_get_first_tree	libsnmpagent/snmp_data_oidops.c	/^snmp_data_tree snmp_data_get_first_tree ()$/;"	f
+snmp_data_get_node	libsnmpagent/snmp_data_oidops.c	/^snmp_data_tree snmp_data_get_node (oid_t *oid, int oidlen)$/;"	f
+snmp_data_get_node_enum_list	libsnmpagent/snmp_data_oidops.c	/^struct enum_list * snmp_data_get_node_enum_list (snmp_data_tree *pcur)$/;"	f
+snmp_data_get_node_handler_mode	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_get_node_handler_mode (oid_t *oid, int oidlen)$/;"	f
+snmp_data_get_node_hint	libsnmpagent/snmp_data_oidops.c	/^char * snmp_data_get_node_hint (snmp_data_tree *pcur)$/;"	f
+snmp_data_get_node_oid	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_get_node_oid (snmp_data_tree *pcur, oid_t *oid)$/;"	f
+snmp_data_get_node_oper_type	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_get_node_oper_type (snmp_data_tree *pcur)$/;"	f
+snmp_data_get_node_range_list	libsnmpagent/snmp_data_oidops.c	/^struct range_list * snmp_data_get_node_range_list (snmp_data_tree *pcur)$/;"	f
+snmp_data_get_node_string_array	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_get_node_string_array (snmp_data_tree *pcur,$/;"	f
+snmp_data_get_node_type_and_handler_mode	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_get_node_type_and_handler_mode (oid_t *oid, int oidlen,$/;"	f
+snmp_data_get_node_units	libsnmpagent/snmp_data_oidops.c	/^char * snmp_data_get_node_units (snmp_data_tree *pcur)$/;"	f
+snmp_data_get_octstr_size	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_get_octstr_size (snmp_data_tree *pcur)$/;"	f
+snmp_data_goto_next_node	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_goto_next_node (snmp_data_tree *pcur)$/;"	f
+snmp_data_goto_parent_node	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_goto_parent_node (snmp_data_tree *pcur)$/;"	f
+snmp_data_goto_prev_node	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_goto_prev_node (snmp_data_tree *pcur)$/;"	f
+snmp_data_goto_son_node	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_goto_son_node (snmp_data_tree *pcur)$/;"	f
+snmp_data_load_mib	libsnmpagent/snmp_data_oidops.c	/^int snmp_data_load_mib ()$/;"	f
+snmp_data_load_mib_fix	libsnmpagent/snmp_data_oidops.c	/^void snmp_data_load_mib_fix ()$/;"	f
+snmp_data_set_debug_level	libsnmpagent/snmp_data_oidops.c	/^void snmp_data_set_debug_level (int verbose)$/;"	f
+snmp_data_shutdown	libsnmpagent/snmp_data_oidops.c	/^void snmp_data_shutdown ()$/;"	f
+test_snmp	src/main.c	/^static void test_snmp()$/;"	f	file:
+thr_snmp_agent	libsnmpagent/snmp_agent_entry.c	/^static Thread *thr_snmp_agent;$/;"	v	file:
+tree_accessable	libsnmpagent/snmp_data_oidops.c	/^static BOOL tree_accessable (WuTreeNode *t)$/;"	f	file:
+up_mib_destroy	libsnmpagent/up_mib.c	/^void up_mib_destroy (UPMIB *upmib)$/;"	f
+up_mib_dump_info	libsnmpagent/up_mib.c	/^void up_mib_dump_info (UPMIB *upmib)$/;"	f
+up_mib_find_most_like	libsnmpagent/up_mib.c	/^OIDOps * up_mib_find_most_like (UPMIB *upmib, oid_t *oid, int oidlen)$/;"	f
+up_mib_find_node	libsnmpagent/up_mib.c	/^WuTreeNode * up_mib_find_node (UPMIB *upmib, oid_t *oid, int oidlen)$/;"	f
+up_mib_find_oidops	libsnmpagent/up_mib.c	/^OIDOps * up_mib_find_oidops (UPMIB *upmib, oid_t *oid, int oidlen)$/;"	f
+up_mib_get_node_count	libsnmpagent/up_mib.c	/^int up_mib_get_node_count (UPMIB *upmib)$/;"	f
+up_mib_get_root_tree_node	libsnmpagent/up_mib.c	/^WuTreeNode * up_mib_get_root_tree_node (UPMIB *upmib)$/;"	f
+up_mib_new	libsnmpagent/up_mib.c	/^UPMIB * up_mib_new (char *name, OIDOpsRegisterFunc reg_func)$/;"	f
+up_mib_oid_finder	libsnmpagent/up_mib.c	/^static int up_mib_oid_finder (void *node_data, void *data)$/;"	f	file:
+up_mib_oid_positioner	libsnmpagent/up_mib.c	/^static int up_mib_oid_positioner (WuTreeNode *prev, $/;"	f	file:
+up_mib_register_none_leaf_oidops	libsnmpagent/up_mib.c	/^int up_mib_register_none_leaf_oidops (UPMIB *upmib, OIDOps *oidops)$/;"	f
+up_mib_register_oidops	libsnmpagent/up_mib.c	/^int up_mib_register_oidops (UPMIB *upmib, OIDOps *oidops)$/;"	f
+up_mib_set_root_oid	libsnmpagent/up_mib.c	/^void up_mib_set_root_oid (UPMIB *upmib, oid_t *oid, int oidlen)$/;"	f
+up_mib_wrap_dump_info	libsnmpagent/up_mib_wrap.c	/^void up_mib_wrap_dump_info ()$/;"	f
+up_mib_wrap_find_oidops	libsnmpagent/up_mib_wrap.c	/^OIDOps * up_mib_wrap_find_oidops (oid_t *oid, int oidlen)$/;"	f
+up_mib_wrap_get_node_count	libsnmpagent/up_mib_wrap.c	/^int up_mib_wrap_get_node_count ()$/;"	f
+up_mib_wrap_register_oidops	libsnmpagent/up_mib_wrap.c	/^int up_mib_wrap_register_oidops (OIDOps *oidops)$/;"	f
+vendor_oid	libsnmpagent/snmp_agent_entry.c	/^static oid vendor_oid[] = {XMUX_ROOT_OID};$/;"	v	file:

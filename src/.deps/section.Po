@@ -1,0 +1,38 @@
+section.o: section.c /usr/include/string.h /usr/include/features.h \
+ /usr/include/bits/predefs.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-32.h \
+ /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h \
+ /usr/include/xlocale.h ../include/wu/wu_base_type.h \
+ imp/uvPSI/include/stdint.h ../include/up_type.h ../include/up_config.h \
+ ../include/mpegts.h ../include/wu/wu_base_type.h
+
+/usr/include/string.h:
+
+/usr/include/features.h:
+
+/usr/include/bits/predefs.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+/usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h:
+
+/usr/include/xlocale.h:
+
+../include/wu/wu_base_type.h:
+
+imp/uvPSI/include/stdint.h:
+
+../include/up_type.h:
+
+../include/up_config.h:
+
+../include/mpegts.h:
+
+../include/wu/wu_base_type.h:

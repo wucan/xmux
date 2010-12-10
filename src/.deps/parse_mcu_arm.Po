@@ -1,0 +1,45 @@
+parse_mcu_arm.o: parse_mcu_arm.c ../include/wu/wu_byte_stream.h \
+ /usr/include/string.h /usr/include/features.h \
+ /usr/include/bits/predefs.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-32.h \
+ /usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h \
+ /usr/include/xlocale.h imp/uvPSI/include/stdint.h front_panel_intstr.h \
+ ../include/xmux.h ../include/wu/wu_base_type.h ../include/up_type.h \
+ ../include/up_config.h ../include/mpegts.h front_panel_define.h
+
+../include/wu/wu_byte_stream.h:
+
+/usr/include/string.h:
+
+/usr/include/features.h:
+
+/usr/include/bits/predefs.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+/usr/lib/gcc/i686-linux-gnu/4.4.5/include/stddef.h:
+
+/usr/include/xlocale.h:
+
+imp/uvPSI/include/stdint.h:
+
+front_panel_intstr.h:
+
+../include/xmux.h:
+
+../include/wu/wu_base_type.h:
+
+../include/up_type.h:
+
+../include/up_config.h:
+
+../include/mpegts.h:
+
+front_panel_define.h:

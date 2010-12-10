@@ -1,0 +1,19 @@
+--- configure	2010-12-01 16:47:26.561091208 +0800
++++ configure.ok	2010-12-01 16:45:47.859433960 +0800
+@@ -3177,16 +3177,6 @@ else
+   ac_file=''
+ fi
+ if test -z "$ac_file"; then :
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+-$as_echo "$as_me: failed program was:" >&5
+-sed 's/^/| /' conftest.$ac_ext >&5
+-
+-{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error 77 "C compiler cannot create executables
+-See \`config.log' for more details" "$LINENO" 5 ; }
+-else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+ fi

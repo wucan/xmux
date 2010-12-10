@@ -1,0 +1,18 @@
+/config_api.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/definitions.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/mib_api.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/net-snmp-config.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/net-snmp-config.h.in/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/net-snmp-includes.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/output_api.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/pdu_api.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/session_api.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/snmpv3_api.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/types.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/utilities.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/varbind_api.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+/version.h/1.1.1.1/Thu May  6 00:04:53 2004//TIPCAM_2_1_0_REL
+D/agent////
+D/library////
+D/machine////
+D/system////

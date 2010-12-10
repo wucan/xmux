@@ -1,0 +1,14 @@
+AUTOMAKE_OPTIONS = foreign
+SUBDIRS = src doc
+
+MAINTAINERCLEANFILES = ChangeLog INSTALL
+
+.PHONY: ChangeLog INSTALL
+
+INSTALL:
+	$(INSTALL_CMD)
+
+ChangeLog:
+	$(CHANGELOG_CMD)
+
+dist-hook: ChangeLog INSTALL

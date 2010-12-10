@@ -1,0 +1,4 @@
+#arm-elf-gcc -DHAVE_CONFIG_H -I. -I..     -I ../include -I ./imp -I ./imp/include -I ./imp/fpga -I ./imp/drivers -I ./imp/uvPSI/include -I/home/wucan/workdir/x/xmux/net-snmp-lib/include -D_UCLINUX_ -fomit-frame-pointer -fno-builtin -nostartfiles -I/home/wucan/workdir/x/snapgear/lib/uClibc/include -I/home/wucan/workdir/x/snapgear/lib/libm -O2 -c main.c
+
+arm-elf-gcc -DHAVE_CONFIG_H -I. -I..     -I ../include -I ./imp -I ./imp/fpga -I ./imp/drivers -I/home/wucan/workdir/x/xmux/net-snmp-lib/include -D_UCLINUX_ -fomit-frame-pointer -fno-builtin -nostartfiles -I/home/wucan/workdir/x/snapgear/lib/uClibc/include -I/home/wucan/workdir/x/snapgear/lib/libm -O2 -c main.c
+
