@@ -52,6 +52,7 @@ xmux_SOURCES = \
 	wu_snmp_agent.c \
 	xmux.c \
 	up_sys.c \
+	up_support.c \
 	net.c \
 	$(NULL_FILE)
 
