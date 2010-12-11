@@ -13,6 +13,7 @@
 #include "gen_dvb_si.h"
 #include "hfpga.h"
 #include "pid_map_table.h"
+#include "pid_trans_info.h"
 #include "xmux_snmp_intstr.h"
 
 
@@ -25,11 +26,9 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 
 
 #define TRAN_PID_OFFSET				0
-#define CHANNEL_INFO_OFFSET			1024
 
 #define PID_TRANS_SIZE				1048
-#define INPUT_TRANS_INFO_NUM		24
-#define INPUT_TRANS_INFO_SIZE		1082
+#define PID_TRANS_INFO_NUM		24
 #define LOAD_INFO_SIZE				34
 #define HEART_DEVICE_SIZE			4
 #define USER_INFO_SIZE				6
@@ -37,7 +36,6 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 static uint8_t sg_mib_trans[PID_TRANS_SIZE];
 static uint8_t sg_mib_loadinfo[LOAD_INFO_SIZE];
 static uint8_t sg_mib_heartDevice[HEART_DEVICE_SIZE];
-static uint8_t sg_mib_Inptu_Trans_info[INPUT_TRANS_INFO_NUM][INPUT_TRANS_INFO_SIZE];
 static struct ip_info_snmp_data sg_mib_IP_info;
 static uint8_t sg_mib_User_info[USER_INFO_SIZE];
 
@@ -181,24 +179,21 @@ static int eit_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	return 0;
 }
 /*
- * INPUT_TRANS
+ * PID_TRANS_INFO
  */
-static int input_trans_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
+static int pid_trans_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t trans_idx = obj->oid[obj->oid_len - 1];
+	uint8_t trans_idx = obj->oid[obj->oid_len - 1 - 1];
 
-	v->size = INPUT_TRANS_INFO_SIZE;
-	v->data = sg_mib_Inptu_Trans_info[trans_idx];
+	pid_trans_info_read_data_snmp(trans_idx, v);
 
 	return 0;
 }
-static int input_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
+static int pid_trans_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t trans_idx = obj->oid[obj->oid_len - 1];
+	uint8_t trans_idx = obj->oid[obj->oid_len - 1] - 1;
 
-	memcpy(sg_mib_Inptu_Trans_info[trans_idx], v->data, v->size);
-	eeprom_write(sg_mib_Inptu_Trans_info[trans_idx], INPUT_TRANS_INFO_SIZE,
-		CHANNEL_INFO_OFFSET + INPUT_TRANS_INFO_SIZE * trans_idx);
+	pid_trans_info_write_data_snmp(trans_idx, v);
 
 	return 0;
 }
@@ -371,10 +366,10 @@ static struct wu_oid_object chan_oid_objs[] = {
 	 sdt_get, sdt_set, SECTION_MAX_SIZE,
 	},
 };
-static struct wu_oid_object input_trans_obj = {
-	"INPUT_TRANS", {XMUX_ROOT_OID, 12, 1}, 8,
+static struct wu_oid_object pid_trans_info_obj = {
+	"PID_TRANS_INFO", {XMUX_ROOT_OID, 12, 1}, 8,
 	0, OID_STATUS_RWRITE,
-	input_trans_get, input_trans_set, INPUT_TRANS_INFO_SIZE,
+	pid_trans_info_get, pid_trans_info_set, PID_TRANS_INFO_SIZE,
 };
 static struct wu_oid_object solo_oid_objs[] = {
 	// PID_TRANS
@@ -470,9 +465,9 @@ static void register_input_trans_oids()
 {
 	int i;
 
-	for (i = 0; i < INPUT_TRANS_INFO_NUM; i++) {
-		input_trans_obj.oid[7] = i + 1;
-		wu_snmp_agent_register(&input_trans_obj);
+	for (i = 0; i < PID_TRANS_INFO_NUM; i++) {
+		pid_trans_info_obj.oid[7] = i + 1;
+		wu_snmp_agent_register(&pid_trans_info_obj);
 	}
 }
 static void register_solo_oids()
