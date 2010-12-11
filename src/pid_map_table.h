@@ -36,7 +36,7 @@ struct pid_map_table_gen_context {
 
 void pid_map_table_gen_start(struct pid_map_table_gen_context *ctx);
 void pid_map_table_gen_end(struct pid_map_table_gen_context *ctx, uint8_t chan_bitmap);
-void pid_map_table_push_pid_pair(struct pid_map_table_gen_context *ctx,
+int pid_map_table_push_pid_pair(struct pid_map_table_gen_context *ctx,
 		uint8_t chan_idx, uint16_t in_pid, uint16_t out_pid);
 
 
