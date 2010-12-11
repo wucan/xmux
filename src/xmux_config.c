@@ -84,14 +84,14 @@ void xmux_config_save_management_mode()
 		case MANAGEMENT_MODE_FP: byte = 0xAA; break;
 		default: return; break;
 	}
-	eeprom_write(0xFFFF, &byte, 1);
+	eeprom_write(EEPROM_OFF_MNG_MODE, &byte, 1);
 }
 
 void xmux_config_load_management_mode()
 {
 	uint8_t byte;
 
-	eeprom_read(0xFFFF, &byte, 1);
+	eeprom_read(EEPROM_OFF_MNG_MODE, &byte, 1);
 	switch (byte) {
 		default:
 		case 0x55: management_mode = MANAGEMENT_MODE_SNMP; break;
@@ -101,9 +101,7 @@ void xmux_config_load_management_mode()
 
 void xmux_config_save_output_psi_data()
 {
-	int off = offsetof(struct xmux_root_param, output_psi_area);
-
-	eeprom_write(off, &g_xmux_root_param.output_psi_area,
+	eeprom_write(EEPROM_OFF_OUTPUT_PSI, &g_xmux_root_param.output_psi_area,
 		sizeof(g_xmux_root_param.output_psi_area));
 }
 

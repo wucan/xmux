@@ -40,9 +40,8 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 	 * save to eeprom if channel's pid trans info all got
 	 */
 	if (v->size < 1422 || chan_idx == 2) {
-		eeprom_write(&sg_mib_pid_trans_info[chan_idx], PID_TRANS_INFO_SIZE,
-			offsetof(struct xmux_root_param, pid_trans_info_area) +
-			PID_TRANS_INFO_SIZE * chan_idx);
+		eeprom_write(EEPROM_OFF_PID_TRANS_INFO + PID_TRANS_INFO_SIZE * chan_idx,
+			&sg_mib_pid_trans_info[chan_idx], PID_TRANS_INFO_SIZE);
 	}
 }
 

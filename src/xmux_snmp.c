@@ -207,7 +207,8 @@ static int pid_trans_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(&sg_mib_trans, v->data, v->size);
-	eeprom_write(0, &sg_mib_trans, PID_TRANS_SIZE);
+	eeprom_write(EEPROM_OFF_PID_MAP_TABLE,
+		&sg_mib_trans.table, sizeof(sg_mib_trans.table));
 	pid_map_table_apply(&sg_mib_trans.table);
 
 	return 0;
