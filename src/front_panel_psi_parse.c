@@ -73,7 +73,7 @@ static unsigned char p_cat_descr_data[5][UV_DESCR_LEN];
 static uint16_t cat_descr_num;
 
 
-static void dvbpsi_dump_program_name(unsigned char *desc_content,
+static void extract_program_name(unsigned char *desc_content,
 									 unsigned char *prog_name)
 {
 	unsigned char prog_name_len;
@@ -85,13 +85,6 @@ static void dvbpsi_dump_program_name(unsigned char *desc_content,
 	memcpy(prog_name + 1, desc_content + prog_name_idx, prog_name_len);
 	trace_info("program name size %d, name %s",
 		   prog_name_len, desc_content + prog_name_idx);
-}
-
-void dvbpsi_dault_program_name(unsigned char *prog_name)
-{
-	unsigned char name[5] = { 'S', 'o', 'u', 'k', 'a' };
-	prog_name[0] = 5;
-	memcpy(prog_name + 1, name, 5);
 }
 
 static uint16_t get_dsw_psi_pid(uint8_t chan_idx, uint8_t prog_idx, enmDswPsiPid psipid)
@@ -202,10 +195,8 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			if (serv[j].i_serv_id == prog_info->prognum) {
 				trace_info("service #%d: service_id %#x",
 					j, serv[j].i_serv_id);
-				dvbpsi_dump_program_name(serv[j].p_descr->p_data,
-					prog_info->progname[0]);
-				memcpy(prog_info->progname[1], prog_info->progname[0],
-				   sizeof(prog_info->progname[0]));
+				extract_program_name((unsigned char *)prog_info->progname,
+						serv[j].p_descr->p_data);
 			}
 		}
 	}
