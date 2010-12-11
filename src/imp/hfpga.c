@@ -89,6 +89,8 @@ static void prt_pid_map(ACCESS_HFPGA_PID_MAP * p_pid_map)
 			for (i = 0; i < 32; i++) {
 				trace_info("%d(%#x) => %d(%#x)",
 					p_pid_map->pid_map[chn * 32 + i].in_pid,
+					p_pid_map->pid_map[chn * 32 + i].in_pid,
+					p_pid_map->pid_map[chn * 32 + i].out_pid,
 					p_pid_map->pid_map[chn * 32 + i].out_pid);
 			}
 		}
