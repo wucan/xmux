@@ -158,11 +158,13 @@ int wu_snmp_agent_register(struct wu_oid_object *reg_obj)
 	int i;
 	int modes;
 
+#if 0
 	printf("register oid: ");
 	for (i = 0; i < obj->oid_len; i++) {
 		printf("%d,", obj->oid[i]);
 	}
 	printf("\n");
+#endif
 
 	/*
 	 * setup modes
