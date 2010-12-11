@@ -8,6 +8,7 @@
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
 #include "pid_map_rule.h"
+#include "psi_parse.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp_psi_parse"};
@@ -76,6 +77,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	int i, j, k;
 	uint8_t prog_cnt = 0;
 	PROG_INFO_T *prog_info;
+	int rc = 0;
 
 	pmt.p_descr = pmt_descr;
 	nit.p_descr = nit_descr;
@@ -102,7 +104,13 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	dvbSI_Start(&hfpga_dev);
 
 	trace_info("decode PAT ...");
-	dvbSI_Dec_PAT(&pat, pid_data, &pid_num);
+	psi_parse_timer_start();
+	rc = dvbSI_Dec_PAT(&pat, pid_data, &pid_num);
+	psi_parse_timer_stop();
+	if (rc) {
+		trace_err("pat parse failed! rc %d\n", rc);
+		goto channel_analyse_done;
+	}
 	trace_info("PAT decode done, TS id %02x, pmt pid num %d",
 		pat.i_tran_stream_id, pid_num);
 	for (i = 0; i < pid_num; i++) {
@@ -123,8 +131,13 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			trace_info("decode PMT %#x ...", pid_data[i].i_pid);
 			pmt.i_pg_num = pid_data[i].i_pg_num;
 			pmt.i_pmt_pid = pid_data[i].i_pid;
-			dvbSI_Dec_PMT(&pmt, es, &es_num);
-
+			psi_parse_timer_start();
+			rc = dvbSI_Dec_PMT(&pmt, es, &es_num);
+			psi_parse_timer_stop();
+			if (rc) {
+				trace_err("pmt parse #%d failed! rc %d\n", i, rc);
+				goto channel_analyse_done;
+			}
 			prog_info->PCR_PID_IN = pmt.i_pcr_pid;
 			prog_info->PCR_PID_OUT =
 				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1, DSW_PID_PCR);
@@ -165,7 +178,13 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	*p_chan_prog_cnt = prog_cnt;
 
 	trace_info("decode SDT ...");
-	dvbSI_Dec_SDT(&sdt, serv, &serv_num);
+	psi_parse_timer_start();
+	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
+	psi_parse_timer_stop();
+	if (rc) {
+		trace_err("sdt parse failed! rc %d\n", rc);
+		goto channel_analyse_done;
+	}
 	trace_info("there are total %d services", serv_num);
 	for (i = 0; i < prog_cnt; i++) {
 		prog_info = chan_prog_info + i;
@@ -190,9 +209,10 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	dvbSI_Dec_EIT(&eit, event, &event_num);
 #endif
 
+channel_analyse_done:
 	dvbSI_Stop();
 
-	return 0;
+	return rc;
 }
 
 static int parse_channel(uint8_t chan_idx)
