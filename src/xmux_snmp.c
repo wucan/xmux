@@ -49,8 +49,7 @@ static int pat_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 	uint16_t sec_len;
 
-	memcpy(&sec_len, sg_mib_pat[chan_idx], 2);
-	sec_len = MIN(sec_len, SECTION_MAX_SIZE);
+	sec_len = sg_mib_xxx_len(sg_mib_pat[chan_idx]);
 	v->size = sec_len + 2;
 	v->data = sg_mib_pat[chan_idx];
 
@@ -73,8 +72,7 @@ static int pmt_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	uint8_t prog_idx = obj->oid[OID_CHAN_PMT_PROG_IDX] - 1;
 	uint16_t sec_len;
 
-	memcpy(&sec_len, sg_mib_pmt[chan_idx][prog_idx], 2);
-	sec_len = MIN(sec_len, SECTION_MAX_SIZE);
+	sec_len = sg_mib_xxx_len(sg_mib_pmt[chan_idx][prog_idx]);
 	v->size = sec_len + 2;
 	v->data = sg_mib_pmt[chan_idx][prog_idx];
 
@@ -97,8 +95,7 @@ static int cat_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 	uint16_t sec_len;
 
-	memcpy(&sec_len, sg_mib_cat[chan_idx], 2);
-	sec_len = MIN(sec_len, SECTION_MAX_SIZE);
+	sec_len = sg_mib_xxx_len(sg_mib_cat[chan_idx]);
 	v->size = sec_len + 2;
 	v->data = sg_mib_cat[chan_idx];
 
@@ -120,8 +117,7 @@ static int nit_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 	uint16_t sec_len;
 
-	memcpy(&sec_len, sg_mib_nit[chan_idx], 2);
-	sec_len = MIN(sec_len, SECTION_MAX_SIZE);
+	sec_len = sg_mib_xxx_len(sg_mib_nit[chan_idx]);
 	v->size = sec_len + 2;
 	v->data = sg_mib_nit[chan_idx];
 
@@ -144,8 +140,7 @@ static int sdt_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	uint8_t sec_idx = obj->oid[OID_SDT_SEC_IDX] - 1;
 	uint16_t sec_len;
 
-	memcpy(&sec_len, sg_mib_sdt[chan_idx][sec_idx], 2);
-	sec_len = MIN(sec_len, SECTION_MAX_SIZE);
+	sec_len = sg_mib_xxx_len(sg_mib_sdt[chan_idx][sec_idx]);
 	v->size = sec_len + 2;
 	v->data = sg_mib_sdt[chan_idx][sec_idx];
 
@@ -169,8 +164,7 @@ static int eit_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	uint8_t sec_idx = obj->oid[OID_EIT_SEC_IDX] - 1;
 	uint16_t sec_len;
 
-	memcpy(&sec_len, sg_mib_eit[chan_idx][sec_idx], 2);
-	sec_len = MIN(sec_len, SECTION_MAX_SIZE);
+	sec_len = sg_mib_xxx_len(sg_mib_eit[chan_idx][sec_idx]);
 	v->size = sec_len + 2;
 	v->data = sg_mib_eit[chan_idx][sec_idx];
 

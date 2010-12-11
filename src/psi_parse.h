@@ -11,6 +11,14 @@ extern uint8_t sg_mib_nit[CHANNEL_MAX_NUM + 1][SECTION_MAX_SIZE];
 extern uint8_t sg_mib_sdt[CHANNEL_MAX_NUM + 1][SDT_SECTION_NUM][SECTION_MAX_SIZE];
 extern uint8_t sg_mib_eit[CHANNEL_MAX_NUM + 1][EIT_SECTION_NUM][SECTION_MAX_SIZE];
 
+static inline uint16_t sg_mib_xxx_len(uint8_t *sg_mib_xxx)
+{
+	uint16_t sec_len;
+	memcpy(&sec_len, sg_mib_xxx, 2);
+	sec_len = MIN(sec_len, SECTION_MAX_SIZE);
+	return sec_len;
+}
+
 int fp_psi_parse();
 
 int uvSI_psi_parse();
