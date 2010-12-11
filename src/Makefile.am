@@ -38,7 +38,7 @@ xmux_SOURCES = \
 	$(dvbpsi_files) \
 	front_panel.c \
 	front_panel_gpio_test.c \
-	mcu_rs232.c \
+	front_panel_process.c \
 	front_panel_data_churning.c \
 	gen_psi_fr_mcu.c \
 	front_panel_psi_parse.c \
