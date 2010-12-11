@@ -9,6 +9,7 @@
 
 #include "psi_worker.h"
 #include "psi_parse.h"
+#include "psi_gen.h"
 #include "gen_dvb_si.h"
 #include "hfpga.h"
 #include "pid_map_table.h"
@@ -316,6 +317,8 @@ static int load_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int load_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(sg_mib_loadinfo, v->data, v->size);
+
+	psi_gen_output_psi_from_sections();
 
 	return 0;
 }
