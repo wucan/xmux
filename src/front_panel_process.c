@@ -131,6 +131,59 @@ static int cmd_0x102_handler(struct fp_cmd_header *cmd_header, int is_read,
 	return 1;
 }
 
+static void _apply_pid_map_table_and_psi()
+{
+	uint8_t *packpara[8192];
+	int howto = 1;
+	ACCESS_HFPGA_PID_MAP pid_map;
+	int chan_idx, prog_idx;
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		int npidcount = 0;
+		int j;
+		for (j = 0; j < FPGA_PID_MAP_TABLE_CHAN_PIDS; j++) {
+			pid_map_table_set_in_pid(&pid_map, chan_idx, j, 0x000F);
+			pid_map_table_set_out_pid(&pid_map, chan_idx, j, 0x000F);
+		}
+		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
+			PROG_INFO_T *prog_info = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
+			trace_info("#%d/%d status %d, input PCR PID %u",
+				prog_info->status, prog_info->PCR_PID_IN);
+			if (prog_info->status == 1) {
+				pid_map_table_set_in_pid(&pid_map, chan_idx, npidcount, prog_info->PCR_PID_IN);
+				pid_map_table_set_out_pid(&pid_map, chan_idx, npidcount, prog_info->PCR_PID_OUT);
+				npidcount++;
+
+				for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
+					if (prog_info->PCR_PID_IN != prog_info->pids[j].in &&
+						prog_pid_val_isvalid(prog_info->pids[j].in) &&
+						prog_pid_val_isvalid(prog_info->pids[j].out)) {
+						pid_map_table_set_in_pid(&pid_map, chan_idx, npidcount, prog_info->pids[j].in);
+						pid_map_table_set_out_pid(&pid_map, chan_idx, npidcount, prog_info->pids[j].out);
+
+						npidcount++;
+					}
+				}
+			}
+			if (npidcount >= FPGA_PID_MAP_TABLE_CHAN_PIDS)
+				break;
+		}
+	}
+
+	pid_map.cha = 0xFF;
+	hfpga_write_pid_map(pid_map);
+
+	/*
+	 * generate and download psi to fpga
+	 */
+	dvbSI_Start(&hfpga_dev);
+	trace_info("stop gen si");
+	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
+	gen_pat_pmt_fr_mcu(packpara, g_prog_info_table);
+	trace_info("start gen si");
+	dvbSI_GenSS(HFPGA_CMD_SI_START);
+	dvbSI_Stop();
+}
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 				uint16_t *p_resp_msg_len)
@@ -182,64 +235,8 @@ static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 		}
 			break;
 		case FP_SYS_CMD_APPLY_MAP_ANALYSE:
-		{
-			uint8_t *packpara[8192];
-			PROG_INFO_T *pProg = &g_prog_info_table[0];
-			int howto = 1;
-			ACCESS_HFPGA_PID_MAP pid_map;
-			int chan_cnt, prog_cnt;
-
-#if 1
-			for (chan_cnt = 0; chan_cnt < CHANNEL_MAX_NUM; chan_cnt++) {
-				int npidcount = 0;
-				int j;
-				for (j = 0; j < FPGA_PID_MAP_TABLE_CHAN_PIDS; j++) {
-					pid_map_table_set_in_pid(&pid_map, chan_cnt, j, 0x000F);
-					pid_map_table_set_out_pid(&pid_map, chan_cnt, j, 0x000F);
-				}
-				for (prog_cnt = 0; prog_cnt < PROGRAM_MAX_NUM; prog_cnt++) {
-					PROG_INFO_T *pProg = &g_prog_info_table[chan_cnt * PROGRAM_MAX_NUM + prog_cnt];
-					trace_info("#%d/%d status %d, input PCR PID %u",
-					   pProg->status, pProg->PCR_PID_IN);
-					if (pProg->status == 1) {
-						pid_map_table_set_in_pid(&pid_map, chan_cnt, npidcount, pProg->PCR_PID_IN);
-						pid_map_table_set_out_pid(&pid_map, chan_cnt, npidcount, pProg->PCR_PID_OUT);
-						npidcount++;
-
-						for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-							if (pProg->PCR_PID_IN != pProg->pids[j].in &&
-								prog_pid_val_isvalid(pProg->pids[j].in) &&
-								prog_pid_val_isvalid(pProg->pids[j].out)) {
-								pid_map_table_set_in_pid(&pid_map, chan_cnt, npidcount, pProg->pids[j].in);
-								pid_map_table_set_out_pid(&pid_map, chan_cnt, npidcount, pProg->pids[j].out);
-
-								npidcount++;
-							}
-						}
-					}
-					if (npidcount >= FPGA_PID_MAP_TABLE_CHAN_PIDS)
-						break;
-				}
-			}
-
-			pid_map.cha = 0xFF;	//chan_cnt;
-			hfpga_write_pid_map(pid_map);
-#endif
-
-#if 1
-			dvbSI_Start(&hfpga_dev);
-			trace_info("stop gen si");
-			dvbSI_GenSS(HFPGA_CMD_SI_STOP);
-			///////////// map in_pid to out_pid must be brfore generate psi section - ruan 2010-11-04
-			gen_pat_pmt_fr_mcu(packpara, pProg);
-			//gen_sdt_fr_mcu(packpara, pProg);
-			trace_info("start gen si");
-			dvbSI_GenSS(HFPGA_CMD_SI_START);
-			dvbSI_Stop();
-#endif
+			_apply_pid_map_table_and_psi();
 			return 1;
-
-		}
 			break;
 		default:
 			return -1;
