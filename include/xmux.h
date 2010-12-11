@@ -51,7 +51,7 @@ struct pid_trans_entry {
 	uint16_t in;
 	uint16_t out;
 };
-struct pid_trans_info_program_snmp_data {
+struct xmux_program_info {
 	uint16_t prog_num;
 
 	/*
@@ -69,7 +69,7 @@ struct pid_trans_info_snmp_data {
 	uint8_t update_flag_and_chan_num;
 	uint8_t nprogs;
 	uint32_t status;
-	struct pid_trans_info_program_snmp_data programs[PROGRAM_MAX_NUM];
+	struct xmux_program_info programs[PROGRAM_MAX_NUM];
 
 	uint8_t csc;
 } __attribute__((packed));

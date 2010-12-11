@@ -51,7 +51,7 @@ int psi_gen_output_psi_from_sections()
 	 */
 	{
 	struct pid_trans_info_snmp_data *pid_trans_info;
-	struct pid_trans_info_program_snmp_data *prog;
+	struct xmux_program_info *prog;
 	uint8_t chan_idx, prog_idx;
 	int sel_nprogs = 0;
 
