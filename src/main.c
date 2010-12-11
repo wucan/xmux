@@ -6,6 +6,7 @@
 #include "xmux_config.h"
 #include "wu_snmp_agent.h"
 #include "xmux_snmp.h"
+#include "psi_gen.h"
 
 
 #define XMUX_VERSION_STR			"0.01"
@@ -56,7 +57,8 @@ int main(int argc, char **argv)
 
 static void restore_work_field()
 {
-	/* TODO */
 	/* download psi and pid map table */
+	pid_map_table_apply(g_xmux_root_param.pid_relay_table_area.bytes, 1024);
+	psi_apply();
 }
 

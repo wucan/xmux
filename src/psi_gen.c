@@ -5,7 +5,10 @@
 #include "psi_parse.h"
 #include "psi_gen.h"
 #include "section.h"
+#include "gen_dvb_si.h"
 
+
+extern uv_dvb_io hfpga_dev;
 
 static int pkt_offset;
 
@@ -69,13 +72,30 @@ int psi_gen_output_psi_from_sections()
 	}
 
 	/*
-	 * send to fpga, should done in another function?
-	 */
-
-	/*
 	 * at last save it to eeprom
 	 */
 	xmux_config_save_output_psi_data();
+
+	return 0;
+}
+
+int psi_apply()
+{
+	struct xmux_output_psi_data *psi_data = &g_xmux_root_param.output_psi_area.output_psi;
+	struct output_psi_data_entry *ent;
+	uint8_t psi_type, howto = 0;
+
+	/*
+	 * FIXME: PAT, PMT, CAT: howto = 0; SDT, NIT: howto = 1
+	 */
+	dvbSI_Start(&hfpga_dev);
+	for (psi_type = 0; psi_type < OUTPUT_PSI_TYPE_MAX_NUM; psi_type++) {
+		ent = &psi_data->psi_ents[psi_type];
+		if (ent->nr_ts_pkts) {
+			hfpga_dev.write(&psi_data->ts_pkts[ent->offset], 188 * ent->nr_ts_pkts, howto);
+		}
+	}
+	dvbSI_Stop(&hfpga_dev);
 
 	return 0;
 }

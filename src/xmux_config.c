@@ -66,7 +66,7 @@ void xmux_config_load_from_eeprom()
 	 */
 	memcpy(&sg_mib_pid_trans_info, g_xmux_root_param.pid_trans_info_area.bytes,
 		sizeof(g_xmux_root_param.pid_trans_info_area.pid_trans_info));
-	memcpy(&sg_mib_trans, g_xmux_root_param.pid_relay_table_area.bytes,
+	memcpy(sg_mib_trans + 7, g_xmux_root_param.pid_relay_table_area.bytes,
 		sizeof(g_xmux_root_param.pid_relay_table_area.bytes));
 }
 
