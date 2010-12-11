@@ -279,6 +279,9 @@ static int start_parse_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *
 		case 0x0000:
 			psi_worker_stop_parse_psi();
 			break;
+		case 0x3232: // for my test case, trigger parse from fp
+			psi_worker_request_parse_psi(0, NULL, MANAGEMENT_MODE_FP);
+			break;
 		default:
 			trace_err("unknow start parse psi oper %#x!", oper);
 			return -1;
