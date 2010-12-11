@@ -72,6 +72,16 @@ int psi_gen_output_psi_from_sections()
 	}
 
 	/*
+	 * SDT
+	 */
+	cc = 0;
+	sec_len = sg_mib_xxx_len(sg_mib_sdt[CHANNEL_MAX_NUM]);
+	ts_len = section_to_ts_length(sec_len);
+	ts_len = section_to_ts(sg_mib_sdt[CHANNEL_MAX_NUM] + 2,
+		sec_len, ts_buf, 0x11, &cc);
+	fill_output_psi_data(2, ts_buf, ts_len);
+
+	/*
 	 * at last save it to eeprom
 	 */
 	xmux_config_save_output_psi_data();
