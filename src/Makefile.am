@@ -41,7 +41,7 @@ xmux_SOURCES = \
 	mcu_rs232.c \
 	parse_mcu_arm.c \
 	gen_psi_fr_mcu.c \
-	TestTSA.c \
+	front_panel_psi_parse.c \
 	section.c \
 	psi_worker.c \
 	psi_parse.c \
