@@ -47,6 +47,7 @@ xmux_SOURCES = \
 	psi_parse.c \
 	xmux_config.c \
 	pid_map_table.c \
+	pid_map_rule.c \
 	program_pid_validater.c \
 	xmux_snmp.c \
 	wu_snmp_agent.c \

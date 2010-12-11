@@ -7,27 +7,12 @@
 
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
+#include "pid_map_rule.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp_psi_parse"};
 
 extern uv_dvb_io hfpga_dev;
-
-typedef enum {
-	DSW_PID_PMT = 0,
-	DSW_PID_PCR = 1,
-	DSW_PID_VIDEO = 2,
-	DSW_PID_AUDIO = 3,
-
-	DSW_PID_MAX = 0x0F
-} enmDswPsiPid;
-
-typedef enum {
-	DSW_PSI_TYPE_VIDEO = 2,
-	DSW_PSI_TYPE_AUDIO = 4,
-
-	DSW_PSI_TYPE_MAX = 0x0F
-} enmDswPsiType;
 
 #define UV_PROG_NUM_MAX PROGRAM_MAX_NUM
 #define UV_DESCR_LEN    (32)
@@ -87,12 +72,6 @@ static void extract_program_name(unsigned char *desc_content,
 		   prog_name_len, desc_content + prog_name_idx);
 }
 
-static uint16_t get_dsw_psi_pid(uint8_t chan_idx, uint8_t prog_idx, enmDswPsiPid psipid)
-{
-	return defProgPidBgn + chan_idx * defChnProgPidNum +
-		defProgPidNum * (prog_idx - 1) + psipid;
-}
-
 static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_cnt, uint8_t chan_idx)
 {
 	int i, j, k;
@@ -139,7 +118,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			prog_cnt++;
 			prog_info->PMT_PID_IN = pid_data[i].i_pid;
 			prog_info->PMT_PID_OUT =
-				get_dsw_psi_pid(chan_idx, prog_cnt, DSW_PID_PMT);
+				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1, DSW_PID_PMT);
 			prog_info->prognum = pid_data[i].i_pg_num;
 
 			trace_info("decode PMT %#x ...", pid_data[i].i_pid);
@@ -149,7 +128,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 
 			prog_info->PCR_PID_IN = pmt.i_pcr_pid;
 			prog_info->PCR_PID_OUT =
-				get_dsw_psi_pid(chan_idx, prog_cnt, DSW_PID_PCR);
+				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1, DSW_PID_PCR);
 			trace_info("PCR %#x, %s descrs",
 					pmt.i_pcr_pid, pmt.i_descr_num);
 
@@ -167,11 +146,11 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 					if (es[j].i_pid != pmt.i_pcr_pid) {
 						prog_info->pids[j].in = es[j].i_pid;
 						prog_info->pids[j].out =
-							get_dsw_psi_pid(chan_idx, prog_cnt,
+							pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
 											DSW_PID_VIDEO + j);
 					} else {
 						prog_info->pids[j].in = es[j].i_pid;
-						prog_info->pids[j].out = get_dsw_psi_pid(chan_idx, prog_cnt, DSW_PID_PCR);
+						prog_info->pids[j].out = pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1, DSW_PID_PCR);
 					}
 				}
 

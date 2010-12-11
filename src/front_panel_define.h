@@ -8,9 +8,6 @@
 #define defProgPidMin		0x0020
 #define defProgPidMax		0x1FFE
 #define defSelectedProgFpga	0x20
-#define defProgPidBgn		0x100
-#define defProgPidNum		0x08
-#define defChnProgPidNum	(defProgPidNum*PROGRAM_MAX_NUM)
 #define defMcuSyncFlag		0x74
 
 enum FP_SYS_CMD {
