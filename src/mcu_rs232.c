@@ -8,7 +8,7 @@
 #include "rs232.h"
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
-#include "psi_parse.h"
+#include "psi_worker.h"
 
 #include "hfpga.h"
 #include "gen_dvb_si.h"
@@ -131,18 +131,6 @@ static int cmd_0x102_handler(struct fp_cmd_header *cmd_header, int is_read,
 	return 1;
 }
 
-/*
- * system cmd 4, ???
- */
-static void test_gen_psi()
-{
-	int total_progs = 0;
-
-	trace_info("test gen psi on all channels ...");
-	pid_map_table_reset();
-	total_progs = fp_psi_parse();
-	trace_info("there are total %d prognums", total_progs);
-}
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 				uint16_t *p_resp_msg_len)
@@ -161,7 +149,8 @@ static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 			trace_info("switch to net management mode!");
 			break;
 		case FP_SYS_CMD_START_ANALYSE_PSI:
-			test_gen_psi();
+			pid_map_table_reset();
+			psi_worker_request_parse_psi(0, NULL, MANAGEMENT_MODE_FP);
 			break;
 		case FP_SYS_CMD_READ_MAP_ANALYSE_STATUS:
 		{
