@@ -42,7 +42,7 @@ int psi_gen_output_psi_from_sections()
 	cc = 0;
 	sec_len = sg_mib_xxx_len(sg_mib_pat[CHANNEL_MAX_NUM]);
 	ts_len = section_to_ts_length(sec_len);
-	ts_len = section_to_ts(sg_mib_pat[CHANNEL_MAX_NUM] + 2, sec_len, ts_buf, 0x00, &cc);
+	ts_len = section_to_ts(sg_mib_pat[CHANNEL_MAX_NUM] + 2, sec_len, ts_buf, PAT_PID, &cc);
 	fill_output_psi_data(0, ts_buf, ts_len);
 
 	/*
@@ -78,8 +78,28 @@ int psi_gen_output_psi_from_sections()
 	sec_len = sg_mib_xxx_len(sg_mib_sdt[CHANNEL_MAX_NUM]);
 	ts_len = section_to_ts_length(sec_len);
 	ts_len = section_to_ts(sg_mib_sdt[CHANNEL_MAX_NUM] + 2,
-		sec_len, ts_buf, 0x11, &cc);
+		sec_len, ts_buf, SDT_PID, &cc);
 	fill_output_psi_data(2, ts_buf, ts_len);
+
+	/*
+	 * NIT
+	 */
+	cc = 0;
+	sec_len = sg_mib_xxx_len(sg_mib_nit[CHANNEL_MAX_NUM]);
+	ts_len = section_to_ts_length(sec_len);
+	ts_len = section_to_ts(sg_mib_nit[CHANNEL_MAX_NUM] + 2,
+		sec_len, ts_buf, NIT_PID, &cc);
+	fill_output_psi_data(3, ts_buf, ts_len);
+
+	/*
+	 * CAT
+	 */
+	cc = 0;
+	sec_len = sg_mib_xxx_len(sg_mib_cat[CHANNEL_MAX_NUM]);
+	ts_len = section_to_ts_length(sec_len);
+	ts_len = section_to_ts(sg_mib_cat[CHANNEL_MAX_NUM] + 2,
+		sec_len, ts_buf, CAT_PID, &cc);
+	fill_output_psi_data(4, ts_buf, ts_len);
 
 	/*
 	 * at last save it to eeprom
