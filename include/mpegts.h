@@ -14,7 +14,14 @@
 /*
  * PSI/SI PID value
  */
+#define PAT_PID				0x00
+#define CAT_PID				0x01
+#define TSDT_PID			0x02
 #define NIT_PID				0x10
+#define SDT_PID				0x11
+#define BAT_PID				0x11
+#define EIT_PID				0x12
+#define TDT_PID				0x12
 
 struct mpeg_ts_header {
 	uint32_t sync_byte                        : 8;    /* should be 0x47 */
