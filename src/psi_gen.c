@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "xmux.h"
 #include "xmux_config.h"
 #include "psi_parse.h"
@@ -11,11 +13,15 @@ void fill_output_psi_data(int psi_type, uint8_t *ts_buf, int ts_len)
 {
 	struct xmux_output_psi_data *psi_data = &g_xmux_root_param.output_psi_area.output_psi;
 
-	if (psi_type == 0)
+	if (psi_type == 0) {
+		memset(psi_data->psi_ents, 0, sizeof(psi_data->psi_ents));
 		pkt_offset = 0;
+	}
 
-	psi_data->psi_ents[psi_type].offset = pkt_offset;
-	psi_data->psi_ents[psi_type].nr_ts_pkts = ts_len / TS_PACKET_BYTES;
+	if (!psi_data->psi_ents[psi_type].nr_ts_pkts) {
+		psi_data->psi_ents[psi_type].offset = pkt_offset;
+	}
+	psi_data->psi_ents[psi_type].nr_ts_pkts += ts_len / TS_PACKET_BYTES;
 	memcpy(&psi_data->ts_pkts[pkt_offset], ts_buf, ts_len);
 	
 	pkt_offset += ts_len / TS_PACKET_BYTES;
