@@ -75,3 +75,11 @@ void xmux_config_load_management_mode()
 	}
 }
 
+void xmux_config_save_output_psi_data()
+{
+	int off = offsetof(struct xmux_root_param, output_psi_area);
+
+	eeprom_write(off, &g_xmux_root_param.output_psi_area,
+		sizeof(g_xmux_root_param.output_psi_area));
+}
+
