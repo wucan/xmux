@@ -148,6 +148,7 @@ static void _apply_pid_map_table_and_psi()
 		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
 			PROG_INFO_T *prog_info = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 			trace_info("#%d/%d status %d, input PCR PID %u",
+				chan_idx, prog_idx,
 				prog_info->status, prog_info->PCR_PID_IN);
 			if (prog_info->status == 1) {
 				pid_map_table_set_in_pid(&pid_map, chan_idx, npidcount, prog_info->PCR_PID_IN);
