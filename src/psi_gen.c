@@ -52,6 +52,7 @@ int psi_gen_output_psi_from_sections()
 	struct pid_trans_info_snmp_data *pid_trans_info;
 	struct pid_trans_info_program_snmp_data *prog;
 	uint8_t chan_idx, prog_idx;
+	int sel_nprogs = 0;
 
 	cc = 0;
 	pid_trans_info = g_xmux_root_param.pid_trans_info_area.pid_trans_info;
@@ -62,13 +63,20 @@ int psi_gen_output_psi_from_sections()
 			printf("pid_gen: gen pmt, use secion chan #%d, prog #%d\n",
 				chan_idx, prog_idx);
 			prog = &pid_trans_info[chan_idx].programs[prog_idx];
-			sec_len = sg_mib_xxx_len(sg_mib_pmt[chan_idx][prog_idx]);
+			sec_len = sg_mib_xxx_len(sg_mib_pmt[CHANNEL_MAX_NUM][sel_nprogs]);
 			ts_len = section_to_ts_length(sec_len);
-			ts_len = section_to_ts(sg_mib_pmt[chan_idx][prog_idx] + 2,
+			ts_len = section_to_ts(sg_mib_pmt[CHANNEL_MAX_NUM][sel_nprogs] + 2,
 				sec_len, ts_buf, prog->pmt.out, &cc);
 			fill_output_psi_data(1, ts_buf, ts_len);
+			sel_nprogs++;
+			if (sel_nprogs >= PROGRAM_MAX_NUM) {
+				printf("pid_gen: gen pmt, max program reached, can't add more!",
+					sel_nprogs);
+				goto gen_pmt_done;
+			}
 		}
 	}
+gen_pmt_done:
 	}
 
 	/*
