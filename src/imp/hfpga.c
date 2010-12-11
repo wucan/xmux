@@ -99,7 +99,7 @@ static void prt_pid_map(ACCESS_HFPGA_PID_MAP * p_pid_map)
 	}
 }
 
-static int __write_pids_map(int hdev, ACCESS_HFPGA_PID_MAP pid_map)
+static int __write_pids_map(int hdev, ACCESS_HFPGA_PID_MAP *pid_map)
 {
 	ACCESS_HFPGA_REGS hregs;
 	int retval = 0;
@@ -134,7 +134,7 @@ static int __write_pids_map(int hdev, ACCESS_HFPGA_PID_MAP pid_map)
 #endif
 
 	trace_info("write pid map table ...");
-	retval = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_PID_MAP, &pid_map);
+	retval = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_PID_MAP, pid_map);
 	if (0 > retval) {
 		trace_err("write PID_MAP failed! rc %d!", retval);
 		return -1;
@@ -142,18 +142,18 @@ static int __write_pids_map(int hdev, ACCESS_HFPGA_PID_MAP pid_map)
 
 	trace_info("read pid pap table ...");
 	for (i = 0; i < 32; i++) {
-		pid_map.pid_map[chno * 32 + i].in_pid = 0x0000;
-		pid_map.pid_map[chno * 32 + i].out_pid = 0x0000;
+		pid_map->pid_map[chno * 32 + i].in_pid = 0x0000;
+		pid_map->pid_map[chno * 32 + i].out_pid = 0x0000;
 	}
-	retval = ioctl(hdev, UV_HFPGA_IOCTL_CMD_READ_PID_MAP, &pid_map);
+	retval = ioctl(hdev, UV_HFPGA_IOCTL_CMD_READ_PID_MAP, pid_map);
 	if (0 > retval) {
 		trace_err("read PID_MAP failed! rc %d!", retval);
 		return -1;
 	}
-	prt_pid_map(&pid_map);
+	prt_pid_map(pid_map);
 }
 
-int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP pid_map)
+int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP *pid_map)
 {
 	int hdev = 0;
 
@@ -175,7 +175,7 @@ int hfpga_get_ts_status(int chan_idx, uint16_t *ts_status_para)
 
 	return 1;
 }
-int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP pid_map)
+int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP *pid_map)
 {
 	trace_warn("%s", __func__);
 

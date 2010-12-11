@@ -169,7 +169,7 @@ static void _apply_pid_map_table_and_psi()
 	}
 
 	pid_map.cha = 0xFF;
-	hfpga_write_pid_map(pid_map);
+	hfpga_write_pid_map(&pid_map);
 
 	/*
 	 * generate and download psi to fpga
