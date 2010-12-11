@@ -101,17 +101,17 @@ static inline bool pcr_audio_same(uint16_t pcr_pid_value)
 #define PID_NO_PAD_VALUE			0x00FF
 
 /*
- * PID relay table, 1024B
+ * PID map table, 1024B
  */
-struct pid_relay_entry {
+struct pid_map_entry {
 	uint16_t input_pid;
 	uint16_t output_pid;
 };
-struct channel_pid_relay_table {
-	struct pid_relay_entry ents[PROGRAM_MAX_NUM];
+struct channel_pid_map_table {
+	struct pid_map_entry ents[PROGRAM_MAX_NUM];
 };
-struct xmux_pid_relay_table {
-	struct channel_pid_relay_table chans[CHANNEL_MAX_NUM];
+struct xmux_pid_map_table {
+	struct channel_pid_map_table chans[CHANNEL_MAX_NUM];
 };
 #define DEFAULT_RELAY_PID			0x000F
 
@@ -167,7 +167,7 @@ struct xmux_user_param {
 
 /*
  * EEPROM parameter layout:
- *   struct xmux_program_relay_table prog_relay_table;
+ *   struct xmux_program_map_table prog_map_table;
  *   struct pid_trans_info_snmp_data pid_trans_info;
  *   struct xmux_output_psi_data output_psi;
  *   struct xmux_system_param sys;
@@ -182,8 +182,8 @@ struct xmux_root_param {
 	} pid_trans_info_area;
 	union {
 		uint8_t bytes[1024];
-		struct xmux_pid_relay_table pid_relay_table;
-	} pid_relay_table_area;
+		struct xmux_pid_map_table pid_map_table;
+	} pid_map_table_area;
 	union {
 		uint8_t bytes[1024 * 8];
 		struct xmux_output_psi_data output_psi;
