@@ -25,13 +25,12 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 #define OID_EIT_SEC_IDX				8
 
 
-#define PID_TRANS_SIZE				1048
 #define PID_TRANS_INFO_NUM		24
 #define LOAD_INFO_SIZE				34
 #define HEART_DEVICE_SIZE			4
 #define USER_INFO_SIZE				6
 
-uint8_t sg_mib_trans[PID_TRANS_SIZE];
+struct pid_trans_snmp_data sg_mib_trans;
 static uint8_t sg_mib_loadinfo[LOAD_INFO_SIZE];
 static uint8_t sg_mib_heartDevice[HEART_DEVICE_SIZE];
 static struct ip_info_snmp_data sg_mib_IP_info;
@@ -201,15 +200,15 @@ static int pid_trans_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v
 static int pid_trans_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	v->size = PID_TRANS_SIZE;
-	v->data = sg_mib_trans;
+	v->data = &sg_mib_trans;
 
 	return 0;
 }
 static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	memcpy(sg_mib_trans, v->data, v->size);
-	eeprom_write(0, sg_mib_trans, PID_TRANS_SIZE);
-	pid_map_table_apply(sg_mib_trans + 7, 1024);
+	memcpy(&sg_mib_trans, v->data, v->size);
+	eeprom_write(0, &sg_mib_trans, PID_TRANS_SIZE);
+	pid_map_table_apply(&sg_mib_trans.table);
 
 	return 0;
 }

@@ -3,6 +3,8 @@
 
 #include "wu/wu_base_type.h"
 
+#include "xmux.h"
+
 
 /*
  * 5188.11
@@ -11,8 +13,9 @@ struct pid_trans_snmp_data {
 	uint16_t data_len;
 	uint32_t output_bitrate;
 	uint8_t format;
-	uint8_t pid_trans_table[1024];
+	struct xmux_pid_map_table table;
 } __attribute__((packed));
+#define PID_TRANS_SIZE		sizeof(struct pid_trans_snmp_data)
 
 /*
  * 5188.13

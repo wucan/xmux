@@ -21,7 +21,7 @@ pid_map_table_set_out_pid(ACCESS_HFPGA_PID_MAP *pid_map,
 
 void pid_map_table_clear(ACCESS_HFPGA_PID_MAP *pid_map);
 void pid_map_table_reset();
-int pid_map_table_apply(void *pid_map_data, int size);
+int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data);
 
 /*
  * route to generate pid_map table

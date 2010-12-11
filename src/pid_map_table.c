@@ -31,17 +31,20 @@ void pid_map_table_reset()
 	hfpga_write_pid_map(&pid_map);
 }
 
-int pid_map_table_apply(void *pid_map_data, int size)
+int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data)
 {
 	ACCESS_HFPGA_PID_MAP pid_map;
+	int size = sizeof(struct xmux_pid_map_table);
 
 	if (size != sizeof(pid_map.pid_map))
-		return;
+		return -1;
 
 	pid_map.cha = 0xFF;
 	memcpy(pid_map.pid_map, pid_map_data, sizeof(pid_map.pid_map));
 
 	hfpga_write_pid_map(&pid_map);
+
+	return 0;
 }
 
 void pid_map_table_gen_start(struct pid_map_table_gen_context *ctx)

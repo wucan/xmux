@@ -4,6 +4,7 @@
 #include "xmux.h"
 #include "eeprom.h"
 #include "pid_trans_info.h"
+#include "xmux_snmp.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_config"};
@@ -66,7 +67,7 @@ void xmux_config_load_from_eeprom()
 	 */
 	memcpy(&sg_mib_pid_trans_info, g_xmux_root_param.pid_trans_info_area.bytes,
 		sizeof(g_xmux_root_param.pid_trans_info_area.pid_trans_info));
-	memcpy(sg_mib_trans + 7, g_xmux_root_param.pid_map_table_area.bytes,
+	memcpy(&sg_mib_trans.table, g_xmux_root_param.pid_map_table_area.bytes,
 		sizeof(g_xmux_root_param.pid_map_table_area.pid_map_table));
 }
 
