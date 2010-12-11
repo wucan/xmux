@@ -11,8 +11,7 @@ extern uint8_t sg_mib_nit[CHANNEL_MAX_NUM][SECTION_MAX_SIZE];
 extern uint8_t sg_mib_sdt[CHANNEL_MAX_NUM][SDT_SECTION_NUM][SECTION_MAX_SIZE];
 extern uint8_t sg_mib_eit[CHANNEL_MAX_NUM][EIT_SECTION_NUM][SECTION_MAX_SIZE];
 
-int psi_parsing();
-int psi_parse_channel(uint8_t chan_idx);
+int fp_psi_parse();
 
 int uvSI_psi_parse();
 void uvSI_psi_parse_stop();

@@ -9,7 +9,7 @@
 #include "front_panel_define.h"
 
 
-static msgobj mo = {MSG_INFO, ENCOLOR, "tsa"};
+static msgobj mo = {MSG_INFO, ENCOLOR, "fp_psi_parse"};
 
 extern uv_dvb_io hfpga_dev;
 
@@ -100,7 +100,7 @@ static uint16_t get_dsw_psi_pid(uint8_t chan_idx, uint8_t prog_idx, enmDswPsiPid
 		defProgPidNum * (prog_idx - 1) + psipid;
 }
 
-int gen_pmt(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_cnt, uint8_t chan_idx)
+static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_cnt, uint8_t chan_idx)
 {
 	int i, j, k;
 	uint8_t prog_cnt = 0;
@@ -225,3 +225,33 @@ int gen_pmt(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_cnt, uint8_t chan
 
 	return 0;
 }
+
+static int parse_channel(uint8_t chan_idx)
+{
+	uint16_t ts_status;
+	uint8_t prog_num = 0;
+
+	if (hfpga_get_ts_status(chan_idx, &ts_status) > 0) {
+		do_parse_channel(&(g_prog_info_table[chan_idx * PROGRAM_MAX_NUM]),
+			&prog_num, chan_idx);
+		g_chan_num.num[chan_idx] = prog_num;
+	}
+
+	return prog_num;
+}
+
+int fp_psi_parse()
+{
+	int progs, total_progs = 0;
+	uint8_t chan_idx;
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		progs = parse_channel(chan_idx);
+		trace_info("channel #%d had %d programs", chan_idx, progs);
+		total_progs += progs;
+	}
+	trace_info("there are total %d programs", total_progs);
+
+	return total_progs;
+}
+

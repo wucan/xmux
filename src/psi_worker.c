@@ -54,7 +54,7 @@ static int psi_worker_thread(void *data)
 		switch (mb->type) {
 			case PSI_WORKER_MB_TYPE_PARSE_PSI:
 				if (psi_parsing_active_manager == MANAGEMENT_MODE_FP) {
-					psi_parsing();
+					fp_psi_parse();
 				} else {
 					uvSI_psi_parse();
 				}

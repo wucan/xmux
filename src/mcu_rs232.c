@@ -140,7 +140,7 @@ static void test_gen_psi()
 
 	trace_info("test gen psi on all channels ...");
 	pid_map_table_reset();
-	total_progs = psi_parsing();
+	total_progs = fp_psi_parse();
 	trace_info("there are total %d prognums", total_progs);
 }
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,

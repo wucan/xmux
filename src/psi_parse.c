@@ -52,35 +52,6 @@ static void psi_parse_timer_stop()
 	psi_parse_timeouted = 0;
 }
 
-int psi_parsing()
-{
-	int progs, total_progs = 0;
-	uint8_t chan_idx;
-
-	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		progs = psi_parse_channel(chan_idx);
-		trace_info("channel #%d had %d programs", chan_idx, progs);
-		total_progs += progs;
-	}
-	trace_info("there are total %d programs", total_progs);
-
-	return total_progs;
-}
-
-int psi_parse_channel(uint8_t chan_idx)
-{
-	uint16_t ts_status;
-	uint8_t prog_num = 0;
-
-	if (hfpga_get_ts_status(chan_idx, &ts_status) > 0) {
-		gen_pmt(&(g_prog_info_table[chan_idx * PROGRAM_MAX_NUM]),
-			&prog_num, chan_idx);
-		g_chan_num.num[chan_idx] = prog_num;
-	}
-
-	return prog_num;
-}
-
 /*
  * steal from uvSI.c
  */
