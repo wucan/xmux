@@ -5,6 +5,7 @@
 #include "hfpga.h"
 #include "pid_map_table.h"
 #include "front_panel_intstr.h"
+#include "front_panel_data_churning.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "pid_map_table"};
@@ -52,15 +53,15 @@ void pid_map_table_generate_from_fp(uint8_t * buf)
 		int noff = nProgSel * (PROGRAM_PID_MAX_NUM * 2) * sizeof(uint16_t);
 		prog_info = &g_prog_info_table[i];
 		if (prog_info->status == 1) {
-			conv_progpid_to_buf(&buf[noff + 0], prog_info->PMT_PID_IN);
-			conv_progpid_to_buf(&buf[noff + 2], prog_info->PMT_PID_OUT);
-			conv_progpid_to_buf(&buf[noff + 4], prog_info->PCR_PID_IN);
-			conv_progpid_to_buf(&buf[noff + 6], prog_info->PCR_PID_OUT);
+			pid_2_buf(&buf[noff + 0], prog_info->PMT_PID_IN);
+			pid_2_buf(&buf[noff + 2], prog_info->PMT_PID_OUT);
+			pid_2_buf(&buf[noff + 4], prog_info->PCR_PID_IN);
+			pid_2_buf(&buf[noff + 6], prog_info->PCR_PID_OUT);
 
 			for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-				conv_progpid_to_buf(&buf[noff + 8 + j * 4],
+				pid_2_buf(&buf[noff + 8 + j * 4],
 									prog_info->pids[j].in);
-				conv_progpid_to_buf(&buf[noff + 10 + j * 4],
+				pid_2_buf(&buf[noff + 10 + j * 4],
 									prog_info->pids[j].out);
 			}
 			nProgSel++;

@@ -8,6 +8,7 @@
 #include "rs232.h"
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
+#include "front_panel_data_churning.h"
 #include "psi_worker.h"
 
 #include "hfpga.h"
@@ -27,7 +28,7 @@ NET_ETH0_T neteth0;
 static int fp_create_response_cmd(uint8_t *buf, struct fp_cmd_header *req_cmd_header, void *param, int size)
 {
 	req_cmd_header->len = size;
-	mcu_arm_head_t_to_buf(req_cmd_header, buf);
+	fp_cmd_header_2_buf(req_cmd_header, buf);
 	memcpy(buf + sizeof(struct fp_cmd_header), param, size);
 	buf[sizeof(struct fp_cmd_header) + size] =  wu_csc(buf, sizeof(struct fp_cmd_header) + size);
 
@@ -57,8 +58,8 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 		nlen = sizeof(struct fp_cmd_header) + cmd_header->len;
 		*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
 
-		mcu_arm_head_t_to_buf(cmd_header, resp_msg_buf);
-		mcu_arm_prog_t_to_buf(pProg, resp_msg_buf + sizeof(struct fp_cmd_header));
+		fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
+		prog_info_2_buf(pProg, resp_msg_buf + sizeof(struct fp_cmd_header));
 		*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
 	} else {
 		uint8_t tmpbuf[5];
@@ -67,7 +68,7 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 		PROG_INFO_T refProg;
 		PROG_INFO_T *pProg = &(g_prog_info_table[cmd]);
 		memcpy(&refProg, pProg, sizeof(PROG_INFO_T));
-		mcu_arm_prog_buf_to_t(pProg, recv_msg_buf + sizeof(struct fp_cmd_header));
+		buf_2_prog_info(pProg, recv_msg_buf + sizeof(struct fp_cmd_header));
 		tmpbuf[0] = 0xFF;
 		tmpbuf[1] = 0xFF;
 		if (pProg->status == 1) {
@@ -84,7 +85,7 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 		cmd_header->len = 2;
 		nlen = cmd_header->len + sizeof(struct fp_cmd_header);
 		*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
-		mcu_arm_head_t_to_buf(cmd_header, resp_msg_buf);
+		fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
 		memcpy(resp_msg_buf + sizeof(struct fp_cmd_header), tmpbuf, cmd_header->len);
 		*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
 	}
@@ -104,7 +105,7 @@ static int cmd_0x101_handler(struct fp_cmd_header *cmd_header, int is_read,
 		return 1;
 	}
 
-	mcu_arm_rate_buf_to_t(&tmp_out_rate, recv_msg_buf + sizeof(struct fp_cmd_header));
+	buf_2_out_rate(&tmp_out_rate, recv_msg_buf + sizeof(struct fp_cmd_header));
 	xmux_config_update_output_bitrate(tmp_out_rate.rate);
 
 	return 1;
@@ -119,7 +120,7 @@ static int cmd_0x102_handler(struct fp_cmd_header *cmd_header, int is_read,
 		cmd_header->len = sizeof(NET_ETH0_T);
 		nlen = cmd_header->len + sizeof(struct fp_cmd_header);
 		*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
-		mcu_arm_head_t_to_buf(cmd_header, resp_msg_buf);
+		fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
 		memcpy(resp_msg_buf + sizeof(struct fp_cmd_header), &neteth0, cmd_header->len);
 
 		*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
@@ -158,7 +159,7 @@ static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 			cmd_header->len = sizeof(CHN_NUM_T);
 			nlen = cmd_header->len + sizeof(struct fp_cmd_header);
 			*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
-			mcu_arm_head_t_to_buf(cmd_header, resp_msg_buf);
+			fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
 			memcpy(resp_msg_buf + sizeof(struct fp_cmd_header), &g_chan_num, cmd_header->len);
 			*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
 			return 1;
@@ -175,7 +176,7 @@ static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 			cmd_header->len = 1;
 			nlen = cmd_header->len + sizeof(struct fp_cmd_header);
 			*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
-			mcu_arm_head_t_to_buf(cmd_header, resp_msg_buf);
+			fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
 			memcpy(resp_msg_buf + sizeof(struct fp_cmd_header), &ts_status_u8, cmd_header->len);
 			*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
 			return 1;
@@ -256,7 +257,7 @@ int __parse_mcu_cmd(uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 	uint16_t cmd;
 	struct fp_cmd_header cmd_header;
 
-	mcu_arm_head_buf_to_t(&cmd_header, recv_msg_buf);
+	buf_2_fp_cmd_header(&cmd_header, recv_msg_buf);
 	if (cmd_header.sync != defMcuSyncFlag) {
 		trace_err("invalid sync byte!");
 		return 0;

@@ -8,6 +8,7 @@
 #include "xmux_config.h"
 #include "front_panel.h"
 #include "front_panel_intstr.h"
+#include "front_panel_data_churning.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp"};
@@ -90,7 +91,7 @@ static int fp_thread(void *data)
 					nlen += ntmp;
 					if (nlen >= sizeof(struct fp_cmd_header)) {
 						struct fp_cmd_header cmd_header;
-						mcu_arm_head_buf_to_t(&cmd_header, recv_buf);
+						buf_2_fp_cmd_header(&cmd_header, recv_buf);
 						cmd_len = cmd_header.len + sizeof(struct fp_cmd_header) + FP_MSG_CRC_SIZE;
 						if (cmd_len > FP_RECV_MSG_MAX_SIZE)
 							break;
