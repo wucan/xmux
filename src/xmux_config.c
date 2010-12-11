@@ -3,6 +3,7 @@
 
 #include "xmux.h"
 #include "eeprom.h"
+#include "pid_trans_info.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_config"};
@@ -59,6 +60,14 @@ void xmux_config_load_from_eeprom()
 	} else {
 		trace_info("xmux root param success load from eeprom");
 	}
+
+	/*
+	 * copy to system runtime data
+	 */
+	memcpy(&sg_mib_pid_trans_info, g_xmux_root_param.pid_trans_info_area.bytes,
+		sizeof(g_xmux_root_param.pid_trans_info_area.pid_trans_info));
+	memcpy(&sg_mib_trans, g_xmux_root_param.pid_relay_table_area.bytes,
+		sizeof(g_xmux_root_param.pid_relay_table_area.bytes));
 }
 
 void xmux_config_update_output_bitrate(uint32_t bitrate)
