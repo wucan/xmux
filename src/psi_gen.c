@@ -39,7 +39,28 @@ int psi_gen_output_psi_from_sections()
 	/*
 	 * PMT
 	 */
+	{
+	struct pid_trans_info_snmp_data *pid_trans_info;
+	struct pid_trans_info_program_snmp_data *prog;
+	uint8_t chan_idx, prog_idx;
+
 	cc = 0;
+	pid_trans_info = g_xmux_root_param.pid_trans_info_area.pid_trans_info;
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		for (prog_idx = 0; prog_idx < pid_trans_info[chan_idx].nprogs; prog_idx++) {
+			if (!(pid_trans_info[chan_idx].status & (1 << prog_idx)))
+				continue;
+			printf("pid_gen: gen pmt, use secion chan #%d, prog #%d\n",
+				chan_idx, prog_idx);
+			prog = &pid_trans_info[chan_idx].programs[prog_idx];
+			sec_len = sg_mib_xxx_len(sg_mib_pmt[chan_idx][prog_idx]);
+			ts_len = section_to_ts_length(sec_len);
+			ts_len = section_to_ts(sg_mib_pmt[chan_idx][prog_idx] + 2,
+				sec_len, ts_buf, prog->pmt.out, &cc);
+			fill_output_psi_data(1, ts_buf, ts_len);
+		}
+	}
+	}
 
 	/*
 	 * send to fpga, should done in another function?
