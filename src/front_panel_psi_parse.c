@@ -193,15 +193,19 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 		goto channel_analyse_done;
 	}
 	trace_info("there are total %d services", serv_num);
-	for (i = 0; i < prog_cnt; i++) {
-		prog_info = chan_prog_info + i;
-		for (j = 0; j < serv_num; j++) {
+	for (j = 0; j < serv_num; j++) {
+		for (i = 0; i < prog_cnt; i++) {
+			prog_info = chan_prog_info + i;
 			if (serv[j].i_serv_id == prog_info->prognum) {
 				trace_info("service #%d: service_id %#x",
 					j, serv[j].i_serv_id);
 				extract_program_name(serv[j].p_descr->p_data,
 						(unsigned char *)prog_info->progname);
 			}
+		}
+		if (i == prog_cnt) {
+			trace_warn("service #%d: service_id %#x, no owner program!",
+				j, serv[j].i_serv_id);
 		}
 	}
 
