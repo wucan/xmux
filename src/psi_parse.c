@@ -39,14 +39,14 @@ static void sig_alarm(int signo)
 {
 	psi_parse_timeouted = 1;
 }
-static void psi_parse_timer_start()
+void psi_parse_timer_start()
 {
 	uvPSI_SetTimeoutFunc(psi_parse_timer_is_timeouted);
 	signal(SIGALRM, sig_alarm);
 	psi_parse_timeouted = 0;
 	alarm(psi_parse_timeout_sec);
 }
-static void psi_parse_timer_stop()
+void psi_parse_timer_stop()
 {
 	alarm(0);
 	psi_parse_timeouted = 0;

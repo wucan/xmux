@@ -16,6 +16,13 @@ int fp_psi_parse();
 int uvSI_psi_parse();
 void uvSI_psi_parse_stop();
 
+/*
+ * psi parse timeout api
+ */
+int psi_parse_timer_is_timeouted();
+void psi_parse_timer_start();
+void psi_parse_timer_stop();
+
 
 #endif /* _PSI_PARSE_H_ */
 
