@@ -268,6 +268,7 @@ static int start_parse_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *
 		return -1;
 	}
 	memcpy(&oper, v->data, v->size);
+	oper = htons(oper);
 	switch (oper) {
 		case 0x3131: // for my test case
 		case 0x55AA:
