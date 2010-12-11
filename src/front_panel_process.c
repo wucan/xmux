@@ -11,7 +11,6 @@
 #include "psi_worker.h"
 
 #include "hfpga.h"
-#include "gen_dvb_si.h"
 #include "pid_map_table.h"
 #include "program_pid_validater.h"
 
@@ -135,41 +134,39 @@ static void _apply_pid_map_table_and_psi()
 {
 	uint8_t *packpara[8192];
 	int howto = 1;
-	ACCESS_HFPGA_PID_MAP pid_map;
+	struct pid_map_table_gen_context pid_map_gen_ctx;
 	int chan_idx, prog_idx;
 	int j;
 
-	pid_map_table_clear(&pid_map);
+	pid_map_table_gen_start(&pid_map_gen_ctx);
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		int map_pid_cnt = 0;
 		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
 			PROG_INFO_T *prog_info = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 			trace_info("#%d/%d status %d, input PCR PID %u",
 				chan_idx, prog_idx,
 				prog_info->status, prog_info->PCR_PID_IN);
 			if (prog_info->status == 1) {
-				pid_map_table_set_in_pid(&pid_map, chan_idx, map_pid_cnt, prog_info->PCR_PID_IN);
-				pid_map_table_set_out_pid(&pid_map, chan_idx, map_pid_cnt, prog_info->PCR_PID_OUT);
-				map_pid_cnt++;
-
+				if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
+					prog_info->PCR_PID_IN, prog_info->PCR_PID_OUT)) {
+					goto pid_map_gen_done;
+				}
 				for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
 					if (prog_info->PCR_PID_IN != prog_info->pids[j].in &&
 						prog_pid_val_isvalid(prog_info->pids[j].in) &&
 						prog_pid_val_isvalid(prog_info->pids[j].out)) {
-						pid_map_table_set_in_pid(&pid_map, chan_idx, map_pid_cnt, prog_info->pids[j].in);
-						pid_map_table_set_out_pid(&pid_map, chan_idx, map_pid_cnt, prog_info->pids[j].out);
-
-						map_pid_cnt++;
+						if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
+							prog_info->pids[j].in, prog_info->pids[j].out)) {
+							goto pid_map_gen_done;
+						}
 					}
 				}
 			}
-			if (map_pid_cnt >= FPGA_PID_MAP_TABLE_CHAN_PIDS)
-				break;
 		}
 	}
 
-	pid_map.cha = 0xFF;
-	hfpga_write_pid_map(&pid_map);
+pid_map_gen_done:
+	pid_map_table_gen_end(&pid_map_gen_ctx, 0xFF);
+	hfpga_write_pid_map(&pid_map_gen_ctx.pid_map);
 
 	/*
 	 * generate and download psi to fpga
