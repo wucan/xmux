@@ -147,6 +147,10 @@ static void _apply_pid_map_table_and_psi()
 				prog_info->status, prog_info->PCR_PID_IN);
 			if (prog_info->status == 1) {
 				if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
+					prog_info->PMT_PID_IN, prog_info->PMT_PID_OUT)) {
+					goto pid_map_gen_done;
+				}
+				if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
 					prog_info->PCR_PID_IN, prog_info->PCR_PID_OUT)) {
 					goto pid_map_gen_done;
 				}
