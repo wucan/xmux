@@ -139,7 +139,7 @@ static void _apply_pid_map_table_and_psi()
 	int chan_idx, prog_idx;
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		int npidcount = 0;
+		int map_pid_cnt = 0;
 		int j;
 		for (j = 0; j < FPGA_PID_MAP_TABLE_CHAN_PIDS; j++) {
 			pid_map_table_set_in_pid(&pid_map, chan_idx, j, 0x000F);
@@ -151,22 +151,22 @@ static void _apply_pid_map_table_and_psi()
 				chan_idx, prog_idx,
 				prog_info->status, prog_info->PCR_PID_IN);
 			if (prog_info->status == 1) {
-				pid_map_table_set_in_pid(&pid_map, chan_idx, npidcount, prog_info->PCR_PID_IN);
-				pid_map_table_set_out_pid(&pid_map, chan_idx, npidcount, prog_info->PCR_PID_OUT);
-				npidcount++;
+				pid_map_table_set_in_pid(&pid_map, chan_idx, map_pid_cnt, prog_info->PCR_PID_IN);
+				pid_map_table_set_out_pid(&pid_map, chan_idx, map_pid_cnt, prog_info->PCR_PID_OUT);
+				map_pid_cnt++;
 
 				for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
 					if (prog_info->PCR_PID_IN != prog_info->pids[j].in &&
 						prog_pid_val_isvalid(prog_info->pids[j].in) &&
 						prog_pid_val_isvalid(prog_info->pids[j].out)) {
-						pid_map_table_set_in_pid(&pid_map, chan_idx, npidcount, prog_info->pids[j].in);
-						pid_map_table_set_out_pid(&pid_map, chan_idx, npidcount, prog_info->pids[j].out);
+						pid_map_table_set_in_pid(&pid_map, chan_idx, map_pid_cnt, prog_info->pids[j].in);
+						pid_map_table_set_out_pid(&pid_map, chan_idx, map_pid_cnt, prog_info->pids[j].out);
 
-						npidcount++;
+						map_pid_cnt++;
 					}
 				}
 			}
-			if (npidcount >= FPGA_PID_MAP_TABLE_CHAN_PIDS)
+			if (map_pid_cnt >= FPGA_PID_MAP_TABLE_CHAN_PIDS)
 				break;
 		}
 	}
