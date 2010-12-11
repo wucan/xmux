@@ -94,17 +94,17 @@ void dvbpsi_dault_program_name(unsigned char *prog_name)
 	memcpy(prog_name + 1, name, 5);
 }
 
-static uint16_t get_dsw_psi_pid(uint8_t chan_idx, uint8_t prognum, enmDswPsiPid psipid)
+static uint16_t get_dsw_psi_pid(uint8_t chan_idx, uint8_t prog_idx, enmDswPsiPid psipid)
 {
 	return defProgPidBgn + chan_idx * defChnProgPidNum +
-		defProgPidNum * (prognum - 1) + psipid;
+		defProgPidNum * (prog_idx - 1) + psipid;
 }
 
-int gen_pmt(PROG_INFO_T * pProgpara, uint8_t * progcountpara, uint8_t chan_idx)
+int gen_pmt(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_cnt, uint8_t chan_idx)
 {
 	int i, j, k;
-	uint8_t progcount = 0;
-	PROG_INFO_T *pProg;
+	uint8_t prog_cnt = 0;
+	PROG_INFO_T *prog_info;
 
 	pmt.p_descr = pmt_descr;
 	nit.p_descr = nit_descr;
@@ -142,21 +142,21 @@ int gen_pmt(PROG_INFO_T * pProgpara, uint8_t * progcountpara, uint8_t chan_idx)
 	trace_info("decode PMT ...");
 	for (i = 0; i < pid_num; i++) {
 		if (pid_data[i].i_pid != NIT_PID) {
-			pProg = pProgpara + progcount;
-			progcount++;
-			pProg->PMT_PID_IN = pid_data[i].i_pid;
-			pProg->PMT_PID_OUT =
-				get_dsw_psi_pid(chan_idx, progcount, DSW_PID_PMT);
-			pProg->prognum = pid_data[i].i_pg_num;
+			prog_info = chan_prog_info + prog_cnt;
+			prog_cnt++;
+			prog_info->PMT_PID_IN = pid_data[i].i_pid;
+			prog_info->PMT_PID_OUT =
+				get_dsw_psi_pid(chan_idx, prog_cnt, DSW_PID_PMT);
+			prog_info->prognum = pid_data[i].i_pg_num;
 
 			trace_info("decode PMT %#x ...", pid_data[i].i_pid);
 			pmt.i_pg_num = pid_data[i].i_pg_num;
 			pmt.i_pmt_pid = pid_data[i].i_pid;
 			dvbSI_Dec_PMT(&pmt, es, &es_num);
 
-			pProg->PCR_PID_IN = pmt.i_pcr_pid;
-			pProg->PCR_PID_OUT =
-				get_dsw_psi_pid(chan_idx, progcount, DSW_PID_PCR);
+			prog_info->PCR_PID_IN = pmt.i_pcr_pid;
+			prog_info->PCR_PID_OUT =
+				get_dsw_psi_pid(chan_idx, prog_cnt, DSW_PID_PCR);
 			trace_info("PCR %#x, %s descrs",
 					pmt.i_pcr_pid, pmt.i_descr_num);
 
@@ -170,15 +170,15 @@ int gen_pmt(PROG_INFO_T * pProgpara, uint8_t * progcountpara, uint8_t chan_idx)
 				trace_info("es %d, type %#x, pid %#x",
 					j, es[j].i_type, es[j].i_pid);
 				if (j < PROGRAM_DATA_PID_MAX_NUM) {
-					pProg->pids[j].type = es[j].i_type;
+					prog_info->pids[j].type = es[j].i_type;
 					if (es[j].i_pid != pmt.i_pcr_pid) {
-						pProg->pids[j].in = es[j].i_pid;
-						pProg->pids[j].out =
-							get_dsw_psi_pid(chan_idx, progcount,
+						prog_info->pids[j].in = es[j].i_pid;
+						prog_info->pids[j].out =
+							get_dsw_psi_pid(chan_idx, prog_cnt,
 											DSW_PID_VIDEO + j);
 					} else {
-						pProg->pids[j].in = es[j].i_pid;
-						pProg->pids[j].out = get_dsw_psi_pid(chan_idx, progcount, DSW_PID_PCR);
+						prog_info->pids[j].in = es[j].i_pid;
+						prog_info->pids[j].out = get_dsw_psi_pid(chan_idx, prog_cnt, DSW_PID_PCR);
 					}
 				}
 
@@ -191,21 +191,21 @@ int gen_pmt(PROG_INFO_T * pProgpara, uint8_t * progcountpara, uint8_t chan_idx)
 			}
 		}
 	}
-	*progcountpara = progcount;
+	*p_chan_prog_cnt = prog_cnt;
 
 	trace_info("decode SDT ...");
 	dvbSI_Dec_SDT(&sdt, serv, &serv_num);
 	trace_info("there are total %d services", serv_num);
-	for (i = 0; i < progcount; i++) {
-		pProg = pProgpara + i;
+	for (i = 0; i < prog_cnt; i++) {
+		prog_info = chan_prog_info + i;
 		for (j = 0; j < serv_num; j++) {
-			if (serv[j].i_serv_id == pProg->prognum) {
+			if (serv[j].i_serv_id == prog_info->prognum) {
 				trace_info("service #%d: service_id %#x",
 					j, serv[j].i_serv_id);
 				dvbpsi_dump_program_name(serv[j].p_descr->p_data,
-					pProg->progname[0]);
-				memcpy(pProg->progname[1], pProg->progname[0],
-				   sizeof(pProg->progname[0]));
+					prog_info->progname[0]);
+				memcpy(prog_info->progname[1], prog_info->progname[0],
+				   sizeof(prog_info->progname[0]));
 			}
 		}
 	}
