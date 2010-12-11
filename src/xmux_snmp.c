@@ -25,8 +25,6 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 #define OID_EIT_SEC_IDX				8
 
 
-#define TRAN_PID_OFFSET				0
-
 #define PID_TRANS_SIZE				1048
 #define PID_TRANS_INFO_NUM		24
 #define LOAD_INFO_SIZE				34
@@ -210,7 +208,7 @@ static int pid_trans_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(sg_mib_trans, v->data, v->size);
-	eeprom_write(sg_mib_trans, PID_TRANS_SIZE, TRAN_PID_OFFSET);
+	eeprom_write(0, sg_mib_trans, PID_TRANS_SIZE);
 	pid_map_table_apply(sg_mib_trans + 7, 1024);
 
 	return 0;
