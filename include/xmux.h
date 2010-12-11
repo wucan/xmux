@@ -113,7 +113,7 @@ struct output_psi_data_entry {
 struct xmux_output_psi_data {
 	struct output_psi_data_entry psi_ents[OUTPUT_PSI_TYPE_MAX_NUM];
 	struct mpeg_ts_packet ts_pkts[0];
-};
+} __attribute__((packed));
 
 /*
  * system parameter
