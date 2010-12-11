@@ -63,13 +63,20 @@ static void extract_program_name(unsigned char *desc_content,
 {
 	unsigned char prog_name_len;
 	unsigned char prog_name_idx;
+	uint8_t provid_name_len;
+	uint8_t provide[256];
 
-	prog_name_idx = 2 + desc_content[1] + 1;
-	prog_name_len = desc_content[prog_name_idx - 1];
+	/* provider name */
+	provid_name_len = desc_content[1];
+	memcpy(provide, &desc_content[1], provid_name_len);
+	provide[provid_name_len] = 0;
+	/* program name */
+	prog_name_len = desc_content[1 + 1 + provid_name_len];
 	prog_name[0] = prog_name_len;
-	memcpy(prog_name + 1, desc_content + prog_name_idx, prog_name_len);
-	trace_info("program name size %d, name %s",
-		   prog_name_len, desc_content + prog_name_idx);
+	memcpy(prog_name + 1, &desc_content[3 + provid_name_len], prog_name_len);
+	prog_name[1 + prog_name_len] = 0;
+	trace_info("provid name %s, program name %s",
+		provide, prog_name + 1);
 }
 
 static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_cnt, uint8_t chan_idx)
@@ -192,8 +199,8 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			if (serv[j].i_serv_id == prog_info->prognum) {
 				trace_info("service #%d: service_id %#x",
 					j, serv[j].i_serv_id);
-				extract_program_name((unsigned char *)prog_info->progname,
-						serv[j].p_descr->p_data);
+				extract_program_name(serv[j].p_descr->p_data,
+						(unsigned char *)prog_info->progname);
 			}
 		}
 	}
