@@ -5,7 +5,6 @@
 #include "wu/wu_csc.h"
 
 #include "xmux_config.h"
-#include "rs232.h"
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
 #include "front_panel_data_churning.h"
