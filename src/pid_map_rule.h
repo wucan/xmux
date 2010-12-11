@@ -20,7 +20,7 @@ typedef enum {
 	DSW_PSI_TYPE_MAX = 0x0F
 } enmDswPsiType;
 
-uint16_t pid_map_rule_map_psi_pid(uint8_t chan_idx, uint8_t prog_idx, enmDswPsiPid psi_pid);
+uint16_t pid_map_rule_map_psi_pid(uint8_t chan_idx, uint8_t prog_idx, enmDswPsiPid psi_pid, uint16_t in_pid, uint16_t *pids, int nr_pids);
 
 
 #endif /* _PID_MAP_RULE_H_ */

@@ -79,12 +79,34 @@ static void extract_program_name(unsigned char *desc_content,
 		provide, prog_name + 1);
 }
 
+static int scan_program_pids(uv_pmt_data *pmt,
+		uv_pmt_es_data *es, uint16_t es_num, uint16_t *pids)
+{
+	int nr_pids = 0;
+	int i;
+
+	/*
+	 * scan pids
+	 */
+	pids[0] = pmt->i_pcr_pid;
+	for (i = 0; i < es_num; i++) {
+		if (es[i].i_pid == pmt->i_pcr_pid)
+			continue;
+		pids[i + 1] = es[i].i_pid;
+		nr_pids++;
+	}
+
+	return nr_pids;
+}
+
 static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_cnt, uint8_t chan_idx)
 {
 	int i, j, k;
 	uint8_t prog_cnt = 0;
 	PROG_INFO_T *prog_info;
 	int rc = 0;
+	uint16_t pids[PROGRAM_PID_MAX_NUM];
+	int nr_pids;
 
 	pmt.p_descr = pmt_descr;
 	nit.p_descr = nit_descr;
@@ -132,7 +154,8 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			prog_cnt++;
 			prog_info->PMT_PID_IN = pid_data[i].i_pid;
 			prog_info->PMT_PID_OUT =
-				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1, DSW_PID_PMT);
+				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
+					DSW_PID_PMT, pid_data[i].i_pid, NULL, 0);
 			prog_info->prognum = pid_data[i].i_pg_num;
 
 			trace_info("decode PMT %#x ...", pid_data[i].i_pid);
@@ -145,9 +168,16 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 				trace_err("pmt parse #%d failed! rc %d\n", i, rc);
 				goto channel_analyse_done;
 			}
+
+			/*
+			 * scan PCR and data PIDs and we'll use them do pid remap
+			 */
+			nr_pids = scan_program_pids(&pmt, &es, es_num, pids);
+
 			prog_info->PCR_PID_IN = pmt.i_pcr_pid;
 			prog_info->PCR_PID_OUT =
-				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1, DSW_PID_PCR);
+				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
+					DSW_PID_PCR, pmt.i_pcr_pid, pids, nr_pids);
 			trace_info("PCR %#x, %s descrs",
 					pmt.i_pcr_pid, pmt.i_descr_num);
 
@@ -166,10 +196,12 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 						prog_info->pids[j].in = es[j].i_pid;
 						prog_info->pids[j].out =
 							pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
-											DSW_PID_VIDEO + j);
+								DSW_PID_VIDEO, es[j].i_pid, pids, nr_pids);
 					} else {
 						prog_info->pids[j].in = es[j].i_pid;
-						prog_info->pids[j].out = pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1, DSW_PID_PCR);
+						prog_info->pids[j].out =
+							pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
+								DSW_PID_PCR, es[j].i_pid, pids, nr_pids);
 					}
 				}
 
