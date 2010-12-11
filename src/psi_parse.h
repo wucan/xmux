@@ -18,6 +18,10 @@ static inline uint16_t sg_mib_xxx_len(uint8_t *sg_mib_xxx)
 	sec_len = MIN(sec_len, SECTION_MAX_SIZE);
 	return sec_len;
 }
+static inline void sg_mib_xxx_update_len(uint8_t *sg_mib_xxx, uint16_t len)
+{
+	memcpy(&sg_mib_xxx, &len, 2);
+}
 
 int fp_psi_parse();
 
