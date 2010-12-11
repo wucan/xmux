@@ -75,3 +75,31 @@ void pid_map_table_generate_from_fp(uint8_t * buf)
 	}
 }
 
+void pid_map_table_gen_start(struct pid_map_table_gen_context *ctx)
+{
+	pid_map_table_clear(&ctx->pid_map);
+	ctx->cur_chan_idx = 0;
+	ctx->cur_chan_map_pid_cnt = 0;
+}
+
+void pid_map_table_gen_end(struct pid_map_table_gen_context *ctx, uint8_t chan_bitmap)
+{
+	ctx->pid_map.cha = chan_bitmap;
+}
+
+void pid_map_table_push_pid_pair(struct pid_map_table_gen_context *ctx,
+		uint8_t chan_idx, uint16_t in_pid, uint16_t out_pid)
+{
+	if (chan_idx != ctx->cur_chan_idx) {
+		ctx->cur_chan_idx = chan_idx;
+		ctx->cur_chan_map_pid_cnt = 0;
+	}
+
+	pid_map_table_set_in_pid(&ctx->pid_map, chan_idx,
+		ctx->cur_chan_map_pid_cnt, in_pid);
+	pid_map_table_set_out_pid(&ctx->pid_map, chan_idx,
+		ctx->cur_chan_map_pid_cnt, out_pid);
+
+	ctx->cur_chan_map_pid_cnt++;
+}
+
