@@ -46,7 +46,7 @@ static uint8_t sg_mib_User_info[USER_INFO_SIZE];
  */
 static int pat_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 	uint16_t sec_len;
 
 	memcpy(&sec_len, sg_mib_pat[chan_idx], 2);
@@ -58,7 +58,7 @@ static int pat_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 static int pat_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 
 	memcpy(sg_mib_pat[chan_idx], v->data, v->size);
 
@@ -69,8 +69,8 @@ static int pat_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int pmt_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
-	uint8_t prog_idx = obj->oid[OID_CHAN_PMT_PROG_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
+	uint8_t prog_idx = obj->oid[OID_CHAN_PMT_PROG_IDX] - 1;
 	uint16_t sec_len;
 
 	memcpy(&sec_len, sg_mib_pmt[chan_idx][prog_idx], 2);
@@ -82,8 +82,8 @@ static int pmt_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 static int pmt_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
-	uint8_t prog_idx = obj->oid[OID_CHAN_PMT_PROG_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
+	uint8_t prog_idx = obj->oid[OID_CHAN_PMT_PROG_IDX] - 1;
 
 	memcpy(sg_mib_pmt[chan_idx][prog_idx], v->data, v->size);
 
@@ -94,7 +94,7 @@ static int pmt_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int cat_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 	uint16_t sec_len;
 
 	memcpy(&sec_len, sg_mib_cat[chan_idx], 2);
@@ -106,7 +106,7 @@ static int cat_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 static int cat_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 
 	memcpy(sg_mib_cat[chan_idx], v->data, v->size);
 
@@ -117,7 +117,7 @@ static int cat_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int nit_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 	uint16_t sec_len;
 
 	memcpy(&sec_len, sg_mib_nit[chan_idx], 2);
@@ -129,7 +129,7 @@ static int nit_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 static int nit_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
 
 	memcpy(sg_mib_nit[chan_idx], v->data, v->size);
 
@@ -140,8 +140,8 @@ static int nit_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int sdt_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
-	uint8_t sec_idx = obj->oid[OID_SDT_SEC_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
+	uint8_t sec_idx = obj->oid[OID_SDT_SEC_IDX] - 1;
 	uint16_t sec_len;
 
 	memcpy(&sec_len, sg_mib_sdt[chan_idx][sec_idx], 2);
@@ -153,8 +153,8 @@ static int sdt_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 static int sdt_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
-	uint8_t sec_idx = obj->oid[OID_SDT_SEC_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
+	uint8_t sec_idx = obj->oid[OID_SDT_SEC_IDX] - 1;
 
 	memcpy(sg_mib_sdt[chan_idx][sec_idx], v->data, v->size);
 
@@ -165,8 +165,8 @@ static int sdt_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int eit_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
-	uint8_t sec_idx = obj->oid[OID_EIT_SEC_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
+	uint8_t sec_idx = obj->oid[OID_EIT_SEC_IDX] - 1;
 	uint16_t sec_len;
 
 	memcpy(&sec_len, sg_mib_eit[chan_idx][sec_idx], 2);
@@ -178,8 +178,8 @@ static int eit_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 static int eit_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = obj->oid[OID_CHAN_IDX];
-	uint8_t sec_idx = obj->oid[OID_EIT_SEC_IDX];
+	uint8_t chan_idx = obj->oid[OID_CHAN_IDX] - 1;
+	uint8_t sec_idx = obj->oid[OID_EIT_SEC_IDX] - 1;
 
 	memcpy(sg_mib_eit[chan_idx][sec_idx], v->data, v->size);
 
