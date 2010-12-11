@@ -22,7 +22,6 @@ pid_map_table_set_out_pid(ACCESS_HFPGA_PID_MAP *pid_map,
 void pid_map_table_clear(ACCESS_HFPGA_PID_MAP *pid_map);
 void pid_map_table_reset();
 int pid_map_table_apply(void *pid_map_data, int size);
-void pid_map_table_generate_from_fp(uint8_t * buf);
 
 /*
  * route to generate pid_map table

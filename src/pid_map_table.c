@@ -44,37 +44,6 @@ int pid_map_table_apply(void *pid_map_data, int size)
 	hfpga_write_pid_map(&pid_map);
 }
 
-/*
- * generate pid_map_table from front panel data
- */
-void pid_map_table_generate_from_fp(uint8_t * buf)
-{
-	int i, j, n;
-	int nProgSel = 0;
-	PROG_INFO_T *prog_info;
-
-	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
-		int noff = nProgSel * (PROGRAM_PID_MAX_NUM * 2) * sizeof(uint16_t);
-		prog_info = &g_prog_info_table[i];
-		if (prog_info->status == 1) {
-			pid_2_buf(&buf[noff + 0], prog_info->PMT_PID_IN);
-			pid_2_buf(&buf[noff + 2], prog_info->PMT_PID_OUT);
-			pid_2_buf(&buf[noff + 4], prog_info->PCR_PID_IN);
-			pid_2_buf(&buf[noff + 6], prog_info->PCR_PID_OUT);
-
-			for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-				pid_2_buf(&buf[noff + 8 + j * 4],
-									prog_info->pids[j].in);
-				pid_2_buf(&buf[noff + 10 + j * 4],
-									prog_info->pids[j].out);
-			}
-			nProgSel++;
-			if (nProgSel >= PROGRAM_MAX_NUM)
-				break;
-		}
-	}
-}
-
 void pid_map_table_gen_start(struct pid_map_table_gen_context *ctx)
 {
 	pid_map_table_clear(&ctx->pid_map);
