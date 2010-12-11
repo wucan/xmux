@@ -1,4 +1,5 @@
 #include "wu/message.h"
+#include "wu/wu_csc.h"
 
 #include "xmux.h"
 #include "eeprom.h"
@@ -21,6 +22,19 @@ int xmux_config_init()
 
 static bool xmux_root_param_validate(struct xmux_root_param *p)
 {
+	struct pid_trans_info_snmp_data *pid_trans_info = p->pid_trans_info_area.pid_trans_info;
+	uint8_t chan_idx;
+	uint8_t csc;
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		uint8_t csc = wu_csc(&pid_trans_info[chan_idx],
+			sizeof(struct pid_trans_info_snmp_data) - 1);
+		if (csc != pid_trans_info[chan_idx].csc) {
+			trace_err("#%d pid trans info csc error!", chan_idx);
+			memset(&pid_trans_info[chan_idx], 0, sizeof(struct pid_trans_info_snmp_data));
+		}
+	}
+
 	/*TODO */
 	return true;
 }
