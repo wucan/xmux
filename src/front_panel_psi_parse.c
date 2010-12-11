@@ -14,42 +14,41 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "fp_psi_parse"};
 
 extern uv_dvb_io hfpga_dev;
 
-#define UV_PROG_NUM_MAX PROGRAM_MAX_NUM
 #define UV_DESCR_LEN    (32)
 
 static uv_pat_data pat;
-static uv_pat_pid_data pid_data[UV_PROG_NUM_MAX + 1];
+static uv_pat_pid_data pid_data[PROGRAM_MAX_NUM + 1];
 static uint16_t pid_num = 0;
 
 static uv_pmt_data pmt;
 static uv_descriptor pmt_descr[5];
 static unsigned char p_pmt_data[5][UV_DESCR_LEN];
-static uv_pmt_es_data es[UV_PROG_NUM_MAX];
-static uv_descriptor es_descr[UV_PROG_NUM_MAX][5];
-static unsigned char p_es_data[UV_PROG_NUM_MAX][5][UV_DESCR_LEN];
+static uv_pmt_es_data es[PROGRAM_MAX_NUM];
+static uv_descriptor es_descr[PROGRAM_MAX_NUM][5];
+static unsigned char p_es_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 static uint16_t es_num = 0;
 
 static uv_nit_data nit;
 static uv_descriptor nit_descr[5];
 static unsigned char p_nit_data[5][UV_DESCR_LEN];
-static uv_nit_stream_data stream[UV_PROG_NUM_MAX];
-static uv_descriptor stream_descr[UV_PROG_NUM_MAX][5];
-static unsigned char p_stream_data[UV_PROG_NUM_MAX][5][UV_DESCR_LEN];
+static uv_nit_stream_data stream[PROGRAM_MAX_NUM];
+static uv_descriptor stream_descr[PROGRAM_MAX_NUM][5];
+static unsigned char p_stream_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 static uint16_t stream_num = 0;
 
 static uv_sdt_data sdt;
-static uv_sdt_serv_data serv[UV_PROG_NUM_MAX];
-static uv_descriptor serv_descr[UV_PROG_NUM_MAX][5];
-static unsigned char p_serv_data[UV_PROG_NUM_MAX][5][UV_DESCR_LEN];
+static uv_sdt_serv_data serv[PROGRAM_MAX_NUM];
+static uv_descriptor serv_descr[PROGRAM_MAX_NUM][5];
+static unsigned char p_serv_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 static uint16_t serv_num = 0;
 
 static uv_eit_data eit;
-static uv_eit_event_data event[UV_PROG_NUM_MAX];
-static uv_descriptor event_descr[UV_PROG_NUM_MAX][5];
-static unsigned char p_event_data[UV_PROG_NUM_MAX][5][UV_DESCR_LEN];
+static uv_eit_event_data event[PROGRAM_MAX_NUM];
+static uv_descriptor event_descr[PROGRAM_MAX_NUM][5];
+static unsigned char p_event_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 static uint16_t event_num = 0;
 
@@ -86,7 +85,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 		cat_descr[i].p_data = p_cat_descr_data[i];
 	}
 
-	for (i = 0; i < UV_PROG_NUM_MAX; i++) {
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
 		es[i].p_descr = es_descr[i];
 		stream[i].p_descr = stream_descr[i];
 		serv[i].p_descr = serv_descr[i];
