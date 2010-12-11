@@ -44,23 +44,36 @@ enum {
 extern int management_mode;
 
 /*
- * input/program relay table, 25904B
+ * pid trans info table
+ * snmp node 5188.12
  */
-struct program_relay_entry {
+struct pid_trans_entry {
+	uint16_t in;
+	uint16_t out;
+};
+struct pid_trans_info_program_snmp_data {
 	uint16_t prog_num;
-	uint16_t pmt_pid[2];
-	uint16_t pcr_pid[2];
-	uint16_t data_pids[2][PROGRAM_DATA_PID_MAX_NUM]; // zero terminated
-	char prog_name[2][PROGRAM_NAME_SIZE];
-	uint8_t csc; // include all above field
-} __attribute__((packed));
 
-struct xmux_program_relay_table {
-	uint8_t chan_id;
+	/*
+	 * pid
+	 */
+	struct pid_trans_entry pmt;
+	struct pid_trans_entry pcr;
+	struct pid_trans_entry data[PROGRAM_DATA_PID_MAX_NUM];
+
+	char prog_name[2][PROGRAM_NAME_SIZE];
+} __attribute__ ((__packed__));
+struct pid_trans_info_snmp_data {
+	uint16_t data_len;
+
+	uint8_t update_flag_and_chan_num;
 	uint8_t nprogs;
 	uint32_t status;
-	struct program_relay_entry progs[PROGRAM_MAX_NUM];
+	struct pid_trans_info_program_snmp_data programs[PROGRAM_MAX_NUM];
+
+	uint8_t csc;
 } __attribute__((packed));
+#define PID_TRANS_INFO_SIZE			sizeof(struct pid_trans_info_snmp_data)
 
 #define PROGRAM_RELAYABLE(status, prog_id)		(status & (1 << prog_id))
 #define DATA_PID_TYPE(data_pid_value)			(data_pid_value >> 13)
@@ -155,7 +168,7 @@ struct xmux_user_param {
 /*
  * EEPROM parameter layout:
  *   struct xmux_program_relay_table prog_relay_table;
- *   struct xmux_pid_relay_table pid_relay_table;
+ *   struct pid_trans_info_snmp_data pid_trans_info;
  *   struct xmux_output_psi_data output_psi;
  *   struct xmux_system_param sys;
  *   struct xmux_net_param net;
@@ -165,8 +178,8 @@ struct xmux_user_param {
 struct xmux_root_param {
 	union {
 		uint8_t bytes[25904];
-		struct xmux_program_relay_table prog_relay_table;
-	} prog_relay_table_area;
+		struct pid_trans_info_snmp_data pid_trans_info[CHANNEL_MAX_NUM];
+	} pid_trans_info_area;
 	union {
 		uint8_t bytes[1024];
 		struct xmux_pid_relay_table pid_relay_table;
