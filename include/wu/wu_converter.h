@@ -5,7 +5,7 @@
 
 
 // 0027 4567 BCD -> 0x00274567
-uint32_t wu_bcd2hex(uint32_t bcd)
+static inline uint32_t wu_bcd2hex(uint32_t bcd)
 {
 	int i;
 	uint32_t hex = 0, div = bcd, rem;
