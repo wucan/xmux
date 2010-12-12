@@ -127,7 +127,7 @@ gen_pmt_done:
 	return 0;
 }
 
-int psi_apply()
+int psi_apply_from_output_psi()
 {
 	struct xmux_output_psi_data *psi_data = &g_xmux_root_param.output_psi_area.output_psi;
 	struct output_psi_data_entry *ent;
