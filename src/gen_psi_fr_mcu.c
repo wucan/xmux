@@ -5,7 +5,7 @@
 
 #include "xmux.h"
 #include "fpga_api.h"
-#include "gen_dvb_si.h"
+#include "psi_gen.h"
 
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
@@ -21,7 +21,7 @@ static uint8_t sdbuf[32][5][UV_DESCR_LEN];
 
 static int GenSDT(void)
 {
-	uv_sdt_data sdt_data;
+	struct sdt_gen_context gen_ctx;
 	uv_sdt_serv_data sdt_serv_data[32];
 	uint16_t serv_num = 32;
 	int i, j;
@@ -31,10 +31,7 @@ static int GenSDT(void)
 
 	trace_info("generate SDT ...");
 
-	sdt_data.i_table_id = 0x42;
-	sdt_data.i_tran_stream_id = 0x1234;
-	sdt_data.i_orig_net_id = 0xEAEA;
-
+	sdt_gen_context_init(&gen_ctx);
 	for (i = 0; i < serv_num; i++) {
 		sdt_serv_data[i].i_serv_id = i + 1;
 		sdt_serv_data[i].i_eit_pres_foll_flag = 0;
@@ -65,7 +62,7 @@ static int GenSDT(void)
 		}
 	}
 
-	dvbSI_Gen_SDT(&sdt_data, sdt_serv_data, serv_num);
+	dvbSI_Gen_SDT(&gen_ctx.sdt_data, sdt_serv_data, serv_num);
 
 	// free mem
 	for (i = 0; i < serv_num; i++) {
@@ -212,7 +209,7 @@ static int get_dsw_provider_len(void)
 int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 {
 #if 1
-	uv_sdt_data sdt_data;
+	struct sdt_gen_context gen_ctx;
 	uv_sdt_serv_data sdt_serv_data[PROGRAM_MAX_NUM];
 	int ncount;
 	uv_descriptor *p_descr;
@@ -223,10 +220,7 @@ int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 
 	trace_info("generate SDT ...");
 
-	sdt_data.i_table_id = 0x42;
-	sdt_data.i_tran_stream_id = 0x1234;
-	sdt_data.i_orig_net_id = 0xEAEA;
-
+	sdt_gen_context_init(&gen_ctx);
 	for (ncount = 0; ncount < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; ncount++) {
 		int j;
 		// 4 is PMT_PID_IN,PMT_PID_OUT,PCR_PID_IN,PCR_PID_OUT
@@ -269,7 +263,7 @@ int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 				break;
 		}
 	}
-	dvbSI_Gen_SDT(&sdt_data, sdt_serv_data, nProgSel);
+	dvbSI_Gen_SDT(&gen_ctx.sdt_data, sdt_serv_data, nProgSel);
 
 #if 0
 	// free mem
