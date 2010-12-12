@@ -40,7 +40,7 @@ xmux_SOURCES = \
 	front_panel_gpio_test.c \
 	front_panel_process.c \
 	front_panel_data_churning.c \
-	gen_psi_fr_mcu.c \
+	front_panel_psi_gen.c \
 	front_panel_psi_parse.c \
 	section.c \
 	psi_worker.c \
