@@ -74,11 +74,6 @@ static int GenCAT(void)
 	dvbSI_Gen_CAT(cat_descr, cat_descr_num);
 }
 
-static int get_dsw_provider_len(void)
-{
-	return strlen(defProviderDsw);
-}
-
 // ------ PMT End
 int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 {
