@@ -14,23 +14,6 @@ extern uv_dvb_io hfpga_dev;
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp-psi-gen"};
 
-static int GenSDT(void)
-{
-	struct sdt_gen_context gen_ctx;
-
-	trace_info("generate SDT ...");
-	sdt_gen_context_init(&gen_ctx);
-	sdt_gen_context_add_service(&gen_ctx, "CCTV1", 1, "CCTV");
-	sdt_gen_context_add_service(&gen_ctx, "CCTV2", 2, "CCTV");
-	sdt_gen_context_pack(&gen_ctx);
-
-	dvbSI_Gen_SDT(&gen_ctx.sdt_data, gen_ctx.sdt_serv_data, gen_ctx.serv_num);
-
-	sdt_gen_context_free(&gen_ctx);
-
-	return 0;
-}
-
 static int GenNIT(void)
 {
 	struct nit_gen_context nit_gen_ctx;
@@ -142,61 +125,5 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 	}
 
 	return 0;
-}
-
-static int GenPAT_and_PMT(void)
-{
-	int i, j;
-	struct pat_gen_context pat_gen_ctx;
-
-	trace_info("generate PAT&PMT ...");
-
-	// Begin Set Values
-	pat_gen_context_init(&pat_gen_ctx);
-	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
-		pat_gen_context_add_program(&pat_gen_ctx, 0x10 + 1, 0x250 + i);
-	}
-	pat_gen_context_pack(&pat_gen_ctx);
-	trace_info("generate PAT ...");
-	dvbSI_Gen_PAT(&pat_gen_ctx.tpat, pat_gen_ctx.tpid_data, pat_gen_ctx.nprogs);
-
-	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
-		struct pmt_gen_context pmt_gen_ctx;
-		uv_pat_pid_data *tpid_data = pat_gen_ctx.tpid_data;
-
-		pmt_gen_context_init(&pmt_gen_ctx);
-		pmt_gen_context_add_program_info(&pmt_gen_ctx,
-			tpid_data[i].i_pg_num, tpid_data[i].i_pid, 0x270 + i);
-		for (j = 0; j < 2; j++)	// Video Audio
-			pmt_gen_context_add_es(&pmt_gen_ctx, 0x300 + 32 * i + j, 0x3 + j);
-		pmt_gen_context_pack(&pmt_gen_ctx);
-		trace_info("generate PMT of program $#%d ...", i);
-		dvbSI_Gen_PMT(&pmt_gen_ctx.tpmt, pmt_gen_ctx.tes, pmt_gen_ctx.nes);
-	}
-
-	return 0;
-}
-
-void test_gen_psi()
-{
-	dvbSI_Start(&hfpga_dev);
-
-	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
-
-	GenPAT_and_PMT();
-
-	sleep(2);
-	GenSDT();
-
-	sleep(2);
-	GenNIT();
-
-	sleep(2);
-	GenCAT();
-
-	sleep(1);
-	dvbSI_GenSS(HFPGA_CMD_SI_START);
-
-	dvbSI_Stop();
 }
 
