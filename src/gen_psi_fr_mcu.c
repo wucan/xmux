@@ -170,90 +170,27 @@ static int get_dsw_provider_len(void)
 // ------ PMT End
 int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 {
-#if 1
 	struct sdt_gen_context gen_ctx;
-	uv_sdt_serv_data sdt_serv_data[PROGRAM_MAX_NUM];
 	int ncount;
-	uv_descriptor *p_descr;
-	int num = 1;				//2;
-
 	int nProgSel = 0;
-	PROG_INFO_T *pProg = (PROG_INFO_T *) pProgpara;
+	PROG_INFO_T *pProg;
 
 	trace_info("generate SDT ...");
-
 	sdt_gen_context_init(&gen_ctx);
 	for (ncount = 0; ncount < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; ncount++) {
-		int j;
-		// 4 is PMT_PID_IN,PMT_PID_OUT,PCR_PID_IN,PCR_PID_OUT
-		// defProgPidNum*2 is PIDS
 		pProg = (PROG_INFO_T *) pProgpara + ncount;
 		if (pProg->status == 1) {
-			sdt_serv_data[nProgSel].i_serv_id = nProgSel + 1;
-			sdt_serv_data[nProgSel].i_eit_pres_foll_flag = 0;
-			sdt_serv_data[nProgSel].i_eit_sched_flag = 0;
-			sdt_serv_data[nProgSel].i_free_ca_mode = 0;
-			sdt_serv_data[nProgSel].i_running_status = 1;
-			sdt_serv_data[nProgSel].i_descr_num = num;
-			sdt_serv_data[nProgSel].p_descr =
-				(uv_descriptor *) calloc(sdt_serv_data[nProgSel].
-										 i_descr_num *
-										 sizeof(uv_descriptor),
-										 sizeof(uint8_t));
-			p_descr = sdt_serv_data[nProgSel].p_descr;
-			for (j = 0; j < num; j++) {
-				p_descr[j].i_tag = 0x48;
-				p_descr[j].i_length =
-					4 + get_dsw_provider_len() + pProg->info.prog_name[1][0];
-				// 4 is service_type(1) + service_provider_length(1) + service_name_length(1) + progname_len(1)
-				//p_descr[j].p_data = malloc(p_descr[j].i_length);  //sdbuf[nProgSel][j];
-				p_descr[j].p_data = sdbuf[nProgSel][j];
-
-
-
-				p_descr[j].p_data[0] = 0x01;	// serivece type DTV
-				p_descr[j].p_data[1] = get_dsw_provider_len();	// 
-				memcpy(&(p_descr[j].p_data[2]), defProviderDsw,
-					   get_dsw_provider_len());
-				p_descr[j].p_data[2 + get_dsw_provider_len()] =
-					pProg->info.prog_name[1][0] + 1;
-
-			}
-
+			pProg->info.prog_name[1][pProg->info.prog_name[1][0]] = 0;
+			sdt_gen_context_add_service(&gen_ctx, pProg->info.prog_name[1][1], nProgSel + 1, defProviderDsw);
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
 				break;
 		}
 	}
-	dvbSI_Gen_SDT(&gen_ctx.sdt_data, sdt_serv_data, nProgSel);
+	sdt_gen_context_pack(&gen_ctx);
+	dvbSI_Gen_SDT(&gen_ctx.sdt_data, gen_ctx.sdt_serv_data, gen_ctx.serv_num);
+	sdt_gen_context_pack(&gen_ctx);
 
-#if 0
-	// free mem
-	for (ncount = 0; ncount < nProgSel; ncount++) {
-
-#if 0
-		int j;
-		p_descr = sdt_serv_data[ncount].p_descr + ncount;
-		for (j = 0; j < num; j++) {
-			printf("p_descr_005=0x%08X;count=%d;j=%d\n", p_descr, ncount,
-				   j);
-			if (p_descr[j].p_data)
-				free(p_descr[j].p_data);
-		}
-
-		//p_descr=sdt_serv_data[ncount].p_descr
-#endif
-		free(sdt_serv_data[ncount].p_descr);
-	}
-#endif
-	// free mem
-
-	for (ncount = 0; ncount < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; ncount++) {
-		if (pProg->status == 1)
-			free(sdt_serv_data[ncount].p_descr);
-	}
-
-#endif
 	return 0;
 }
 
