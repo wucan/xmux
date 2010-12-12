@@ -248,7 +248,7 @@ int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 			for (j = 0; j < num; j++) {
 				p_descr[j].i_tag = 0x48;
 				p_descr[j].i_length =
-					4 + get_dsw_provider_len() + pProg->progname[1][0];
+					4 + get_dsw_provider_len() + pProg->info.prog_name[1][0];
 				// 4 is service_type(1) + service_provider_length(1) + service_name_length(1) + progname_len(1)
 				//p_descr[j].p_data = malloc(p_descr[j].i_length);  //sdbuf[nProgSel][j];
 				p_descr[j].p_data = sdbuf[nProgSel][j];
@@ -260,7 +260,7 @@ int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 				memcpy(&(p_descr[j].p_data[2]), defProviderDsw,
 					   get_dsw_provider_len());
 				p_descr[j].p_data[2 + get_dsw_provider_len()] =
-					pProg->progname[1][0] + 1;
+					pProg->info.prog_name[1][0] + 1;
 
 			}
 
@@ -338,7 +338,7 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 
 			tpid_data[nProgSel].i_pg_num = nProgSel + 1;
 
-			tpid_data[nProgSel].i_pid = pProg->PMT_PID_OUT;
+			tpid_data[nProgSel].i_pid = pProg->info.pmt.out;
 
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
@@ -358,17 +358,17 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 		if (pProg->status == 1) {
 			tpmt.i_pg_num = nProgSel + 1;
 
-			tpmt.i_pmt_pid = pProg->PMT_PID_OUT;
-			tpmt.i_pcr_pid = pProg->PCR_PID_OUT;
+			tpmt.i_pmt_pid = pProg->info.pmt.out;
+			tpmt.i_pcr_pid = pProg->info.pcr.out;
 			tpmt.i_descr_num = 0;
 
 			tes_num = 0;
 			for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++)	// Video Audio
 			{
-				if (pProg->pids[j].out != 0x00
-					&& pProg->pids[j].out != 0x0F) {
-					tes[j].i_type = pProg->pids[j].type;
-					tes[j].i_pid = pProg->pids[j].out;
+				uint16_t out_pid = pProg->info.data[j].out;
+				if (out_pid != 0x00 && out_pid != 0x0F) {
+					tes[j].i_type = pProg->info.data[j].type;
+					tes[j].i_pid = out_pid;
 					tes[j].i_descr_num = 0;	//
 					tes_num++;
 				}

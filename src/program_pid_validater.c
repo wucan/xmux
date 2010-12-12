@@ -23,35 +23,37 @@ int pids_isvalid_in_program(PROG_INFO_T * pProg)
 	int i;
 
 	trace_info("check program output pids valid ...");
-	if (!prog_pid_val_isvalid(pProg->PMT_PID_OUT)
-		|| !prog_pid_val_isvalid(pProg->PCR_PID_OUT)) {
+	if (!prog_pid_val_isvalid(pProg->info.pmt.out)
+		|| !prog_pid_val_isvalid(pProg->info.pcr.out)) {
 		trace_warn("PMT/PCR invalid!");
 		return enm_prog_pid_val_err;
 	}
 	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		if (pProg->pids[i].out != 0x000F && pProg->pids[i].out != 0x0000
-			&& (!prog_pid_val_isvalid(pProg->pids[i].out))) {
-			trace_warn("data pid %d invalid!", pProg->pids[i].out);
+		uint16_t out_pid = pProg->info.data[i].out;
+
+		if (out_pid != 0x000F && out_pid != 0x0000 &&
+			(!prog_pid_val_isvalid(out_pid))) {
+			trace_warn("data pid %d invalid!", out_pid);
 			return enm_prog_pid_val_err;
 		}
 	}
 
-	if (pProg->PMT_PID_OUT == pProg->PCR_PID_OUT) {
+	if (pProg->info.pmt.out == pProg->info.pcr.out) {
 		trace_warn("PMT == PCR!");
 		return enm_prog_pid_pmt_pcr;
 	}
 
 	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		if (pProg->PCR_PID_IN == pProg->pids[i].in)
-			pProg->pids[i].out = pProg->PCR_PID_OUT;
+		if (pProg->info.data[i].in == pProg->info.pcr.in)
+			pProg->info.data[i].out = pProg->info.pcr.out;
 	}
 
 	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
 		int j;
 		for (j = i + 1; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-			if (prog_pid_val_isvalid(pProg->pids[j].out)) {
-				if (pProg->pids[i].out == pProg->pids[j].out) {
-					trace_warn("data pid %d repeated!", pProg->pids[j].out);
+			if (prog_pid_val_isvalid(pProg->info.data[j].out)) {
+				if (pProg->info.data[i].out == pProg->info.data[j].out) {
+					trace_warn("data pid %d repeated!", pProg->info.data[j].out);
 					return enm_prog_pid_other_other;
 				}
 			}
@@ -59,12 +61,13 @@ int pids_isvalid_in_program(PROG_INFO_T * pProg)
 	}
 
 	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		if (pProg->PMT_PID_OUT == pProg->pids[i].out) {
+		uint16_t in_pid = pProg->info.data[i].in;
+		uint16_t out_pid = pProg->info.data[i].out;
+		if (pProg->info.pmt.out == out_pid) {
 			trace_warn("PMT pid had used in data pids!");
 			return enm_prog_pid_pmt_other;
 		}
-		if (pProg->PCR_PID_OUT == pProg->pids[i].out
-			&& pProg->PCR_PID_IN != pProg->pids[i].in) {
+		if (pProg->info.pcr.out == out_pid && pProg->info.pcr.in != in_pid) {
 			trace_warn("PCR pid had used in data pids!");
 			return enm_prog_pid_pcr_other;
 		}
@@ -81,13 +84,13 @@ int is_prog_pidsel_in_program(uint16_t npid, PROG_INFO_T * pProgPara)
 
 	trace_info("check program selected pid %d valide ...");
 	if (prog_pid_val_isvalid(npid)) {
-		if (npid == pProgPara->PMT_PID_OUT
-			|| npid == pProgPara->PCR_PID_OUT) {
+		if (npid == pProgPara->info.pmt.out ||
+			npid == pProgPara->info.pcr.out) {
 			trace_warn("this pid had already used by output PMT/PCR!");
 			return enm_prog_pid_program;
 		}
 		for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-			if (npid == pProgPara->pids[i].out) {
+			if (npid == pProgPara->info.data[i].out) {
 				trace_warn("this pid had already used by output data pid #%d!",
 					i);
 				return enm_prog_pid_program;
@@ -113,15 +116,15 @@ int current_prog_pids_is_repeat(int selporg, PROG_INFO_T * pProgPara)
 			continue;
 		if (pProgtmp->status != 1)
 			continue;
-		if (is_prog_pidsel_in_program(pProgsel->PMT_PID_OUT, pProgtmp) !=
+		if (is_prog_pidsel_in_program(pProgsel->info.pmt.out, pProgtmp) !=
 			enm_prog_pid_valid
-			|| is_prog_pidsel_in_program(pProgsel->PCR_PID_OUT,
+			|| is_prog_pidsel_in_program(pProgsel->info.pcr.out,
 										 pProgtmp) != enm_prog_pid_valid) {
 			trace_warn("PMT/PCR output pid invalid!");
 			return enm_prog_pid_program;
 		}
 		for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-			if (is_prog_pidsel_in_program(pProgsel->pids[i].out, pProgtmp)
+			if (is_prog_pidsel_in_program(pProgsel->info.data[i].out, pProgtmp)
 				!= enm_prog_pid_valid) {
 				trace_warn("data output pid #%d invalid!", i);
 				return enm_prog_pid_program;
@@ -144,8 +147,8 @@ int valid_map_pids_in_one_program(PROG_INFO_T * pProg)
 
 	trace_info("valid map pids in program");
 	for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-		if (pProg->PCR_PID_IN != pProg->pids[j].in
-			&& prog_pid_val_isvalid(pProg->pids[j].in)) {
+		uint16_t in_pid = pProg->info.data[j].in;
+		if (pProg->info.pcr.in != in_pid && prog_pid_val_isvalid(in_pid)) {
 			npidcount++;
 		}
 	}

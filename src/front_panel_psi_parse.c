@@ -152,11 +152,11 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 		if (pid_data[i].i_pid != NIT_PID) {
 			prog_info = chan_prog_info + prog_cnt;
 			prog_cnt++;
-			prog_info->PMT_PID_IN = pid_data[i].i_pid;
-			prog_info->PMT_PID_OUT =
+			prog_info->info.pmt.in = pid_data[i].i_pid;
+			prog_info->info.pmt.out =
 				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
 					DSW_PID_PMT, pid_data[i].i_pid, NULL, 0);
-			prog_info->prognum = pid_data[i].i_pg_num;
+			prog_info->info.prog_num = pid_data[i].i_pg_num;
 
 			trace_info("decode PMT %#x ...", pid_data[i].i_pid);
 			pmt.i_pg_num = pid_data[i].i_pg_num;
@@ -174,8 +174,8 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			 */
 			nr_pids = scan_program_pids(&pmt, &es, es_num, pids);
 
-			prog_info->PCR_PID_IN = pmt.i_pcr_pid;
-			prog_info->PCR_PID_OUT =
+			prog_info->info.pcr.in = pmt.i_pcr_pid;
+			prog_info->info.pcr.out =
 				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
 					DSW_PID_PCR, pmt.i_pcr_pid, pids, nr_pids);
 			trace_info("PCR %#x, %s descrs",
@@ -191,15 +191,15 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 				trace_info("es %d, type %#x, pid %#x",
 					j, es[j].i_type, es[j].i_pid);
 				if (j < PROGRAM_DATA_PID_MAX_NUM) {
-					prog_info->pids[j].type = es[j].i_type;
+					prog_info->info.data[j].type = es[j].i_type;
 					if (es[j].i_pid != pmt.i_pcr_pid) {
-						prog_info->pids[j].in = es[j].i_pid;
-						prog_info->pids[j].out =
+						prog_info->info.data[j].in = es[j].i_pid;
+						prog_info->info.data[j].out =
 							pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
 								DSW_PID_VIDEO, es[j].i_pid, pids, nr_pids);
 					} else {
-						prog_info->pids[j].in = es[j].i_pid;
-						prog_info->pids[j].out =
+						prog_info->info.data[j].in = es[j].i_pid;
+						prog_info->info.data[j].out =
 							pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
 								DSW_PID_PCR, es[j].i_pid, pids, nr_pids);
 					}
@@ -228,11 +228,11 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	for (j = 0; j < serv_num; j++) {
 		for (i = 0; i < prog_cnt; i++) {
 			prog_info = chan_prog_info + i;
-			if (serv[j].i_serv_id == prog_info->prognum) {
+			if (serv[j].i_serv_id == prog_info->info.prog_num) {
 				trace_info("service #%d: service_id %#x",
 					j, serv[j].i_serv_id);
 				extract_program_name(serv[j].p_descr->p_data,
-						(unsigned char *)prog_info->progname);
+						(unsigned char *)prog_info->info.prog_name);
 			}
 		}
 		if (i == prog_cnt) {

@@ -20,38 +20,34 @@ void fp_cmd_header_2_buf(struct fp_cmd_header * hdr, char *buf)
 	buf_header->seq = SWAP_U16(buf_header->seq);
 }
 
-void buf_2_prog_info(PROG_INFO_T *prog_info, char *buf)
+static inline void churning_fp_program_info(struct fp_program_info *info)
 {
-	int i, j;
+	int i;
 
-	memcpy(prog_info, buf, sizeof(PROG_INFO_T));
-	prog_info->prognum = SWAP_U16(prog_info->prognum);
-	prog_info->PMT_PID_IN = SWAP_U16(prog_info->PMT_PID_IN);
-	prog_info->PMT_PID_OUT = SWAP_U16(prog_info->PMT_PID_OUT);
-	prog_info->PCR_PID_IN = SWAP_U16(prog_info->PCR_PID_IN);
-	prog_info->PCR_PID_OUT = SWAP_U16(prog_info->PCR_PID_OUT);
+	info->prog_num = SWAP_U16(info->prog_num);
+	info->pmt.in = SWAP_U16(info->pmt.in);
+	info->pmt.out = SWAP_U16(info->pmt.out);
+	info->pcr.in = SWAP_U16(info->pcr.in);
+	info->pcr.out = SWAP_U16(info->pcr.out);
 
 	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		prog_info->pids[i].in = SWAP_U16(prog_info->pids[i].in);
-		prog_info->pids[i].out = SWAP_U16(prog_info->pids[i].out);
+		info->data[i].in = SWAP_U16(info->data[i].in);
+		info->data[i].out = SWAP_U16(info->data[i].out);
 	}
+}
+
+void buf_2_prog_info(PROG_INFO_T *prog_info, char *buf)
+{
+	memcpy(prog_info, buf, sizeof(PROG_INFO_T));
+	churning_fp_program_info(&prog_info->info);
 }
 
 void prog_info_2_buf(PROG_INFO_T *prog_info, char *buf)
 {
-	int i;
 	PROG_INFO_T *buf_prog_info = (PROG_INFO_T *)buf;
 
 	*buf_prog_info = *prog_info;
-	buf_prog_info->prognum = SWAP_U16(buf_prog_info->prognum);
-	buf_prog_info->PMT_PID_IN = SWAP_U16(buf_prog_info->PMT_PID_IN);
-	buf_prog_info->PMT_PID_OUT = SWAP_U16(buf_prog_info->PMT_PID_OUT);
-	buf_prog_info->PCR_PID_IN = SWAP_U16(buf_prog_info->PCR_PID_IN);
-	buf_prog_info->PCR_PID_OUT = SWAP_U16(buf_prog_info->PCR_PID_OUT);
-	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		buf_prog_info->pids[i].in = SWAP_U16(buf_prog_info->pids[i].in);
-		buf_prog_info->pids[i].out = SWAP_U16(buf_prog_info->pids[i].out);
-	}
+	churning_fp_program_info(&buf_prog_info->info);
 }
 
 void buf_2_out_rate(OUT_RATE_T *out_rate, char *buf)

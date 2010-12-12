@@ -144,22 +144,24 @@ static void _apply_pid_map_table_and_psi()
 			PROG_INFO_T *prog_info = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 			trace_info("#%d/%d status %d, input PCR PID %u",
 				chan_idx, prog_idx,
-				prog_info->status, prog_info->PCR_PID_IN);
+				prog_info->status, prog_info->info.pcr.in);
 			if (prog_info->status == 1) {
 				if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
-					prog_info->PMT_PID_IN, prog_info->PMT_PID_OUT)) {
+					prog_info->info.pmt.in, prog_info->info.pmt.out)) {
 					goto pid_map_gen_done;
 				}
 				if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
-					prog_info->PCR_PID_IN, prog_info->PCR_PID_OUT)) {
+					prog_info->info.pcr.in, prog_info->info.pcr.out)) {
 					goto pid_map_gen_done;
 				}
 				for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-					if (prog_info->PCR_PID_IN != prog_info->pids[j].in &&
-						prog_pid_val_isvalid(prog_info->pids[j].in) &&
-						prog_pid_val_isvalid(prog_info->pids[j].out)) {
+					uint16_t in_pid = prog_info->info.data[j].in;
+					uint16_t out_pid = prog_info->info.data[j].out;
+					if (prog_info->info.pcr.in != in_pid &&
+						prog_pid_val_isvalid(in_pid) &&
+						prog_pid_val_isvalid(out_pid)) {
 						if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
-							prog_info->pids[j].in, prog_info->pids[j].out)) {
+							in_pid, out_pid)) {
 							goto pid_map_gen_done;
 						}
 					}
