@@ -144,13 +144,6 @@ static int GenCAT(void)
 	dvbSI_Gen_CAT(cat_descr, cat_descr_num);
 }
 
-// ------ PAT Start
-static uv_pat_data tpat;
-static uv_pat_pid_data tpid_data[PROGRAM_MAX_NUM + 1];
-static uint16_t tpid_num = PROGRAM_MAX_NUM;
-
-// ------ PAT End
-
 // ------ PMT Start
 static uv_pmt_data tpmt;
 static uv_descriptor tpmt_descr[5];
@@ -204,6 +197,7 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 	int nProgSel = 0;
 	int nProgNum = 0;
 	PROG_INFO_T *pProg = (PROG_INFO_T *) pProgpara;
+	struct pat_gen_context pat_gen_ctx;
 
 	trace_info("generate PAT&PMT ...");
 	tpmt.p_descr = tpmt_descr;
@@ -218,29 +212,20 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 	}
 
 	// Begin Set Values
-	tpat.i_tran_stream_id = 0x123;
-
+	pat_gen_context_init(&pat_gen_ctx);
 	nProgSel = 0;
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
-		int j;
-		// 4 is PMT_PID_IN,PMT_PID_OUT,PCR_PID_IN,PCR_PID_OUT
-		// defProgPidNum*2 is PIDS
 		pProg = (PROG_INFO_T *) pProgpara + i;
-
 		if (pProg->status == 1) {
-
-			tpid_data[nProgSel].i_pg_num = nProgSel + 1;
-
-			tpid_data[nProgSel].i_pid = pProg->info.pmt.out;
-
+			pat_gen_context_add_program(&pat_gen_ctx, nProgSel + 1, pProg->info.pmt.out);
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
 				break;
 		}
 	}
-
+	pat_gen_context_pack(&pat_gen_ctx);
 	trace_info("generate PAT ...");
-	dvbSI_Gen_PAT(&tpat, tpid_data, tpid_num);
+	dvbSI_Gen_PAT(&pat_gen_ctx.tpat, pat_gen_ctx.tpid_data, pat_gen_ctx.nprogs);
 
 	nProgSel = 0;
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
@@ -284,6 +269,7 @@ static int GenPAT_and_PMT(void)
 {
 	int i, j, k;
 	uint8_t packet[188];
+	struct pat_gen_context pat_gen_ctx;
 
 	trace_info("generate PAT&PMT ...");
 	tpmt.p_descr = tpmt_descr;
@@ -298,16 +284,16 @@ static int GenPAT_and_PMT(void)
 	}
 
 	// Begin Set Values
-	tpat.i_tran_stream_id = 0x123;
-
-	for (i = 0; i < tpid_num; i++) {
-		tpid_data[i].i_pg_num = 0x10 + i;
-		tpid_data[i].i_pid = 0x250 + i;
+	pat_gen_context_init(&pat_gen_ctx);
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
+		pat_gen_context_add_program(&pat_gen_ctx, 0x10 + 1, 0x250 + i);
 	}
+	pat_gen_context_pack(&pat_gen_ctx);
 	trace_info("generate PAT ...");
-	dvbSI_Gen_PAT(&tpat, tpid_data, tpid_num);
+	dvbSI_Gen_PAT(&pat_gen_ctx.tpat, pat_gen_ctx.tpid_data, pat_gen_ctx.nprogs);
 
-	for (i = 0; i < tpid_num; i++) {
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
+		uv_pat_pid_data *tpid_data = pat_gen_ctx.tpid_data;
 		tpmt.i_pg_num = tpid_data[i].i_pg_num;
 		tpmt.i_pmt_pid = tpid_data[i].i_pid;
 		tpmt.i_pcr_pid = 0x270 + i;

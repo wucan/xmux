@@ -34,6 +34,26 @@ void sdt_gen_context_add_service(struct sdt_gen_context *ctx,
 		const char *serv_name, int service_id, const char *provider);
 void sdt_gen_context_free(struct sdt_gen_context *ctx);
 
+/*
+ * PAT generate stuff
+ */
+struct pat_prog_info {
+	uint16_t prog_num;
+	uint16_t pmt_pid;
+};
+struct pat_gen_context {
+	uint8_t nprogs;
+
+	uv_pat_data tpat;
+	uv_pat_pid_data tpid_data[PROGRAM_MAX_NUM + 1];
+	struct pat_prog_info programs[PROGRAM_MAX_NUM];
+};
+void pat_gen_context_init(struct pat_gen_context *ctx);
+void pat_gen_context_pack(struct pat_gen_context *ctx);
+void pat_gen_context_add_program(struct pat_gen_context *ctx,
+		uint16_t prog_num, uint16_t pmt_pid);
+void pat_gen_context_free(struct pat_gen_context *ctx);
+
 int psi_gen_output_psi_from_sections();
 int psi_apply();
 

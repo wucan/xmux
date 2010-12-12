@@ -203,4 +203,25 @@ void sdt_gen_context_free(struct sdt_gen_context *ctx)
 		free(ctx->sdt_serv_data[i].p_descr);
 	}
 }
+/*
+ * PAT
+ */
+void pat_gen_context_init(struct pat_gen_context *ctx)
+{
+	ctx->nprogs = 0;
+	ctx->tpat.i_tran_stream_id = 0x123;
+}
+void pat_gen_context_pack(struct pat_gen_context *ctx)
+{
+}
+void pat_gen_context_add_program(struct pat_gen_context *ctx,
+		uint16_t prog_num, uint16_t pmt_pid)
+{
+	ctx->programs[ctx->nprogs].prog_num = prog_num;
+	ctx->programs[ctx->nprogs].pmt_pid = pmt_pid;
+	ctx->nprogs++;
+}
+void pat_gen_context_free(struct pat_gen_context *ctx)
+{
+}
 
