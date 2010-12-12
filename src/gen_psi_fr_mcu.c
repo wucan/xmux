@@ -1,20 +1,15 @@
-#include <fcntl.h>
-
 #include "wu/message.h"
 
 #include "xmux.h"
-#include "fpga_api.h"
 #include "psi_gen.h"
 
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
 
 
-extern uv_dvb_io hfpga_dev;
-
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp-psi-gen"};
 
-static int GenNIT(void)
+int gen_nit_from_fp()
 {
 	struct nit_gen_context nit_gen_ctx;
 	int i;
@@ -32,7 +27,7 @@ static int GenNIT(void)
 	return 0;
 }
 
-static int GenCAT(void)
+int gen_cat_from_fp()
 {
 	struct cat_gen_context cat_gen_ctx;
 
@@ -42,9 +37,11 @@ static int GenCAT(void)
 	cat_gen_context_pack(&cat_gen_ctx);
 	dvbSI_Gen_CAT(cat_gen_ctx.cat_desc, cat_gen_ctx.desc_num);
 	cat_gen_context_free(&cat_gen_ctx);
+
+	return 0;
 }
 
-int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
+int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 {
 	struct sdt_gen_context gen_ctx;
 	int ncount;
@@ -70,7 +67,7 @@ int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 	return 0;
 }
 
-int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
+int gen_pat_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 {
 	int i, j;
 

@@ -412,7 +412,10 @@ int psi_gen_and_apply_from_fp()
 	trace_info("stop gen si");
 	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
 
-	gen_pat_pmt_fr_mcu(packpara, g_prog_info_table);
+	gen_pat_pmt_from_fp(packpara, g_prog_info_table);
+	gen_sdt_from_fp(packpara, g_prog_info_table);
+	gen_nit_from_fp();
+	gen_cat_from_fp();
 
 	trace_info("start gen si");
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
