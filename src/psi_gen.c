@@ -1,5 +1,7 @@
 #include <string.h>
 
+#include "wu/wu_converter.h"
+
 #include "xmux.h"
 #include "xmux_config.h"
 #include "psi_parse.h"
@@ -275,5 +277,91 @@ void pmt_gen_context_add_es(struct pmt_gen_context *ctx,
 }
 void pmt_gen_context_free(struct pmt_gen_context *ctx)
 {
+}
+/*
+ * NIT
+ */
+static void formdescr_cable(unsigned char *buf, unsigned int frequency,
+		unsigned char FEC_outer, unsigned char modulation,
+		unsigned int sym_rate, unsigned char FEC_inner)
+{
+	unsigned int freqH = wu_bcd2hex(frequency);
+	unsigned int rateH = wu_bcd2hex(sym_rate);
+
+	buf[0] = freqH >> 24;		// from MSB byte to LSB byte
+	buf[1] = freqH >> 16;
+	buf[2] = freqH >> 8;
+	buf[3] = freqH;
+	buf[4] = 0xFF;
+	buf[5] = 0xF0 | FEC_outer;	//fec_puter
+	buf[6] = modulation;		// mod 
+
+	buf[7] = rateH >> 20;		// mod 
+	buf[8] = rateH >> 12;		// mod 
+	buf[9] = rateH >> 4;		// mod 
+	buf[10] = ((0x0F & rateH) << 4) | (0x0F & FEC_inner);	// mod 
+}
+static uint8_t nit_buf[5][UV_DESCR_LEN];
+static uint8_t nit_buf_stream[5][5][UV_DESCR_LEN];
+void nit_gen_context_init(struct nit_gen_context *ctx)
+{
+	int i;
+	uv_nit_data *nit_data = &ctx->nit_data;
+
+	ctx->desc_num = 1;
+
+	nit_data->i_table_id = 0x40;
+	nit_data->i_net_id = 0x1234;
+	nit_data->i_descr_num = ctx->desc_num;
+	nit_data->p_descr = (uv_descriptor *)malloc(ctx->desc_num * sizeof(uv_descriptor));
+
+	for (i = 0; i < ctx->desc_num; i++) {
+		nit_data->p_descr[i].i_tag = 0x44;	// cable_delivery_system_descriptor
+		nit_data->p_descr[i].i_length = 11;
+		nit_data->p_descr[i].p_data = nit_buf[i];
+		formdescr_cable(nit_buf[i], 03100000, 1, 0x02, 0274500, 0xF);	//310MHz
+	}
+}
+void nit_gen_context_pack(struct nit_gen_context *ctx)
+{
+}
+void nit_gen_context_add_stream(struct nit_gen_context *ctx,
+		uint32_t tsid, uint8_t stream_desc_num)
+{
+	uv_nit_stream_data *nit_stream_data = &ctx->nit_stream_data[ctx->stream_num];
+	uv_descriptor *p_stream_descr;
+	uint32_t freqCr;
+	int j;
+
+	nit_stream_data->i_tran_stream_id = tsid;
+	nit_stream_data->i_orig_net_id = 0x123;
+	nit_stream_data->i_descr_num = stream_desc_num;
+	nit_stream_data->p_descr = (uv_descriptor *)malloc(stream_desc_num * sizeof(uv_descriptor));
+
+	p_stream_descr = nit_stream_data->p_descr;
+	for (j = 0; j < stream_desc_num; j++) {
+		uint8_t *buf_stream = nit_buf_stream[ctx->stream_num][j];
+
+		p_stream_descr[j].i_tag = 0x62;	// frequency_list_descriptor
+		p_stream_descr[j].i_length = 5;
+		p_stream_descr[j].p_data = buf_stream;
+		buf_stream[0] = 0xFE;	// coding type( calble or wireless and so on)
+		freqCr = wu_bcd2hex(280 + 10 * ctx->stream_num + j);
+		buf_stream[1] = freqCr >> 24;
+		buf_stream[2] = freqCr >> 16;
+		buf_stream[3] = freqCr >> 8;
+		buf_stream[4] = freqCr;
+	}
+
+	ctx->stream_num++;
+}
+void nit_gen_context_free(struct nit_gen_context *ctx)
+{
+	int i;
+
+	free(ctx->nit_data.p_descr);
+	for (i = 0; i < ctx->stream_num; i++) {
+		free(ctx->nit_stream_data[i].p_descr);
+	}
 }
 

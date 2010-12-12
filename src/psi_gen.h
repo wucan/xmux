@@ -71,6 +71,22 @@ void pmt_gen_context_add_es(struct pmt_gen_context *ctx,
 		uint16_t pid, uint8_t type);
 void pmt_gen_context_free(struct pmt_gen_context *ctx);
 
+/*
+ * NIT generate stuff
+ */
+struct nit_gen_context {
+	uint16_t stream_num;
+	uint16_t desc_num;
+
+	uv_nit_data nit_data;
+	uv_nit_stream_data nit_stream_data[5];
+};
+void nit_gen_context_init(struct nit_gen_context *ctx);
+void nit_gen_context_pack(struct nit_gen_context *ctx);
+void nit_gen_context_add_stream(struct nit_gen_context *ctx,
+		uint32_t tsid, uint8_t stream_desc_num);
+void nit_gen_context_free(struct nit_gen_context *ctx);
+
 int psi_gen_output_psi_from_sections();
 int psi_apply();
 
