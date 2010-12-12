@@ -166,11 +166,13 @@ static int parse_sdt()
 {
 	unsigned short len;
 	int rc;
+	int i;
 
 	sg_si_param.cur_cnt = 0;
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_SDT;
-	sg_si_param.sec[0] = sg_mib_sdt[sg_si_param.cha][0];
+	for (i = 0; i < 5; i++)
+		sg_si_param.sec[i] = sg_mib_sdt[sg_si_param.cha][i];
 	psi_parse_timer_start();
 	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
 	psi_parse_timer_stop();
@@ -178,8 +180,10 @@ static int parse_sdt()
 		printf("sdt parse failed! rc %d\n", rc);
 		return -1;
 	}
-	memcpy(&len, sg_mib_sdt[sg_si_param.cha], 2);
-	printf("[uvSI] got sdt section, len %d\n", len);
+	for (i = 0; i < 5; i++) {
+		memcpy(&len, sg_mib_sdt[sg_si_param.cha][i], 2);
+		printf("[uvSI] got sdt section #%d, len %d\n", i, len);
+	}
 	printf("[uvSI] there are total %d services\n", serv_num);
 
 	return 0;
