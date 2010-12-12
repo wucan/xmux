@@ -12,6 +12,7 @@
  * SDT generate stuff
  */
 struct sdt_service_info {
+	int service_id;
 	char name[PROGRAM_NAME_SIZE];
 	uint8_t name_len;
 };
@@ -42,7 +43,7 @@ static inline void sdt_gen_context_pack(struct sdt_gen_context *ctx)
 	static uint8_t sdbuf[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 	for (i = 0; i < ctx->serv_num; i++) {
-		sdt_serv_data[i].i_serv_id = i + 1;
+		sdt_serv_data[i].i_serv_id = ctx->serv_info[i].service_id;
 		sdt_serv_data[i].i_eit_pres_foll_flag = 0;
 		sdt_serv_data[i].i_eit_sched_flag = 0;
 		sdt_serv_data[i].i_free_ca_mode = 0;
@@ -65,10 +66,11 @@ static inline void sdt_gen_context_pack(struct sdt_gen_context *ctx)
 	}
 }
 static inline void sdt_gen_context_add_service(struct sdt_gen_context *ctx,
-		const char *serv_name)
+		const char *serv_name, int service_id)
 {
 	struct sdt_service_info *info = &ctx->serv_info[ctx->serv_num];
 
+	info->service_id = service_id;
 	info->name_len = strlen(serv_name);
 	memcpy(info->name, serv_name, info->name_len);
 	ctx->serv_num++;
