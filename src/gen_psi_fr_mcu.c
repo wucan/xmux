@@ -15,8 +15,6 @@ extern uv_dvb_io hfpga_dev;
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp-psi-gen"};
 
-static uint8_t sdbuf[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
-
 static int GenSDT(void)
 {
 	struct sdt_gen_context gen_ctx;
@@ -179,10 +177,8 @@ int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 
 int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 {
-	int i, j, k;
-	uint8_t packet[188];
+	int i, j;
 
-	uint8_t buf[PROGRAM_MAX_NUM * (4 + PROGRAM_DATA_PID_MAX_NUM * 2) * sizeof(uint16_t)];
 	int nProgSel = 0;
 	int nProgNum = 0;
 	PROG_INFO_T *pProg = (PROG_INFO_T *) pProgpara;
@@ -240,8 +236,7 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 
 static int GenPAT_and_PMT(void)
 {
-	int i, j, k;
-	uint8_t packet[188];
+	int i, j;
 	struct pat_gen_context pat_gen_ctx;
 
 	trace_info("generate PAT&PMT ...");
