@@ -54,6 +54,23 @@ void pat_gen_context_add_program(struct pat_gen_context *ctx,
 		uint16_t prog_num, uint16_t pmt_pid);
 void pat_gen_context_free(struct pat_gen_context *ctx);
 
+/*
+ * PMT generate stuff
+ */
+struct pmt_gen_context {
+	uv_pmt_data tpmt;
+
+	uint8_t nes;
+	uv_pmt_es_data tes[PROGRAM_MAX_NUM];
+};
+void pmt_gen_context_init(struct pmt_gen_context *ctx);
+void pmt_gen_context_pack(struct pmt_gen_context *ctx);
+void pmt_gen_context_add_program_info(struct pmt_gen_context *ctx,
+		uint16_t prog_num, uint16_t pmt_pid, uint16_t pcr_pid);
+void pmt_gen_context_add_es(struct pmt_gen_context *ctx,
+		uint16_t pid, uint8_t type);
+void pmt_gen_context_free(struct pmt_gen_context *ctx);
+
 int psi_gen_output_psi_from_sections();
 int psi_apply();
 

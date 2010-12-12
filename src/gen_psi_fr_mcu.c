@@ -144,17 +144,6 @@ static int GenCAT(void)
 	dvbSI_Gen_CAT(cat_descr, cat_descr_num);
 }
 
-// ------ PMT Start
-static uv_pmt_data tpmt;
-static uv_descriptor tpmt_descr[5];
-static unsigned char tp_pmt_data[5][UV_DESCR_LEN];
-
-static uv_pmt_es_data tes[PROGRAM_MAX_NUM];
-static uv_descriptor tes_descr[PROGRAM_MAX_NUM][5];
-static unsigned char tp_es_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
-
-static uint16_t tes_num = 0;
-
 static int get_dsw_provider_len(void)
 {
 	return strlen(defProviderDsw);
@@ -200,16 +189,6 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 	struct pat_gen_context pat_gen_ctx;
 
 	trace_info("generate PAT&PMT ...");
-	tpmt.p_descr = tpmt_descr;
-	for (i = 0; i < 5; i++) {
-		tpmt_descr[i].p_data = tp_pmt_data[i];
-	}
-	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
-		tes[i].p_descr = tes_descr[i];
-		for (j = 0; j < 5; j++) {
-			tes_descr[i][j].p_data = tp_es_data[i][j];
-		}
-	}
 
 	// Begin Set Values
 	pat_gen_context_init(&pat_gen_ctx);
@@ -230,29 +209,23 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 	nProgSel = 0;
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		int j;
-		// 4 is PMT_PID_IN,PMT_PID_OUT,PCR_PID_IN,PCR_PID_OUT
-		// defProgPidNum*2 is PIDS
 		pProg = (PROG_INFO_T *) pProgpara + i;
 		if (pProg->status == 1) {
-			tpmt.i_pg_num = nProgSel + 1;
-
-			tpmt.i_pmt_pid = pProg->info.pmt.out;
-			tpmt.i_pcr_pid = pProg->info.pcr.out;
-			tpmt.i_descr_num = 0;
-
-			tes_num = 0;
+			struct pmt_gen_context pmt_gen_ctx;
+			pmt_gen_context_init(&pmt_gen_ctx);
+			pmt_gen_context_add_program_info(&pmt_gen_ctx,
+				nProgSel + 1, pProg->info.pmt.out, pProg->info.pcr.out);
 			for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++)	// Video Audio
 			{
 				uint16_t out_pid = pProg->info.data[j].out;
 				if (out_pid != 0x00 && out_pid != 0x0F) {
-					tes[j].i_type = pProg->info.data[j].type;
-					tes[j].i_pid = out_pid;
-					tes[j].i_descr_num = 0;	//
-					tes_num++;
+					pmt_gen_context_add_es(&pmt_gen_ctx,
+						out_pid, pProg->info.data[j].type);
 				}
 			}
+			pmt_gen_context_pack(&pmt_gen_ctx);
 			trace_info("generate PMT of program $#%d ...", i);
-			dvbSI_Gen_PMT(&tpmt, tes, tes_num);
+			dvbSI_Gen_PMT(&pmt_gen_ctx.tpmt, pmt_gen_ctx.tes, pmt_gen_ctx.nes);
 			nProgSel++;
 
 			if (nProgSel >= PROGRAM_MAX_NUM)
@@ -272,16 +245,6 @@ static int GenPAT_and_PMT(void)
 	struct pat_gen_context pat_gen_ctx;
 
 	trace_info("generate PAT&PMT ...");
-	tpmt.p_descr = tpmt_descr;
-	for (i = 0; i < 5; i++) {
-		tpmt_descr[i].p_data = tp_pmt_data[i];
-	}
-	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
-		tes[i].p_descr = tes_descr[i];
-		for (j = 0; j < 5; j++) {
-			tes_descr[i][j].p_data = tp_es_data[i][j];
-		}
-	}
 
 	// Begin Set Values
 	pat_gen_context_init(&pat_gen_ctx);
@@ -293,23 +256,17 @@ static int GenPAT_and_PMT(void)
 	dvbSI_Gen_PAT(&pat_gen_ctx.tpat, pat_gen_ctx.tpid_data, pat_gen_ctx.nprogs);
 
 	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
+		struct pmt_gen_context pmt_gen_ctx;
 		uv_pat_pid_data *tpid_data = pat_gen_ctx.tpid_data;
-		tpmt.i_pg_num = tpid_data[i].i_pg_num;
-		tpmt.i_pmt_pid = tpid_data[i].i_pid;
-		tpmt.i_pcr_pid = 0x270 + i;
-		tpmt.i_descr_num = 0;
 
-		tes_num = 2;
-
-		for (j = 0; j < tes_num; j++)	// Video Audio
-		{
-			tes[j].i_type = 0x3 + j;
-			tes[j].i_pid = 0x300 + 32 * i + j;
-			tes[j].i_descr_num = 0;	//
-		}
-
+		pmt_gen_context_init(&pmt_gen_ctx);
+		pmt_gen_context_add_program_info(&pmt_gen_ctx,
+			tpid_data[i].i_pg_num, tpid_data[i].i_pid, 0x270 + i);
+		for (j = 0; j < 2; j++)	// Video Audio
+			pmt_gen_context_add_es(&pmt_gen_ctx, 0x300 + 32 * i + j, 0x3 + j);
+		pmt_gen_context_pack(&pmt_gen_ctx);
 		trace_info("generate PMT of program $#%d ...", i);
-		dvbSI_Gen_PMT(&tpmt, tes, tes_num);
+		dvbSI_Gen_PMT(&pmt_gen_ctx.tpmt, pmt_gen_ctx.tes, pmt_gen_ctx.nes);
 	}
 
 	return 0;

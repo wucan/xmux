@@ -224,4 +224,56 @@ void pat_gen_context_add_program(struct pat_gen_context *ctx,
 void pat_gen_context_free(struct pat_gen_context *ctx)
 {
 }
+/*
+ * PMT
+ */
+static uv_descriptor tpmt_descr[5];
+static unsigned char tp_pmt_data[5][UV_DESCR_LEN];
+static uv_descriptor tes_descr[PROGRAM_MAX_NUM][5];
+static unsigned char tp_es_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
+void pmt_gen_context_init(struct pmt_gen_context *ctx)
+{
+	int i, j;
+
+	ctx->tpmt.p_descr = tpmt_descr;
+	for (i = 0; i < 5; i++) {
+		tpmt_descr[i].p_data = tp_pmt_data[i];
+	}
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
+		ctx->tes[i].p_descr = tes_descr[i];
+		for (j = 0; j < 5; j++) {
+			tes_descr[i][j].p_data = tp_es_data[i][j];
+		}
+	}
+
+	ctx->nes = 0;
+}
+void pmt_gen_context_pack(struct pmt_gen_context *ctx)
+{
+}
+void pmt_gen_context_add_program_info(struct pmt_gen_context *ctx,
+		uint16_t prog_num, uint16_t pmt_pid, uint16_t pcr_pid)
+{
+	uv_pmt_data *tpmt = &ctx->tpmt;
+
+	tpmt->i_pg_num = prog_num;
+	tpmt->i_pmt_pid = pmt_pid;
+	tpmt->i_pcr_pid = pcr_pid;
+
+	tpmt->i_descr_num = 0;
+}
+void pmt_gen_context_add_es(struct pmt_gen_context *ctx,
+		uint16_t pid, uint8_t type)
+{
+	uv_pmt_es_data *tes = &ctx->tes[ctx->nes];
+
+	tes->i_pid = pid;
+	tes->i_type = type;
+	tes->i_descr_num = 0;
+
+	ctx->nes++;
+}
+void pmt_gen_context_free(struct pmt_gen_context *ctx)
+{
+}
 
