@@ -11,63 +11,21 @@
 #include "front_panel_define.h"
 
 
-#define UV_DESCR_LEN    (33)
-
 extern uv_dvb_io hfpga_dev;
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp-psi-gen"};
 
-static uint8_t sdbuf[32][5][UV_DESCR_LEN];
+static uint8_t sdbuf[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 static int GenSDT(void)
 {
 	struct sdt_gen_context gen_ctx;
-	uv_sdt_serv_data sdt_serv_data[32];
-	uint16_t serv_num = 32;
-	int i, j;
-	uv_descriptor *p_descr;
-	int num = 2;
-	char sztmp[10];
 
 	trace_info("generate SDT ...");
-
 	sdt_gen_context_init(&gen_ctx);
-	for (i = 0; i < serv_num; i++) {
-		sdt_serv_data[i].i_serv_id = i + 1;
-		sdt_serv_data[i].i_eit_pres_foll_flag = 0;
-		sdt_serv_data[i].i_eit_sched_flag = 0;
-		sdt_serv_data[i].i_free_ca_mode = 0;
-		sdt_serv_data[i].i_running_status = 1;
-		sdt_serv_data[i].i_descr_num = num;
-		sdt_serv_data[i].p_descr =
-			(uv_descriptor *) malloc(sdt_serv_data[i].i_descr_num *
-									 sizeof(uv_descriptor));
-		p_descr = sdt_serv_data[i].p_descr;
-		for (j = 0; j < num; j++) {
-			p_descr[j].i_tag = 0x48;
-			p_descr[j].i_length = 14;
-			p_descr[j].p_data = sdbuf[i][j];
-			p_descr[j].p_data[0] = 0x01;	// serivece type DTV
-			p_descr[j].p_data[1] = 4;	// 
-			p_descr[j].p_data[6] = 7;
-			if (j == 0) {
-				sprintf(sztmp, "CCTV-%02d", i);
-				memcpy(p_descr[j].p_data + 2, "CCTV", 4);
-				memcpy(p_descr[j].p_data + 7, sztmp, 7);
-			} else {
-				sprintf(sztmp, "SZTV-%02d", i);
-				memcpy(p_descr[j].p_data + 2, "SZTV", 4);
-				memcpy(p_descr[j].p_data + 7, sztmp, 7);
-			}
-		}
-	}
+	dvbSI_Gen_SDT(&gen_ctx.sdt_data, gen_ctx.sdt_serv_data, gen_ctx.serv_num);
 
-	dvbSI_Gen_SDT(&gen_ctx.sdt_data, sdt_serv_data, serv_num);
-
-	// free mem
-	for (i = 0; i < serv_num; i++) {
-		free(sdt_serv_data[i].p_descr);
-	}
+	sdt_gen_context_free(&gen_ctx);
 
 	return 0;
 }
