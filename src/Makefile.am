@@ -59,5 +59,5 @@ xmux_SOURCES = \
 	net.c \
 	$(NULL_FILE)
 
-SUBDIRS = imp psisi libwu
+SUBDIRS = imp libwu
 
