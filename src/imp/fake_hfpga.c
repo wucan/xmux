@@ -51,6 +51,7 @@ int fake_hfpga_readn(unsigned char *p_buf, unsigned int len,
 	uv_io_param *param = (uv_io_param *)p_param;
 	int rc;
 	unsigned short pid;
+	int rewind_cnt = 0;
 
 	if (nbgn) {
 		filter_pid = param->pid;
@@ -60,6 +61,11 @@ read_again:
 	rc = read(ts_fd, p_buf, len);
 	if (rc != len) {
 		lseek(ts_fd, 0, SEEK_SET);
+		rewind_cnt++;
+		if (rewind_cnt >= 2) {
+			trace_err("file rewind exceed for filter pid %d", filter_pid);
+			return 0;
+		}
 		rc = read(ts_fd, p_buf, len);
 		if (rc != len) {
 			return 0;
