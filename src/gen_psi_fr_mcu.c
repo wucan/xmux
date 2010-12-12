@@ -3,6 +3,7 @@
 #include "wu/message.h"
 #include "wu/wu_converter.h"
 
+#include "xmux.h"
 #include "fpga_api.h"
 #include "gen_dvb_si.h"
 
@@ -10,7 +11,6 @@
 #include "front_panel_define.h"
 
 
-#define UV_PROG_NUM_MAX (6)
 #define UV_DESCR_LEN    (33)
 
 extern uv_dvb_io hfpga_dev;
@@ -187,8 +187,8 @@ static int GenCAT(void)
 
 // ------ PAT Start
 static uv_pat_data tpat;
-static uv_pat_pid_data tpid_data[UV_PROG_NUM_MAX + 1];
-static uint16_t tpid_num = UV_PROG_NUM_MAX;
+static uv_pat_pid_data tpid_data[PROGRAM_MAX_NUM + 1];
+static uint16_t tpid_num = PROGRAM_MAX_NUM;
 
 // ------ PAT End
 
@@ -197,9 +197,9 @@ static uv_pmt_data tpmt;
 static uv_descriptor tpmt_descr[5];
 static unsigned char tp_pmt_data[5][UV_DESCR_LEN];
 
-static uv_pmt_es_data tes[UV_PROG_NUM_MAX];
-static uv_descriptor tes_descr[UV_PROG_NUM_MAX][5];
-static unsigned char tp_es_data[UV_PROG_NUM_MAX][5][UV_DESCR_LEN];
+static uv_pmt_es_data tes[PROGRAM_MAX_NUM];
+static uv_descriptor tes_descr[PROGRAM_MAX_NUM][5];
+static unsigned char tp_es_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 static uint16_t tes_num = 0;
 
@@ -317,7 +317,7 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 	for (i = 0; i < 5; i++) {
 		tpmt_descr[i].p_data = tp_pmt_data[i];
 	}
-	for (i = 0; i < UV_PROG_NUM_MAX; i++) {
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
 		tes[i].p_descr = tes_descr[i];
 		for (j = 0; j < 5; j++) {
 			tes_descr[i][j].p_data = tp_es_data[i][j];
@@ -397,7 +397,7 @@ static int GenPAT_and_PMT(void)
 	for (i = 0; i < 5; i++) {
 		tpmt_descr[i].p_data = tp_pmt_data[i];
 	}
-	for (i = 0; i < UV_PROG_NUM_MAX; i++) {
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
 		tes[i].p_descr = tes_descr[i];
 		for (j = 0; j < 5; j++) {
 			tes_descr[i][j].p_data = tp_es_data[i][j];
