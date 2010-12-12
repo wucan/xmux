@@ -172,6 +172,14 @@ int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP *pid_map)
 int hfpga_get_ts_status(int chan_idx, uint16_t *ts_status_para)
 {
 	trace_warn("%s", __func__);
+	/*
+	 * only support one channel in our !uclinux test!
+	 */
+	*ts_status_para = 0;
+	if (chan_idx != 0) {
+		return 0;
+	}
+	*ts_status_para = (1 << 0);
 
 	return 1;
 }
