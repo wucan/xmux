@@ -87,6 +87,20 @@ void nit_gen_context_add_stream(struct nit_gen_context *ctx,
 		uint32_t tsid, uint8_t stream_desc_num);
 void nit_gen_context_free(struct nit_gen_context *ctx);
 
+/*
+ * CAT generate stuff
+ */
+struct cat_gen_context {
+	uint16_t desc_num;
+
+	uv_descriptor cat_desc[5];
+};
+void cat_gen_context_init(struct cat_gen_context *ctx);
+void cat_gen_context_pack(struct cat_gen_context *ctx);
+void cat_gen_context_add_ca_system(struct cat_gen_context *ctx,
+		uint16_t ca_system_id, uint16_t ca_pid);
+void cat_gen_context_free(struct cat_gen_context *ctx);
+
 int psi_gen_output_psi_from_sections();
 int psi_apply();
 

@@ -51,30 +51,16 @@ static int GenNIT(void)
 
 static int GenCAT(void)
 {
-	int i, j;
-	uv_descriptor cat_descr[5];
-	unsigned char p_cat_descr_data[5][UV_DESCR_LEN];
-
-	uint16_t cat_descr_num = 1;
+	struct cat_gen_context cat_gen_ctx;
 
 	trace_info("generate CAT ...");
-
-	for (i = 0; i < cat_descr_num; i++) {
-		cat_descr[i].i_tag = 0x09;
-		cat_descr[i].i_length = 4;
-		cat_descr[i].p_data = p_cat_descr_data[i];
-		for (j = 0; j < 4; j++) {
-			p_cat_descr_data[i][0] = i;
-			p_cat_descr_data[i][1] = 0x10 + j;	// CA_System_ID
-			p_cat_descr_data[i][2] = 0;
-			p_cat_descr_data[i][3] = 0x20 + j;	// CA_PID
-		}
-	}
-
-	dvbSI_Gen_CAT(cat_descr, cat_descr_num);
+	cat_gen_context_init(&cat_gen_ctx);
+	cat_gen_context_add_ca_system(&cat_gen_ctx, 0x10, 0x20);
+	cat_gen_context_pack(&cat_gen_ctx);
+	dvbSI_Gen_CAT(cat_gen_ctx.cat_desc, cat_gen_ctx.desc_num);
+	cat_gen_context_free(&cat_gen_ctx);
 }
 
-// ------ PMT End
 int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 {
 	struct sdt_gen_context gen_ctx;
@@ -100,7 +86,6 @@ int gen_sdt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 
 	return 0;
 }
-
 
 int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 {
@@ -158,8 +143,6 @@ int gen_pat_pmt_fr_mcu(uint8_t * packpara, const PROG_INFO_T * pProgpara)
 
 	return 0;
 }
-
-
 
 static int GenPAT_and_PMT(void)
 {

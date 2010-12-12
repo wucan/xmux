@@ -364,4 +364,34 @@ void nit_gen_context_free(struct nit_gen_context *ctx)
 		free(ctx->nit_stream_data[i].p_descr);
 	}
 }
+/*
+ * CAT
+ */
+static uint8_t cat_desc_data[5][UV_DESCR_LEN];
+void cat_gen_context_init(struct cat_gen_context *ctx)
+{
+	ctx->desc_num = 0;
+}
+void cat_gen_context_pack(struct cat_gen_context *ctx)
+{
+}
+void cat_gen_context_add_ca_system(struct cat_gen_context *ctx,
+		uint16_t ca_system_id, uint16_t ca_pid)
+{
+	uv_descriptor *desc = &ctx->cat_desc[ctx->desc_num];
+
+	desc->i_tag = 0x09;
+	desc->i_length = 4;
+	desc->p_data = cat_desc_data[ctx->desc_num];
+
+	desc->p_data[0] = ca_system_id >> 8;
+	desc->p_data[1] = ca_system_id & 0xFF;
+	desc->p_data[2] = ca_pid >> 8;
+	desc->p_data[3] = ca_pid & 0xFF;
+
+	ctx->desc_num++;
+}
+void cat_gen_context_free(struct cat_gen_context *ctx)
+{
+}
 
