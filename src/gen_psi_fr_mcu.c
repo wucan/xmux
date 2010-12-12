@@ -23,8 +23,8 @@ static int GenSDT(void)
 
 	trace_info("generate SDT ...");
 	sdt_gen_context_init(&gen_ctx);
-	sdt_gen_context_add_service(&gen_ctx, "CCTV1", 1);
-	sdt_gen_context_add_service(&gen_ctx, "CCTV2", 2);
+	sdt_gen_context_add_service(&gen_ctx, "CCTV1", 1, "CCTV");
+	sdt_gen_context_add_service(&gen_ctx, "CCTV2", 2, "CCTV");
 	sdt_gen_context_pack(&gen_ctx);
 
 	dvbSI_Gen_SDT(&gen_ctx.sdt_data, gen_ctx.sdt_serv_data, gen_ctx.serv_num);

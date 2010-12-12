@@ -15,6 +15,9 @@ struct sdt_service_info {
 	int service_id;
 	char name[PROGRAM_NAME_SIZE];
 	uint8_t name_len;
+
+	char provider[PROGRAM_NAME_SIZE];
+	uint8_t provider_len;
 };
 struct sdt_gen_context {
 	uint8_t serv_num;
@@ -55,24 +58,26 @@ static inline void sdt_gen_context_pack(struct sdt_gen_context *ctx)
 		for (j = 0; j < sdt_serv_data[i].i_descr_num; j++) {
 			char name[32];
 			p_descr[j].i_tag = 0x48;
-			p_descr[j].i_length = 7 + ctx->serv_info[i].name_len;
+			p_descr[j].i_length = 3 + ctx->serv_info[i].provider_len + ctx->serv_info[i].name_len;
 			p_descr[j].p_data = sdbuf[i][j];
 			p_descr[j].p_data[0] = 0x01; // serivece type: DTV
-			p_descr[j].p_data[1] = 4;
+			p_descr[j].p_data[1] = ctx->serv_info[i].provider_len;
+			memcpy(p_descr[j].p_data + 2, ctx->serv_info[i].provider, ctx->serv_info[i].provider_len);
 			p_descr[j].p_data[6] = ctx->serv_info[i].name_len;
-			memcpy(p_descr[j].p_data + 2, "CCTV", 4);
-			memcpy(p_descr[j].p_data + 7, ctx->serv_info[i].name, ctx->serv_info[i].name_len);
+			memcpy(p_descr[j].p_data + 3 + ctx->serv_info[i].provider_len, ctx->serv_info[i].name, ctx->serv_info[i].name_len);
 		}
 	}
 }
 static inline void sdt_gen_context_add_service(struct sdt_gen_context *ctx,
-		const char *serv_name, int service_id)
+		const char *serv_name, int service_id, const char *provider)
 {
 	struct sdt_service_info *info = &ctx->serv_info[ctx->serv_num];
 
 	info->service_id = service_id;
 	info->name_len = strlen(serv_name);
 	memcpy(info->name, serv_name, info->name_len);
+	info->provider_len = strlen(provider);
+	memcpy(info->provider, provider, info->provider_len);
 	ctx->serv_num++;
 }
 static inline void sdt_gen_context_free(struct sdt_gen_context *ctx)
