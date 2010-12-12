@@ -103,6 +103,7 @@ void cat_gen_context_free(struct cat_gen_context *ctx);
 
 int psi_gen_output_psi_from_sections();
 int psi_apply();
+int psi_gen_and_apply_from_fp();
 
 
 #endif /* _PSI_GEN_H_ */

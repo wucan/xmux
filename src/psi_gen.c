@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include "wu/message.h"
 #include "wu/wu_converter.h"
 
 #include "xmux.h"
@@ -8,9 +9,13 @@
 #include "psi_gen.h"
 #include "section.h"
 #include "gen_dvb_si.h"
+#include "front_panel_intstr.h"
+#include "hfpga.h"
 
 
 extern uv_dvb_io hfpga_dev;
+
+static msgobj mo = {MSG_INFO, ENCOLOR, "psi_gen"};
 
 static int pkt_offset;
 
@@ -393,5 +398,27 @@ void cat_gen_context_add_ca_system(struct cat_gen_context *ctx,
 }
 void cat_gen_context_free(struct cat_gen_context *ctx)
 {
+}
+
+/*
+ * generate psi and download to fpga
+ */
+int psi_gen_and_apply_from_fp()
+{
+	uint8_t *packpara[8192];
+
+	dvbSI_Start(&hfpga_dev);
+
+	trace_info("stop gen si");
+	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
+
+	gen_pat_pmt_fr_mcu(packpara, g_prog_info_table);
+
+	trace_info("start gen si");
+	dvbSI_GenSS(HFPGA_CMD_SI_START);
+
+	dvbSI_Stop();
+
+	return 0;
 }
 

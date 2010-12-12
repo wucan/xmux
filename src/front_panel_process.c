@@ -9,6 +9,7 @@
 #include "front_panel_define.h"
 #include "front_panel_data_churning.h"
 #include "psi_worker.h"
+#include "psi_gen.h"
 
 #include "hfpga.h"
 #include "pid_map_table.h"
@@ -16,8 +17,6 @@
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "mcu_rs232"};
-
-extern uv_dvb_io hfpga_dev;
 
 PROG_INFO_T g_prog_info_table[CHANNEL_MAX_NUM * PROGRAM_MAX_NUM];
 CHN_NUM_T g_chan_num;
@@ -132,7 +131,6 @@ static int cmd_0x102_handler(struct fp_cmd_header *cmd_header, int is_read,
 
 static void _apply_pid_map_table_and_psi()
 {
-	uint8_t *packpara[8192];
 	int howto = 1;
 	struct pid_map_table_gen_context pid_map_gen_ctx;
 	int chan_idx, prog_idx;
@@ -177,13 +175,7 @@ pid_map_gen_done:
 	/*
 	 * generate and download psi to fpga
 	 */
-	dvbSI_Start(&hfpga_dev);
-	trace_info("stop gen si");
-	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
-	gen_pat_pmt_fr_mcu(packpara, g_prog_info_table);
-	trace_info("start gen si");
-	dvbSI_GenSS(HFPGA_CMD_SI_START);
-	dvbSI_Stop();
+	psi_gen_and_apply_from_fp();
 }
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
