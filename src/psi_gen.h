@@ -55,7 +55,7 @@ static inline void sdt_gen_context_pack(struct sdt_gen_context *ctx)
 		for (j = 0; j < sdt_serv_data[i].i_descr_num; j++) {
 			char name[32];
 			p_descr[j].i_tag = 0x48;
-			p_descr[j].i_length = 14;
+			p_descr[j].i_length = 7 + ctx->serv_info[i].name_len;
 			p_descr[j].p_data = sdbuf[i][j];
 			p_descr[j].p_data[0] = 0x01; // serivece type: DTV
 			p_descr[j].p_data[1] = 4;
