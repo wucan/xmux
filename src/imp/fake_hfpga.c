@@ -26,7 +26,8 @@ int fake_hfpga_open(const char *name, int flags)
 	}
 
 	sprintf(filename, "%s-out", name);
-	ts_out_fd = open(filename, O_CREAT | O_APPEND | O_WRONLY);
+	ts_out_fd = open(filename, O_CREAT | O_APPEND | O_WRONLY,
+		S_IWUSR | S_IRUSR);
 
 	return ts_fd;
 }

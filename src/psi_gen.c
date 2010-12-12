@@ -85,6 +85,7 @@ int psi_gen_output_psi_from_sections()
 		}
 	}
 gen_pmt_done:
+		;
 	}
 
 	/*
