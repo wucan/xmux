@@ -55,6 +55,10 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 {
 	uint8_t csc;
 
+	if (data->data_len != sizeof(*data) - 2) {
+		trace_err("data_len 0, but expect %d!", sizeof(*data) - 2);
+		return false;
+	}
 	csc = wu_csc(data, sizeof(*data) - 1);
 	if (csc != data->csc) {
 		return false;
