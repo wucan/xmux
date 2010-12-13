@@ -1,5 +1,7 @@
 #include <string.h>
 
+#include "wu/wu_csc.h"
+
 #include "xmux.h"
 #include "wu_snmp_agent.h"
 #include "psi_parse.h"
@@ -44,5 +46,17 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 		eeprom_write(EEPROM_OFF_PID_TRANS_INFO + PID_TRANS_INFO_SIZE * chan_idx,
 			&sg_mib_pid_trans_info[chan_idx], PID_TRANS_INFO_SIZE);
 	}
+}
+
+bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
+{
+	uint8_t csc;
+
+	csc = wu_csc(data, sizeof(*data) - 1);
+	if (csc != data->csc) {
+		return false;
+	}
+
+	return true;
 }
 
