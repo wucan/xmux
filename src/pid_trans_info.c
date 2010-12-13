@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "wu/wu_csc.h"
+#include "wu/message.h"
 
 #include "xmux.h"
 #include "wu_snmp_agent.h"
@@ -8,6 +9,8 @@
 #include "xmux_snmp_intstr.h"
 #include "eeprom.h"
 
+
+static msgobj mo = {MSG_INFO, ENCOLOR, "pid_trans_info"};
 
 struct pid_trans_info_snmp_data sg_mib_pid_trans_info[CHANNEL_MAX_NUM];
 
@@ -58,5 +61,13 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 	}
 
 	return true;
+}
+
+void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
+{
+	trace_info("pid trans info:");
+	trace_info("len %02d, chan %d, update flag %d, nprogs %d, status %#x",
+		data->data_len, data->update_flag_and_chan_num & 0x07,
+		data->update_flag_and_chan_num >> 7, data->nprogs, data->status);
 }
 

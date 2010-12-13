@@ -34,7 +34,9 @@ static bool xmux_root_param_validate(struct xmux_root_param *p)
 		if (!pid_trans_info_validate(pid_trans_info)) {
 			trace_err("#%d pid trans info invalidate!", chan_idx);
 			memset(pid_trans_info, 0, sizeof(struct pid_trans_info_snmp_data));
+			continue;
 		}
+		pid_trans_info_dump(pid_trans_info);
 	}
 
 	/*TODO */
