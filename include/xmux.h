@@ -75,7 +75,7 @@ struct pid_trans_info_snmp_data {
 } __attribute__((packed));
 #define PID_TRANS_INFO_SIZE			sizeof(struct pid_trans_info_snmp_data)
 
-#define PROGRAM_RELAYABLE(status, prog_id)		(status & (1 << prog_id))
+#define PROGRAM_SELECTED(status, prog_id)		(status & (1 << prog_id))
 #define DATA_PID_TYPE(data_pid_value)			(data_pid_value >> 13)
 #define DATA_PID_VALUE(data_pid_value)			(data_pid_value & 0x1FFF)
 
