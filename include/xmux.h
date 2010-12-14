@@ -106,6 +106,16 @@ static inline bool pcr_audio_same(uint16_t pcr_pid_value)
 
 #define DATA_PID_PAD_VALUE			0x000F
 #define PID_NO_PAD_VALUE			0x00FF
+static inline bool data_pid_validate(uint16_t data_pid)
+{
+	uint8_t type = DATA_PID_TYPE(data_pid);
+	if (type != DATA_PID_TYPE_VIDEO && type != DATA_PID_TYPE_AUDIO &&
+		type != DATA_PID_TYPE_DATA && type != DATA_PID_TYPE_OTHER) {
+		return false;
+	}
+
+	return true;
+}
 
 /*
  * PID map table, 1024B
