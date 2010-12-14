@@ -1,9 +1,11 @@
 #include <fcntl.h>
+#include <string.h>
 
 #include "wu/message.h"
 
 #include "hfpga.h"
 #include "pid_map_table.h"
+#include "pid_map_rule.h"
 #include "front_panel_intstr.h"
 #include "front_panel_data_churning.h"
 
@@ -78,5 +80,40 @@ int pid_map_table_push_pid_pair(struct pid_map_table_gen_context *ctx,
 	ctx->cur_chan_map_pid_cnt++;
 
 	return 0;
+}
+
+bool pid_map_table_validate(struct xmux_pid_map_table *pid_map)
+{
+	uint8_t chan_idx, pid_idx;
+	struct pid_map_entry *ent;
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		for (pid_idx = 0; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
+			ent= &pid_map->chans[chan_idx].ents[pid_idx];
+			if (!pid_map_rule_channel_output_pid_validate(chan_idx, ent->output_pid)) {
+				trace_err("chan #%d pid(%d => %d), output pid invalidate!",
+					chan_idx, ent->input_pid, ent->output_pid);
+				trace_err("discard all channel's pid map table!");
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+void pid_map_table_dump(struct xmux_pid_map_table *pid_map)
+{
+	uint8_t chan_idx, pid_idx;
+	struct pid_map_entry *ent;
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		trace_info("chan #%d pid map:", chan_idx);
+		for (pid_idx = 0; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
+			ent= &pid_map->chans[chan_idx].ents[pid_idx];
+			trace_info("  #%d pid(%d => %d)",
+				chan_idx, ent->input_pid, ent->output_pid);
+		}
+	}
 }
 
