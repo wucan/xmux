@@ -82,10 +82,12 @@ struct pid_trans_info_snmp_data {
 #define DATA_PID_TYPE_VIDEO		0x1
 #define DATA_PID_TYPE_AUDIO		0x2
 #define DATA_PID_TYPE_DATA		0x3
+#define DATA_PID_TYPE_OTHER		0x6
 
 #define PACK_VIDEO_DATA_PID(pid)		((DATA_PID_TYPE_VIDEO << 13) | pid)
 #define PACK_AUDIO_DATA_PID(pid)		((DATA_PID_TYPE_AUDIO << 13) | pid)
 #define PACK_DATA_DATA_PID(pid)			((DATA_PID_TYPE_DATA << 13) | pid)
+#define PACK_OTHER_DATA_PID(pid)		((DATA_PID_TYPE_OTHER << 13) | pid)
 
 static inline bool pcr_video_same(uint16_t pcr_pid_value)
 {
