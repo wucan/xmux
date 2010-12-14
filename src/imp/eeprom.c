@@ -2,10 +2,9 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include "xmux.h"
 #include "eeprom.h"
 
-
-#define EEPROM_SIZE					(1024 * 128)
 
 #ifdef _UCLINUX_
 #define UV_HAT24C64_DEV_PATH		"/dev/AT24C64"

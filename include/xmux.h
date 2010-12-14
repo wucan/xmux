@@ -5,6 +5,11 @@
 #include "mpegts.h"
 
 
+/*
+ * EEPROM size
+ */
+#define EEPROM_SIZE						(1024 * 128)
+
 #define SECTION_MAX_SIZE				1024
 
 #define SDT_SECTION_NUM					5
