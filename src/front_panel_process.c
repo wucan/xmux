@@ -97,7 +97,7 @@ static int cmd_0x101_handler(struct fp_cmd_header *cmd_header, int is_read,
 	OUT_RATE_T tmp_out_rate = {0};
 
 	if (is_read) {
-		tmp_out_rate.rate = SWAP_U32(g_xmux_root_param.sys.output_bitrate);
+		tmp_out_rate.rate = SWAP_U32(g_eeprom_param.sys.output_bitrate);
 		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header, &tmp_out_rate, sizeof(tmp_out_rate));
 		return 1;
 	}

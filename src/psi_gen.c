@@ -21,7 +21,7 @@ static int pkt_offset;
 
 void fill_output_psi_data(int psi_type, uint8_t *ts_buf, int ts_len)
 {
-	struct xmux_output_psi_data *psi_data = &g_xmux_root_param.output_psi_area.output_psi;
+	struct xmux_output_psi_data *psi_data = &g_eeprom_param.output_psi_area.output_psi;
 
 	if (psi_type == 0) {
 		memset(psi_data->psi_ents, 0, sizeof(psi_data->psi_ents));
@@ -63,7 +63,7 @@ int psi_gen_output_psi_from_sections()
 	int sel_nprogs = 0;
 
 	cc = 0;
-	pid_trans_info = g_xmux_root_param.pid_trans_info_area.pid_trans_info;
+	pid_trans_info = g_eeprom_param.pid_trans_info_area.pid_trans_info;
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		for (prog_idx = 0; prog_idx < pid_trans_info[chan_idx].nprogs; prog_idx++) {
 			if (!(pid_trans_info[chan_idx].status & (1 << prog_idx)))
@@ -130,7 +130,7 @@ gen_pmt_done:
 
 int psi_apply_from_output_psi()
 {
-	struct xmux_output_psi_data *psi_data = &g_xmux_root_param.output_psi_area.output_psi;
+	struct xmux_output_psi_data *psi_data = &g_eeprom_param.output_psi_area.output_psi;
 	struct output_psi_data_entry *ent;
 	uint8_t psi_type, howto = 0;
 

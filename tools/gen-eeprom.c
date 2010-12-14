@@ -9,7 +9,7 @@
 #include "pid_map_rule.h"
 
 
-static struct xmux_root_param  root;
+static struct xmux_eeprom_param  eeprom;
 
 static void build_pid_trans_info()
 {
@@ -18,7 +18,7 @@ static void build_pid_trans_info()
 	uint8_t chan_idx, prog_idx, pid_idx;
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		d = &root.pid_trans_info_area.pid_trans_info[chan_idx];
+		d = &eeprom.pid_trans_info_area.pid_trans_info[chan_idx];
 
 		d->data_len = sizeof(*d) - 2;
 		d->update_flag_and_chan_num = chan_idx;
@@ -42,7 +42,7 @@ static void build_pid_trans_info()
 }
 static void build_pid_map_table()
 {
-	struct xmux_pid_map_table *pid_map = &root.pid_map_table_area.pid_map_table;
+	struct xmux_pid_map_table *pid_map = &eeprom.pid_map_table_area.pid_map_table;
 	uint8_t chan_idx, pid_idx;
 	struct pid_map_entry *ent;
 	uint16_t input_pids[2];
@@ -74,7 +74,7 @@ static void build_test_param()
 	build_pid_map_table();
 
 	/* sys */
-	root.sys.version = 0x00000001;
+	eeprom.sys.version = 0x00000001;
 
 	/* net */
 
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	posix_fallocate(fd, 0, EEPROM_SIZE);
 
 	build_test_param();
-	write(fd, &root, sizeof(root));
+	write(fd, &eeprom, sizeof(eeprom));
 
 	close(fd);
 	exit(EXIT_SUCCESS);

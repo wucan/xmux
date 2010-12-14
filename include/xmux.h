@@ -197,7 +197,7 @@ struct xmux_user_param {
  *   struct xmux_user_param user;
  */
 
-struct xmux_root_param {
+struct xmux_eeprom_param {
 	union {
 		uint8_t bytes[25904];
 		struct pid_trans_info_snmp_data pid_trans_info[CHANNEL_MAX_NUM];
@@ -220,12 +220,12 @@ struct xmux_root_param {
  * param address offset in eeprom
  */
 #define EEPROM_OFF_PID_TRANS_INFO			0
-#define EEPROM_OFF_PID_MAP_TABLE			(offsetof(struct xmux_root_param, pid_map_table_area))
-#define EEPROM_OFF_OUTPUT_PSI				(offsetof(struct xmux_root_param, output_psi_area))
-#define EEPROM_OFF_SYS						(offsetof(struct xmux_root_param, sys))
-#define EEPROM_OFF_NET						(offsetof(struct xmux_root_param, net))
-#define EEPROM_OFF_USER						(offsetof(struct xmux_root_param, user))
-#define EEPROM_OFF_MNG_MODE					(offsetof(struct xmux_root_param, mng_mode))
+#define EEPROM_OFF_PID_MAP_TABLE			(offsetof(struct xmux_eeprom_param, pid_map_table_area))
+#define EEPROM_OFF_OUTPUT_PSI				(offsetof(struct xmux_eeprom_param, output_psi_area))
+#define EEPROM_OFF_SYS						(offsetof(struct xmux_eeprom_param, sys))
+#define EEPROM_OFF_NET						(offsetof(struct xmux_eeprom_param, net))
+#define EEPROM_OFF_USER						(offsetof(struct xmux_eeprom_param, user))
+#define EEPROM_OFF_MNG_MODE					(offsetof(struct xmux_eeprom_param, mng_mode))
 
 
 #endif /* _XMUX_H_ */

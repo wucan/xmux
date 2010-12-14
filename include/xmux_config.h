@@ -7,7 +7,7 @@
 /*
  * global variable
  */
-extern struct xmux_root_param g_xmux_root_param;
+extern struct xmux_eeprom_param g_eeprom_param;
 
 int xmux_config_init();
 void xmux_config_load_from_eeprom();
