@@ -69,9 +69,44 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 
 void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
 {
+	struct xmux_program_info *prog;
+	uint8_t prog_idx, pid_idx;
+	char prog_name[33];
+	int prog_name_len;
+
 	trace_info("pid trans info:");
 	trace_info("len %02d, chan %d, update flag %d, nprogs %d, status %#x",
 		data->data_len, data->update_flag_and_chan_num & 0x07,
 		data->update_flag_and_chan_num >> 7, data->nprogs, data->status);
+
+	/*
+	 * program info
+	 */
+	for (prog_idx = 0; prog_idx < data->nprogs; prog_idx++) {
+		prog = &data->programs[prog_idx];
+		prog_name_len = MIN(prog->prog_name[0][0], PROGRAM_NAME_SIZE - 1);
+		memcpy(prog_name, &prog->prog_name[0][1], prog_name_len);
+		prog_name[prog_name_len] = 0;
+		trace_info("program #%d, %s, num %d, pmt(%d => %d), pcr(%d => %d), %s",
+			prog_idx, prog_name, prog->prog_num,
+			prog->pmt.in, prog->pmt.out, prog->pcr.in, prog->pcr.out,
+			PROGRAM_SELECTED(data->status, prog_idx) ? "selected": "discard");
+		trace_info("data pid:");
+		for (pid_idx = 0; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
+			uint16_t data_pid_in = prog->data[pid_idx].in;
+			if (data_pid_in == DATA_PID_PAD_VALUE)
+				continue;
+			if (!data_pid_validate(prog->data[pid_idx].in)) {
+				trace_err("  #%d, data pid %d(%#x) invalidate!",
+					pid_idx, data_pid_in);
+				continue;
+			}
+			trace_info("  #%d, pid(%d => %d, type %d)",
+				pid_idx,
+				DATA_PID_VALUE(prog->data[pid_idx].in),
+				DATA_PID_VALUE(prog->data[pid_idx].out),
+				DATA_PID_TYPE(prog->data[pid_idx].in));
+		}
+	}
 }
 
