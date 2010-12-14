@@ -135,7 +135,7 @@ struct channel_pid_map_table {
 struct xmux_pid_map_table {
 	struct channel_pid_map_table chans[CHANNEL_MAX_NUM];
 };
-#define DEFAULT_RELAY_PID			0x000F
+#define PID_MAP_TABLE_PAD_PID			0x000F
 
 /*
  * output psi/si ts packets, 8KB
