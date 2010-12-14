@@ -29,6 +29,9 @@ static bool xmux_root_param_validate(struct xmux_root_param *p)
 	struct pid_trans_info_snmp_data *pid_trans_info;
 	uint8_t chan_idx;
 
+	/*
+	 * pid trans info
+	 */
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		pid_trans_info = &p->pid_trans_info_area.pid_trans_info[chan_idx];
 		if (!pid_trans_info_validate(pid_trans_info)) {
@@ -37,6 +40,15 @@ static bool xmux_root_param_validate(struct xmux_root_param *p)
 			continue;
 		}
 		pid_trans_info_dump(pid_trans_info);
+	}
+
+	/*
+	 * pid map table
+	 */
+	if (pid_map_table_validate(&p->pid_map_table_area.pid_map_table)) {
+		pid_map_table_dump(&p->pid_map_table_area.pid_map_table);
+	} else {
+		trace_err("pid map table invalidate!");
 	}
 
 	/*TODO */
