@@ -4,6 +4,7 @@
 #include "wu/wu_base_type.h"
 
 #include "xmux.h"
+#include "hfpga.h"
 
 
 static inline void
