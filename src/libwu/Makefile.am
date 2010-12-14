@@ -20,7 +20,7 @@ libwu_la_SOURCES = \
 	message_queue.c \
 	dict.c
 
-libwu_la_LIBADD =
+libwu_la_LIBADD = -lpthread -lm
 
 EXTRA_DIST =
 
