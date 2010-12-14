@@ -77,10 +77,15 @@ struct pid_trans_info_snmp_data {
 
 #define PROGRAM_RELAYABLE(status, prog_id)		(status & (1 << prog_id))
 #define DATA_PID_TYPE(data_pid_value)			(data_pid_value >> 13)
+#define DATA_PID_VALUE(data_pid_value)			(data_pid_value & 0x1FFF)
 
 #define DATA_PID_TYPE_VIDEO		0x1
 #define DATA_PID_TYPE_AUDIO		0x2
 #define DATA_PID_TYPE_DATA		0x3
+
+#define PACK_VIDEO_DATA_PID(pid)		((DATA_PID_TYPE_VIDEO << 13) | pid)
+#define PACK_AUDIO_DATA_PID(pid)		((DATA_PID_TYPE_AUDIO << 13) | pid)
+#define PACK_DATA_DATA_PID(pid)			((DATA_PID_TYPE_DATA << 13) | pid)
 
 static inline bool pcr_video_same(uint16_t pcr_pid_value)
 {
