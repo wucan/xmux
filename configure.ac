@@ -43,4 +43,5 @@ AC_OUTPUT([Makefile
            src/imp/Makefile
            src/imp/fpga/Makefile
            src/libwu/Makefile
+           tools/Makefile
            doc/Makefile])

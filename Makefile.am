@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src doc
+SUBDIRS = src tools doc
 
 MAINTAINERCLEANFILES = ChangeLog INSTALL
 
