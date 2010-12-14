@@ -6,6 +6,7 @@
 #include "wu/wu_csc.h"
 
 #include "xmux.h"
+#include "pid_map_rule.h"
 
 
 static struct xmux_root_param  root;
@@ -39,12 +40,38 @@ static void build_pid_trans_info()
 		d->csc = wu_csc((uint8_t *)d, sizeof(*d) - 1);
 	}
 }
+static void build_pid_map_table()
+{
+	struct xmux_pid_map_table *pid_map = &root.pid_map_table_area.pid_map_table;
+	uint8_t chan_idx, pid_idx;
+	struct pid_map_entry *ent;
+	uint16_t input_pids[2];
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		for (pid_idx = 0; pid_idx < 2; pid_idx++) {
+			ent= &pid_map->chans[chan_idx].ents[pid_idx];
+			ent->input_pid = 64 + 10 * chan_idx + pid_idx;
+			/* 2 input pid, used for construct output pid */
+			input_pids[0] = ent->input_pid;
+			input_pids[1] = ent->input_pid + 1;
+			ent->output_pid = pid_map_rule_map_psi_pid(chan_idx,
+				0, DSW_PID_VIDEO, ent->input_pid, input_pids, 2);
+		}
+		for (pid_idx = 2; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
+			ent= &pid_map->chans[chan_idx].ents[pid_idx];
+			ent->input_pid = PID_MAP_TABLE_PAD_PID;
+			ent->output_pid = PID_MAP_TABLE_PAD_PID;
+		}
+	}
+
+}
 static void build_test_param()
 {
 	/* pid_trans_info */
 	build_pid_trans_info();
 
 	/* pid_map */
+	build_pid_map_table();
 
 	/* sys */
 	root.sys.version = 0x00000001;
