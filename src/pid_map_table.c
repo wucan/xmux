@@ -89,7 +89,17 @@ bool pid_map_table_validate(struct xmux_pid_map_table *pid_map)
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		for (pid_idx = 0; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
+			/*
+			 * ignore pad pid
+			 */
 			ent= &pid_map->chans[chan_idx].ents[pid_idx];
+			if (ent->input_pid == PID_MAP_TABLE_PAD_PID &&
+				ent->output_pid == PID_MAP_TABLE_PAD_PID) {
+				continue;
+			}
+			/*
+			 * check output_pid which got from pid_map_rule on input_pid
+			 */
 			if (!pid_map_rule_channel_output_pid_validate(chan_idx, ent->output_pid)) {
 				trace_err("chan #%d pid(%d => %d), output pid invalidate!",
 					chan_idx, ent->input_pid, ent->output_pid);
