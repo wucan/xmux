@@ -121,6 +121,10 @@ void pid_map_table_dump(struct xmux_pid_map_table *pid_map)
 		trace_info("chan #%d pid map:", chan_idx);
 		for (pid_idx = 0; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
 			ent= &pid_map->chans[chan_idx].ents[pid_idx];
+			if (ent->input_pid == PID_MAP_TABLE_PAD_PID &&
+				ent->output_pid == PID_MAP_TABLE_PAD_PID) {
+				continue;
+			}
 			trace_info("  #%d pid(%d => %d)",
 				chan_idx, ent->input_pid, ent->output_pid);
 		}
