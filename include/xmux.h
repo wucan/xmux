@@ -130,7 +130,7 @@ struct pid_map_entry {
 	uint16_t output_pid;
 };
 struct channel_pid_map_table {
-	struct pid_map_entry ents[PROGRAM_MAX_NUM];
+	struct pid_map_entry ents[FPGA_PID_MAP_TABLE_CHAN_PIDS];
 };
 struct xmux_pid_map_table {
 	struct channel_pid_map_table chans[CHANNEL_MAX_NUM];
