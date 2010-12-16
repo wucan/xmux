@@ -10,6 +10,10 @@ void buf_2_prog_info(PROG_INFO_T *prog_info, char *buf);
 void prog_info_2_buf(PROG_INFO_T *prog_info, char *buf);
 void buf_2_out_rate(OUT_RATE_T *out_rate, char *buf);
 void pid_2_buf(uint8_t *buf, uint16_t pid);
+void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx);
+void pid_trans_info_2_prog_info();
+void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx);
+void prog_info_2_pid_trans_info();
 
 
 #endif /* _FRONT_PANEL_DATA_CHURING_H_ */

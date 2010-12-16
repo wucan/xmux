@@ -1,9 +1,14 @@
 #include "wu/wu_byte_stream.h"
+#include "wu/wu_csc.h"
+#include "wu/message.h"
 
+#include "xmux_config.h"
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
 #include "front_panel_data_churning.h"
 
+
+static msgobj mo = {MSG_INFO, ENCOLOR, "fp-data-churning"};
 
 void buf_2_fp_cmd_header(struct fp_cmd_header * hdr, char *buf)
 {
@@ -61,5 +66,112 @@ void pid_2_buf(uint8_t *buf, uint16_t pid)
 	if (pid == 0)
 		pid = defPidIdler;
 	WRITE_U16_BE(buf, pid);
+}
+
+void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
+{
+	PROG_INFO_T *prog;
+	struct fp_program_info *fp_prog;
+	struct pid_trans_info_snmp_data *pid_trans_info;
+	struct xmux_program_info *xmux_prog;
+	uint8_t prog_idx, pid_idx;
+	uint16_t in_pid, out_pid;
+
+	pid_trans_info = &g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx];
+
+	g_chan_num.num[chan_idx] = pid_trans_info->nprogs;
+	if (pid_trans_info->nprogs == 0)
+		return;
+
+	for (prog_idx = 0; prog_idx < pid_trans_info->nprogs; prog_idx++) {
+		xmux_prog = &pid_trans_info->programs[prog_idx];
+		prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
+		fp_prog = &prog->info;
+
+		prog->status = PROGRAM_SELECTED(pid_trans_info->status, prog_idx) ? 1: 0;
+
+		fp_prog->prog_num = xmux_prog->prog_num;
+		fp_prog->pmt = xmux_prog->pmt;
+		fp_prog->pcr = xmux_prog->pcr;
+		for (pid_idx = 0; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
+			in_pid = xmux_prog->data[pid_idx].in;
+			out_pid = xmux_prog->data[pid_idx].out;
+			fp_prog->data[pid_idx].in = DATA_PID_VALUE(in_pid);
+			fp_prog->data[pid_idx].out = DATA_PID_VALUE(out_pid);
+			fp_prog->data[pid_idx].type = DATA_PID_TYPE(in_pid);
+		}
+		memcpy(fp_prog->prog_name, xmux_prog->prog_name,
+			sizeof(fp_prog->prog_name));
+	}
+
+	trace_info("channel #%d original pid_trans_info csc = %#x",
+		chan_idx, pid_trans_info->csc);
+}
+
+void pid_trans_info_2_prog_info()
+{
+	uint8_t chan_idx;
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		pid_trans_info_2_prog_info_of_channel(chan_idx);
+	}
+}
+
+void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
+{
+	PROG_INFO_T *prog;
+	struct fp_program_info *fp_prog;
+	struct pid_trans_info_snmp_data *pid_trans_info;
+	struct xmux_program_info *xmux_prog;
+	uint8_t prog_idx, pid_idx;
+	uint16_t in_pid, out_pid;
+	uint8_t pid_type;
+
+	pid_trans_info = &g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx];
+
+	pid_trans_info->data_len = sizeof(*pid_trans_info) - 2;
+	pid_trans_info->update_flag_and_chan_num = chan_idx;
+	pid_trans_info->nprogs = g_chan_num.num[chan_idx];
+	if (pid_trans_info->nprogs == 0)
+		return;
+
+	for (prog_idx = 0; prog_idx < pid_trans_info->nprogs; prog_idx++) {
+		xmux_prog = &pid_trans_info->programs[prog_idx];
+		prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
+		fp_prog = &prog->info;
+
+		prog->status = PROGRAM_SELECTED(pid_trans_info->status, prog_idx) ? 1: 0;
+		if (prog->status) {
+			SELECT_PROGRAM(pid_trans_info, prog_idx);
+		} else {
+			DESELECT_PROGRAM(pid_trans_info, prog_idx);
+		}
+
+		xmux_prog->prog_num = fp_prog->prog_num;
+		xmux_prog->pmt = fp_prog->pmt;
+		xmux_prog->pcr = fp_prog->pcr;
+		for (pid_idx = 0; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
+			in_pid = fp_prog->data[pid_idx].in;
+			out_pid = fp_prog->data[pid_idx].out;
+			pid_type = fp_prog->data[pid_idx].type;
+			xmux_prog->data[pid_idx].in = PACK_DATA_PID(pid_type, in_pid);
+			xmux_prog->data[pid_idx].out = PACK_DATA_PID(pid_type, out_pid);
+		}
+		memcpy(xmux_prog->prog_name, fp_prog->prog_name,
+			sizeof(fp_prog->prog_name));
+	}
+	pid_trans_info->csc = wu_csc(pid_trans_info, sizeof(*pid_trans_info) - 1);
+
+	trace_info("channel #%d generated pid_trans_info csc = %#x",
+		chan_idx, pid_trans_info->csc);
+}
+
+void prog_info_2_pid_trans_info()
+{
+	uint8_t chan_idx;
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		prog_info_2_pid_trans_info_of_channel(chan_idx);
+	}
 }
 
