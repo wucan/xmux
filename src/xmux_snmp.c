@@ -7,6 +7,8 @@
 #include "up_support.h"
 #include "wu_snmp_agent.h"
 
+#include "xmux_config.h"
+#include "xmux_misc.h"
 #include "psi_worker.h"
 #include "psi_parse.h"
 #include "psi_gen.h"
@@ -199,6 +201,8 @@ static int pid_trans_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v
  */
 static int pid_trans_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
+	sg_mib_trans.output_bitrate = g_eeprom_param.sys.output_bitrate;
+
 	v->size = PID_TRANS_SIZE;
 	v->data = &sg_mib_trans;
 
@@ -210,6 +214,7 @@ static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	eeprom_write(EEPROM_OFF_PID_MAP_TABLE,
 		&sg_mib_trans.table, sizeof(sg_mib_trans.table));
 	pid_map_table_apply(&sg_mib_trans.table);
+	set_output_bitrate(sg_mib_trans.output_bitrate);
 
 	return 0;
 }
