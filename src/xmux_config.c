@@ -58,6 +58,7 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 	if (!xmux_system_param_validate(&p->sys)) {
 		trace_err("system param invalidate!");
 		xmux_system_param_init_default(&p->sys);
+		eeprom_write(EEPROM_OFF_SYS, &p->sys, sizeof(p->sys));
 	}
 
 	/*TODO */

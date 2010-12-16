@@ -22,6 +22,10 @@ void set_packet_format(uint8_t new_fmt)
 
 bool xmux_system_param_validate(struct xmux_system_param *sys)
 {
+	if (sys->version != XMUX_VERSION_NUM)
+		return false;
+	 if (sys->update_time != XMUX_UPDATE_TIME)
+		return false;
 	if (sys->format != FORMAT_BC && sys->format != FORMAT_CC) {
 		return false;
 	}
