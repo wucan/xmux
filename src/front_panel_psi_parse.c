@@ -277,6 +277,9 @@ int fp_psi_parse()
 	int progs, total_progs = 0;
 	uint8_t chan_idx;
 
+	/* clear fp psi_parse state data */
+	memset(&g_chan_num, 0, sizeof(g_chan_num));
+
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		progs = parse_channel(chan_idx);
 		trace_info("channel #%d had %d programs", chan_idx, progs);
