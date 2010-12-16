@@ -57,6 +57,7 @@ xmux_SOURCES = \
 	up_sys.c \
 	up_support.c \
 	net.c \
+	xmux_misc.c \
 	$(NULL_FILE)
 
 SUBDIRS = imp libwu
