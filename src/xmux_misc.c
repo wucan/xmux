@@ -17,3 +17,17 @@ void set_packet_format(uint8_t new_fmt)
 	xmux_config_save_packet_format(new_fmt);
 }
 
+bool xmux_system_param_validate(struct xmux_system_param *sys)
+{
+	if (sys->format != FORMAT_BC && sys->format != FORMAT_CC) {
+		return false;
+	}
+
+	return true;
+}
+
+void xmux_system_param_init_default(struct xmux_system_param *sys)
+{
+	sys->format = FORMAT_BC;
+}
+

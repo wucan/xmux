@@ -52,6 +52,14 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 		pid_map_table_clear(&p->pid_map_table_area.pid_map_table);
 	}
 
+	/*
+	 * sys
+	 */
+	if (!xmux_system_param_validate(&p->sys)) {
+		trace_err("system param invalidate!");
+		xmux_system_param_init_default(&p->sys);
+	}
+
 	/*TODO */
 	return true;
 }
