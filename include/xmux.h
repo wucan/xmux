@@ -227,6 +227,9 @@ struct xmux_eeprom_param {
 #define EEPROM_OFF_USER						(offsetof(struct xmux_eeprom_param, user))
 #define EEPROM_OFF_MNG_MODE					(offsetof(struct xmux_eeprom_param, mng_mode))
 
+#define EEPROM_OFF_SYS_OUTPUT_BITRATE \
+	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, output_bitrate)))
+
 
 #endif /* _XMUX_H_ */
 

@@ -90,6 +90,11 @@ void xmux_config_update_output_bitrate(uint32_t bitrate)
 	g_eeprom_param.sys.output_bitrate = bitrate;
 }
 
+void xmux_config_save_output_bitrate(uint32_t bitrate)
+{
+	eeprom_write(EEPROM_OFF_SYS_OUTPUT_BITRATE, &bitrate, sizeof(bitrate));
+}
+
 void xmux_config_save_management_mode()
 {
 	uint8_t byte;
