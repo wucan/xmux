@@ -12,6 +12,9 @@ void set_output_bitrate(uint32_t new_bitrate)
 
 void set_packet_format(uint8_t new_fmt)
 {
+	if (new_fmt != FORMAT_BC && new_fmt != FORMAT_CC)
+		return;
+
 	/* TODO: set */
 
 	xmux_config_save_packet_format(new_fmt);
