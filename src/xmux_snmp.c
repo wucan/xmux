@@ -202,6 +202,7 @@ static int pid_trans_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v
 static int pid_trans_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	sg_mib_trans.output_bitrate = g_eeprom_param.sys.output_bitrate;
+	sg_mib_trans.format = g_eeprom_param.sys.format;
 
 	v->size = PID_TRANS_SIZE;
 	v->data = &sg_mib_trans;
@@ -215,6 +216,7 @@ static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 		&sg_mib_trans.table, sizeof(sg_mib_trans.table));
 	pid_map_table_apply(&sg_mib_trans.table);
 	set_output_bitrate(sg_mib_trans.output_bitrate);
+	set_packet_format(sg_mib_trans.format);
 
 	return 0;
 }

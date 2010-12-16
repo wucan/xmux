@@ -10,3 +10,10 @@ void set_output_bitrate(uint32_t new_bitrate)
 	xmux_config_save_output_bitrate(new_bitrate);
 }
 
+void set_packet_format(uint8_t new_fmt)
+{
+	/* TODO: set */
+
+	xmux_config_save_packet_format(new_fmt);
+}
+

@@ -235,6 +235,8 @@ struct xmux_eeprom_param {
 
 #define EEPROM_OFF_SYS_OUTPUT_BITRATE \
 	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, output_bitrate)))
+#define EEPROM_OFF_SYS_PACKET_FORMAT \
+	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, format)))
 
 
 #endif /* _XMUX_H_ */

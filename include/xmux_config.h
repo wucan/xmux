@@ -13,6 +13,7 @@ int xmux_config_init();
 void xmux_config_load_from_eeprom();
 
 void xmux_config_save_output_bitrate(uint32_t bitrate);
+void xmux_config_save_packet_format(uint8_t fmt);
 
 void xmux_config_save_management_mode();
 void xmux_config_load_management_mode();
