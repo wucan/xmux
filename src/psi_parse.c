@@ -31,8 +31,11 @@ uint8_t sg_mib_eit[CHANNEL_MAX_NUM + 1][EIT_SECTION_NUM][SECTION_MAX_SIZE];
  */
 static int psi_parse_timeout_sec = 20;
 static int psi_parse_timeouted;
+static bool request_stop_parse;
 int psi_parse_timer_is_timeouted()
 {
+	if (request_stop_parse)
+		return 1;
 	return psi_parse_timeouted;
 }
 static void sig_alarm(int signo)
@@ -218,6 +221,8 @@ int uvSI_psi_parse()
 	uint16_t ts_status;
 
 	for (k = 0; k < CHANNEL_MAX_NUM; k++) {
+		if (request_stop_parse)
+			break;
 		if (hfpga_get_ts_status(k, &ts_status) <= 0) {
 			printf("[uvSI] channel %d had no ts!\n", k + 1);
 			continue;
@@ -265,11 +270,13 @@ channel_analyse_done:
 		printf("[uvSI] channel %d psi parse finished.", sg_si_param.cha + 1);
 	}
 
+	request_stop_parse = false;
+
 	return 0;
 }
 
 void uvSI_psi_parse_stop()
 {
-	// TODO
+	request_stop_parse = true;
 }
 
