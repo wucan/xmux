@@ -103,7 +103,7 @@ static int cmd_0x101_handler(struct fp_cmd_header *cmd_header, int is_read,
 	}
 
 	buf_2_out_rate(&tmp_out_rate, recv_msg_buf + sizeof(struct fp_cmd_header));
-	xmux_config_update_output_bitrate(tmp_out_rate.rate);
+	set_output_bitrate(tmp_out_rate.rate);
 
 	return 1;
 }

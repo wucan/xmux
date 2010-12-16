@@ -85,13 +85,9 @@ void xmux_config_load_from_eeprom()
 		sizeof(g_eeprom_param.pid_map_table_area.pid_map_table));
 }
 
-void xmux_config_update_output_bitrate(uint32_t bitrate)
-{
-	g_eeprom_param.sys.output_bitrate = bitrate;
-}
-
 void xmux_config_save_output_bitrate(uint32_t bitrate)
 {
+	g_eeprom_param.sys.output_bitrate = bitrate;
 	eeprom_write(EEPROM_OFF_SYS_OUTPUT_BITRATE, &bitrate, sizeof(bitrate));
 }
 
