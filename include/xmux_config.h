@@ -18,6 +18,7 @@ void xmux_config_save_packet_format(uint8_t fmt);
 void xmux_config_save_management_mode();
 void xmux_config_load_management_mode();
 void xmux_config_save_output_psi_data();
+void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t);
 
 
 #endif /* _XMUX_CONFIG_H_ */

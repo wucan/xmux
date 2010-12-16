@@ -212,8 +212,7 @@ static int pid_trans_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(&sg_mib_trans, v->data, v->size);
-	eeprom_write(EEPROM_OFF_PID_MAP_TABLE,
-		&sg_mib_trans.table, sizeof(sg_mib_trans.table));
+	xmux_config_save_pid_map_table(&sg_mib_trans.table);
 	pid_map_table_apply(&sg_mib_trans.table);
 	set_output_bitrate(sg_mib_trans.output_bitrate);
 	set_packet_format(sg_mib_trans.format);
