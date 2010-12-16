@@ -31,6 +31,10 @@ bool xmux_system_param_validate(struct xmux_system_param *sys)
 
 void xmux_system_param_init_default(struct xmux_system_param *sys)
 {
+	sys->output_bitrate = XMUX_DEFAULT_OUTPUT_BITRATE;
 	sys->format = FORMAT_BC;
+	snprintf(sys->vendor_info, sizeof(sys->vendor_info), "%s", XMUX_VENDOR);
+	sys->version = XMUX_VERSION_NUM;
+	sys->update_time = XMUX_UPDATE_TIME;
 }
 

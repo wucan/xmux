@@ -10,9 +10,6 @@
 #include "pid_map_table.h"
 
 
-#define XMUX_VERSION_STR			"0.01"
-
-
 int management_mode = MANAGEMENT_MODE_SNMP;
 
 static void restore_work_field();
