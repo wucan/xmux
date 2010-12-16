@@ -81,6 +81,10 @@ struct pid_trans_info_snmp_data {
 #define PID_TRANS_INFO_SIZE			sizeof(struct pid_trans_info_snmp_data)
 
 #define PROGRAM_SELECTED(status, prog_id)		(status & (1 << prog_id))
+#define SELECT_PROGRAM(info, prog_idx) \
+	(info->status |= (1 << prog_idx))
+#define DESELECT_PROGRAM(info, prog_idx) \
+	(info->status &= ~(1 << prog_idx))
 #define DATA_PID_TYPE(data_pid_value)			(data_pid_value >> 13)
 #define DATA_PID_VALUE(data_pid_value)			(data_pid_value & 0x1FFF)
 
@@ -88,6 +92,8 @@ struct pid_trans_info_snmp_data {
 #define DATA_PID_TYPE_AUDIO		0x2
 #define DATA_PID_TYPE_DATA		0x3
 #define DATA_PID_TYPE_OTHER		0x6
+
+#define PACK_DATA_PID(type, pid)		((type << 13) | pid)
 
 #define PACK_VIDEO_DATA_PID(pid)		((DATA_PID_TYPE_VIDEO << 13) | pid)
 #define PACK_AUDIO_DATA_PID(pid)		((DATA_PID_TYPE_AUDIO << 13) | pid)
