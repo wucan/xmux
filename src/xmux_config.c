@@ -49,6 +49,7 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 		pid_map_table_dump(&p->pid_map_table_area.pid_map_table);
 	} else {
 		trace_err("pid map table invalidate!");
+		pid_map_table_clear(&p->pid_map_table_area.pid_map_table);
 	}
 
 	/*TODO */
