@@ -1,7 +1,11 @@
+#include "wu/message.h"
+
 #include "xmux.h"
 #include "xmux_config.h"
 #include "xmux_misc.h"
 
+
+static msgobj mo = {MSG_INFO, ENCOLOR, "misc"};
 
 void set_output_bitrate(uint32_t new_bitrate)
 {
@@ -40,5 +44,14 @@ void xmux_system_param_init_default(struct xmux_system_param *sys)
 	snprintf(sys->vendor_info, sizeof(sys->vendor_info), "%s", XMUX_VENDOR);
 	sys->version = XMUX_VERSION_NUM;
 	sys->update_time = XMUX_UPDATE_TIME;
+}
+
+void xmux_system_param_dump(struct xmux_system_param *sys)
+{
+	trace_info("system: %dKbps %#x %s %d.%d %d-%d-%d",
+		sys->output_bitrate, sys->format, sys->vendor_info,
+		sys->version >> 16, sys->version & 0xFFFF,
+		sys->update_time >> 16, (sys->update_time >> 8) & 0xFF,
+		sys->update_time & 0xFF);
 }
 
