@@ -170,6 +170,7 @@ static void _apply_pid_map_table_and_psi()
 
 pid_map_gen_done:
 	pid_map_table_gen_end(&pid_map_gen_ctx, 0xFF);
+	xmux_config_save_pid_map_table(&pid_map_gen_ctx.pid_map);
 	hfpga_write_pid_map(&pid_map_gen_ctx.pid_map);
 
 	/*
