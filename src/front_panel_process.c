@@ -120,6 +120,7 @@ static int cmd_0x102_handler(struct fp_cmd_header *cmd_header, int is_read,
 		nlen = cmd_header->len + sizeof(struct fp_cmd_header);
 		*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
 		fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
+		xmux_net_2_fp_net(&g_eeprom_param.net, &neteth0);
 		memcpy(resp_msg_buf + sizeof(struct fp_cmd_header), &neteth0, cmd_header->len);
 
 		*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
