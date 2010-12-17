@@ -4,7 +4,7 @@
 
 #include "wu/message.h"
 
-#include "up_support.h"
+#include "xmux_net.h"
 #include "wu_snmp_agent.h"
 
 #include "xmux_config.h"
@@ -231,10 +231,12 @@ static int net_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 static int net_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
+	struct xmux_net_param net;
+
 	memcpy(&sg_mib_IP_info, v->data, v->size);
-	up_set_net_param(0, sg_mib_IP_info.ip, sg_mib_IP_info.netmask);
-	up_set_gateway(sg_mib_IP_info.gateway);
-	up_set_mac(0, sg_mib_IP_info.mac);
+	memcpy(&net, &sg_mib_IP_info.server_ip,
+		sizeof(struct ip_info_snmp_data) - 2);
+	xmux_net_set(&net);
 
 	return 0;
 }

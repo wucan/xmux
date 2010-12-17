@@ -7,6 +7,8 @@
 #include "eeprom.h"
 #include "pid_trans_info.h"
 #include "xmux_snmp.h"
+#include "xmux_misc.h"
+#include "xmux_net.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_config"};
@@ -61,6 +63,17 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 		trace_err("system param invalidate!");
 		xmux_system_param_init_default(&p->sys);
 		eeprom_write(EEPROM_OFF_SYS, &p->sys, sizeof(p->sys));
+	}
+
+	/*
+	 * net
+	 */
+	if (xmux_net_param_validate(&p->net)) {
+		xmux_net_param_dump(&p->net);
+	} else {
+		trace_err("net param invalidate!");
+		xmux_net_param_init_default(&p->net);
+		eeprom_write(EEPROM_OFF_NET, &p->net, sizeof(p->net));
 	}
 
 	/*
@@ -153,5 +166,11 @@ void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t)
 {
 	g_eeprom_param.pid_map_table_area.pid_map_table = *t;
 	eeprom_write(EEPROM_OFF_PID_MAP_TABLE, t, sizeof(*t));
+}
+
+void xmux_config_save_net_param(struct xmux_net_param *net)
+{
+	net->csc = wu_csc(net, sizeof(*net) - 1);
+	eeprom_write(EEPROM_OFF_NET, net, sizeof(*net));
 }
 
