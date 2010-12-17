@@ -68,6 +68,24 @@ void pid_2_buf(uint8_t *buf, uint16_t pid)
 	WRITE_U16_BE(buf, pid);
 }
 
+void fp_net_2_xmux_net(NET_ETH0_T *fp_net, struct xmux_net_param *xmux_net)
+{
+	memcpy(&xmux_net->server_ip, fp_net->nSvrIp, 4);
+	memcpy(&xmux_net->ip, fp_net->LocIp, 4);
+	memcpy(&xmux_net->netmask, fp_net->Mask, 4);
+	memcpy(&xmux_net->gateway, fp_net->gw, 4);
+	memcpy(&xmux_net->mac, fp_net->strMac, 6);
+}
+
+void xmux_net_2_fp_net(struct xmux_net_param *xmux_net, NET_ETH0_T *fp_net)
+{
+	memcpy(fp_net->nSvrIp, &xmux_net->server_ip, 4);
+	memcpy(fp_net->LocIp, &xmux_net->ip, 4);
+	memcpy(fp_net->Mask, &xmux_net->netmask, 4);
+	memcpy(fp_net->gw, &xmux_net->gateway, 4);
+	memcpy(fp_net->strMac, &xmux_net->mac, 6);
+}
+
 void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
 {
 	PROG_INFO_T *prog;
