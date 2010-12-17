@@ -43,10 +43,10 @@
  * management mode: snmp or front panel
  */
 enum {
-	MANAGEMENT_MODE_SNMP = 0,
-	MANAGEMENT_MODE_FP,
+	MANAGEMENT_MODE_SNMP = 0x55,
+	MANAGEMENT_MODE_FP = 0xAA,
 };
-extern int management_mode;
+extern uint8_t management_mode;
 
 /*
  * pid trans info table

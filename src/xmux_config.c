@@ -32,6 +32,17 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 	uint8_t chan_idx;
 
 	/*
+	 * management mode
+	 */
+	management_mode = p->mng_mode;
+	if (management_mode != MANAGEMENT_MODE_SNMP &&
+		management_mode != MANAGEMENT_MODE_FP) {
+		trace_err("management mode invalidate! force to SNMP!");
+		management_mode = MANAGEMENT_MODE_SNMP;
+		xmux_config_save_management_mode();
+	}
+
+	/*
 	 * pid trans info
 	 */
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
@@ -101,8 +112,6 @@ static void xmux_eeprom_param_init_default(struct xmux_eeprom_param *p)
  */
 void xmux_config_load_from_eeprom()
 {
-	xmux_config_load_management_mode();
-
 	eeprom_read(0, (uint8_t *)&g_eeprom_param, sizeof(g_eeprom_param));
 	/* checkint */
 	if (!xmux_eeprom_param_validate(&g_eeprom_param)) {
@@ -135,25 +144,8 @@ void xmux_config_save_packet_format(uint8_t fmt)
 
 void xmux_config_save_management_mode()
 {
-	uint8_t byte;
-	switch (management_mode) {
-		case MANAGEMENT_MODE_SNMP: byte = 0x55; break;
-		case MANAGEMENT_MODE_FP: byte = 0xAA; break;
-		default: return; break;
-	}
-	eeprom_write(EEPROM_OFF_MNG_MODE, &byte, 1);
-}
-
-void xmux_config_load_management_mode()
-{
-	uint8_t byte;
-
-	eeprom_read(EEPROM_OFF_MNG_MODE, &byte, 1);
-	switch (byte) {
-		default:
-		case 0x55: management_mode = MANAGEMENT_MODE_SNMP; break;
-		case 0xAA: management_mode = MANAGEMENT_MODE_FP; break;
-	}
+	g_eeprom_param.mng_mode = management_mode;
+	eeprom_write(EEPROM_OFF_MNG_MODE, &g_eeprom_param.mng_mode, 1);
 }
 
 void xmux_config_save_output_psi_data()

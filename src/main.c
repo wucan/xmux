@@ -10,7 +10,7 @@
 #include "pid_map_table.h"
 
 
-int management_mode = MANAGEMENT_MODE_SNMP;
+uint8_t management_mode = MANAGEMENT_MODE_SNMP;
 
 static void restore_work_field();
 
