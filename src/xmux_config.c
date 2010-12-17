@@ -9,6 +9,7 @@
 #include "xmux_snmp.h"
 #include "xmux_misc.h"
 #include "xmux_net.h"
+#include "output_psi_data.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_config"};
@@ -66,6 +67,16 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 	}
 
 	/*
+	 * output psi
+	 */
+	if (output_psi_data_validate(&p->output_psi_area.output_psi)) {
+		output_psi_data_dump(&p->output_psi_area.output_psi);
+	} else {
+		trace_err("output psi data invalidate!");
+		output_psi_data_clear(&p->output_psi_area.output_psi);
+	}
+
+	/*
 	 * sys
 	 */
 	if (xmux_system_param_validate(&p->sys)) {
@@ -98,7 +109,6 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 		eeprom_write(EEPROM_OFF_USER, &p->user, sizeof(p->user));
 	}
 
-	/*TODO */
 	return true;
 }
 

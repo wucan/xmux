@@ -46,6 +46,7 @@ xmux_SOURCES = \
 	psi_worker.c \
 	psi_parse.c \
 	psi_gen.c \
+	output_psi_data.c \
 	pid_trans_info.c \
 	xmux_config.c \
 	pid_map_table.c \
