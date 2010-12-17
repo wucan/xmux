@@ -224,6 +224,8 @@ static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int net_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
+	sg_mib_IP_info.len = sizeof(struct ip_info_snmp_data) - 2;
+	memcpy(&sg_mib_IP_info.server_ip, &g_eeprom_param.net, sg_mib_IP_info.len);
 	v->size = IP_INFO_SIZE;
 	v->data = &sg_mib_IP_info;
 
