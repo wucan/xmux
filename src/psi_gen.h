@@ -102,7 +102,6 @@ void cat_gen_context_add_ca_system(struct cat_gen_context *ctx,
 void cat_gen_context_free(struct cat_gen_context *ctx);
 
 int psi_gen_output_psi_from_sections();
-int psi_apply_from_output_psi();
 int psi_gen_and_apply_from_fp();
 
 

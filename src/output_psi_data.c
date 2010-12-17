@@ -5,7 +5,10 @@
 #include "xmux.h"
 #include "xmux_config.h"
 #include "output_psi_data.h"
+#include "gen_dvb_si.h"
 
+
+extern uv_dvb_io hfpga_dev;
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "output_psi_data"};
 
@@ -37,5 +40,45 @@ void output_psi_data_dump(struct xmux_output_psi_data *psi)
 void output_psi_data_clear(struct xmux_output_psi_data *psi)
 {
 	memset(psi, 0, sizeof(*psi));
+}
+
+void fill_output_psi_data(int psi_type, uint8_t *ts_buf, int ts_len)
+{
+	static int pkt_offset;
+	struct xmux_output_psi_data *psi_data = &g_eeprom_param.output_psi_area.output_psi;
+
+	if (psi_type == 0) {
+		memset(psi_data->psi_ents, 0, sizeof(psi_data->psi_ents));
+		pkt_offset = 0;
+	}
+
+	if (!psi_data->psi_ents[psi_type].nr_ts_pkts) {
+		psi_data->psi_ents[psi_type].offset = pkt_offset;
+	}
+	psi_data->psi_ents[psi_type].nr_ts_pkts += ts_len / TS_PACKET_BYTES;
+	memcpy(&psi_data->ts_pkts[pkt_offset], ts_buf, ts_len);
+
+	pkt_offset += ts_len / TS_PACKET_BYTES;
+}
+
+int psi_apply_from_output_psi()
+{
+	struct xmux_output_psi_data *psi_data = &g_eeprom_param.output_psi_area.output_psi;
+	struct output_psi_data_entry *ent;
+	uint8_t psi_type, howto = 0;
+
+	/*
+	 * FIXME: PAT, PMT, CAT: howto = 0; SDT, NIT: howto = 1
+	 */
+	dvbSI_Start(&hfpga_dev);
+	for (psi_type = 0; psi_type < OUTPUT_PSI_TYPE_MAX_NUM; psi_type++) {
+		ent = &psi_data->psi_ents[psi_type];
+		if (ent->nr_ts_pkts) {
+			hfpga_dev.write(&psi_data->ts_pkts[ent->offset], 188 * ent->nr_ts_pkts, howto);
+		}
+	}
+	dvbSI_Stop(&hfpga_dev);
+
+	return 0;
 }
 
