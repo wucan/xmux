@@ -185,10 +185,10 @@ struct xmux_system_param {
  */
 struct xmux_net_param {
 	uint32_t server_ip;
-	uint8_t mac[6];
 	uint32_t ip;
 	uint32_t netmask;
 	uint32_t gateway;
+	uint8_t mac[6];
 	uint8_t csc;
 } __attribute__((packed));
 
