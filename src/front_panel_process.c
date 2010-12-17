@@ -20,7 +20,6 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "mcu_rs232"};
 
 PROG_INFO_T g_prog_info_table[CHANNEL_MAX_NUM * PROGRAM_MAX_NUM];
 CHN_NUM_T g_chan_num;
-NET_ETH0_T neteth0;
 
 static int fp_create_response_cmd(uint8_t *buf, struct fp_cmd_header *req_cmd_header, void *param, int size)
 {
@@ -112,6 +111,9 @@ static int cmd_0x102_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 				uint16_t *p_resp_msg_len)
 {
+	NET_ETH0_T neteth0;
+	struct xmux_net_param xmux_net;
+
 	if (is_read) {
 		int nlen;
 		cmd_header->len = sizeof(NET_ETH0_T);
@@ -125,6 +127,8 @@ static int cmd_0x102_handler(struct fp_cmd_header *cmd_header, int is_read,
 	}
 
 	memcpy(&neteth0, recv_msg_buf + sizeof(struct fp_cmd_header), sizeof(NET_ETH0_T));
+	fp_net_2_xmux_net(&neteth0, &xmux_net);
+	xmux_net_set(&xmux_net);
 
 	return 1;
 }
