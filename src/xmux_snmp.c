@@ -3,6 +3,7 @@
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
 #include "wu/message.h"
+#include "wu/wu_csc.h"
 
 #include "xmux_net.h"
 #include "wu_snmp_agent.h"
@@ -244,9 +245,12 @@ static int net_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 /*
  * USER
+ * FIXME: check size!
  */
 static int user_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
+	memcpy(sg_mib_User_info, g_eeprom_param.user.user, 2);
+	memcpy(sg_mib_User_info + 2, g_eeprom_param.user.password, 4);
 	v->size = USER_INFO_SIZE;
 	v->data = sg_mib_User_info;
 
@@ -255,6 +259,12 @@ static int user_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int user_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(sg_mib_User_info, v->data, v->size);
+	memcpy(g_eeprom_param.user.user, sg_mib_User_info, 2);
+	g_eeprom_param.user.user_len = 2;
+	memcpy(g_eeprom_param.user.password, sg_mib_User_info + 2, 4);
+	g_eeprom_param.user.password_len = 4;
+	g_eeprom_param.user.csc = wu_csc(&g_eeprom_param.user, offsetof(struct xmux_user_param, csc));
+	eeprom_write(EEPROM_OFF_USER, &g_eeprom_param.user, sizeof(struct xmux_user_param));
 
 	return 0;
 }
