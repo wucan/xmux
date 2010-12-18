@@ -116,6 +116,8 @@ static int parse_pmt()
 	unsigned short len;
 	int i, rc;
 	unsigned char sg_mib_curpmt[SECTION_MAX_SIZE];
+	uint8_t chan_idx = sg_si_param.cha;
+	uint32_t pmt_state = 0;
 
 	/* skip NIT */
 	if (pid_data[0].i_pid == 0x10)
@@ -134,13 +136,16 @@ static int parse_pmt()
 		psi_parse_timer_stop();
 		if (rc) {
 			printf("pmt parse failed! rc %d\n", rc);
+			memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state, 4);
 			return -1;
 		}
 		memcpy(&len, sg_mib_curpmt, 2);
 		printf("[uvSI] pmt pid %#x, got section, len %d\n",
 			pmt.i_pmt_pid, len);
 		memcpy(sg_mib_pmt[sg_si_param.cha][i - cnt], sg_mib_curpmt, len + 2);
+		pmt_state |= 1 << i;
 	}
+	memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state, 4);
 
 	return 0;
 }
@@ -220,11 +225,14 @@ int uvSI_psi_parse()
 	int rc;
 	uint16_t ts_status;
 
+	memset(&All_Channel_Psi_Status, 0, sizeof(All_Channel_Psi_Status));
+	sg_si_param.cur_stat = &All_Channel_Psi_Status;
 	for (k = 0; k < CHANNEL_MAX_NUM; k++) {
 		if (request_stop_parse)
 			break;
 		if (hfpga_get_ts_status(k, &ts_status) <= 0) {
 			printf("[uvSI] channel %d had no ts!\n", k + 1);
+			sg_si_param.cur_stat->ch_s |= 0x01 << k;
 			continue;
 		}
 
@@ -232,8 +240,6 @@ int uvSI_psi_parse()
 		sg_si_param.cha = k;
 		for (i = 0; i < UV_MAX_SI_SECTION_CNT; i++)
 			sg_si_param.sec_len[i] = 0;
-		sg_si_param.cur_stat = &All_Channel_Psi_Status;
-		sg_si_param.cur_stat->ch_s = k;
 		hfpga_dev.cha = sg_si_param.cha;
 		dvbSI_Start(&hfpga_dev);
 
@@ -262,12 +268,16 @@ int uvSI_psi_parse()
 		if (rc)
 			goto channel_analyse_done;
 
+channel_analyse_done:
 		sg_si_param.cur_stat->ch_s |= 0x01 << k;
 
-channel_analyse_done:
 		dvbSI_Stop();
 
 		printf("[uvSI] channel %d psi parse finished.", sg_si_param.cha + 1);
+	}
+
+	for (; k < CHANNEL_MAX_NUM; k++) {
+		sg_si_param.cur_stat->ch_s |= 0x01 << k;
 	}
 
 	request_stop_parse = false;
