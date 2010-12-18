@@ -29,7 +29,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 
 
 #define PID_TRANS_INFO_NUM		24
-#define LOAD_INFO_SIZE				34
+#define LOAD_INFO_SIZE				USER_INFO_SIZE
 #define HEART_DEVICE_SIZE			4
 
 struct pid_trans_snmp_data sg_mib_trans;
@@ -338,7 +338,23 @@ static int load_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 static int load_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
+	struct user_param_snmp_data *user = &sg_mib_loadinfo;
+
 	memcpy(sg_mib_loadinfo, v->data, v->size);
+	if (management_mode == MANAGEMENT_MODE_FP) {
+		trace_err("busy in fp mode!");
+		return -1;
+	}
+	if (user->user_len != g_eeprom_param.user.user_len ||
+		!memcmp(user->user, g_eeprom_param.user.user, user->user_len)) {
+		trace_err("user error!");
+		return -1;
+	}
+	if (user->password_len != g_eeprom_param.user.password_len ||
+		!memcmp(user->password, g_eeprom_param.user.password, user->password_len)) {
+		trace_err("password error!");
+		return -1;
+	}
 
 	return 0;
 }
