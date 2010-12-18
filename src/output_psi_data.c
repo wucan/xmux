@@ -15,7 +15,26 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "output_psi_data"};
 
 bool output_psi_data_validate(struct xmux_output_psi_data *psi)
 {
-	/* TODO */
+	uint8_t i;
+	struct output_psi_data_entry *e;
+	uint32_t next_expect_offset = 0;
+
+	for (i = 0; i < OUTPUT_PSI_TYPE_MAX_NUM; i++) {
+		e = &psi->psi_ents[i];
+		if (e->offset == 0 && e->nr_ts_pkts == 0)
+			break;
+		if (e->offset != next_expect_offset) {
+			trace_err("new psi type #%d offset %d != expect offset %d!",
+				i, e->offset, next_expect_offset);
+			return false;
+		}
+		if (e->offset + e->nr_ts_pkts >= OUTPUT_PSI_PACKET_MAX_NUM) {
+			trace_err("new psi type #%d exceed max packet(%d)!",
+				i, OUTPUT_PSI_PACKET_MAX_NUM);
+			return false;
+		}
+		next_expect_offset = e->offset + e->nr_ts_pkts;
+	}
 
 	return true;
 }

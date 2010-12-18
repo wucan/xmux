@@ -146,6 +146,7 @@ struct xmux_pid_map_table {
 /*
  * output psi/si ts packets, 8KB
  */
+#define OUTPUT_PSI_AREA_SIZE		(1024 * 8)
 #define OUTPUT_PSI_TYPE_MAX_NUM		8
 struct output_psi_data_entry {
 	uint8_t offset;
@@ -155,6 +156,10 @@ struct xmux_output_psi_data {
 	struct output_psi_data_entry psi_ents[OUTPUT_PSI_TYPE_MAX_NUM];
 	struct mpeg_ts_packet ts_pkts[0];
 } __attribute__((packed));
+#define OUTPUT_PSI_TS_DATA_SIZE \
+	(OUTPUT_PSI_AREA_SIZE - offsetof(struct xmux_output_psi_data, ts_pkts))
+#define OUTPUT_PSI_PACKET_MAX_NUM \
+	(OUTPUT_PSI_TS_DATA_SIZE / TS_PACKET_BYTES)
 
 /*
  * system parameter
