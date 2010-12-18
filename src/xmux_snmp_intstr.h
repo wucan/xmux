@@ -30,6 +30,14 @@ struct ip_info_snmp_data {
 } __attribute__((packed));
 #define IP_INFO_SIZE		(sizeof(struct ip_info_snmp_data))
 
+struct user_param_snmp_data {
+	uint8_t user_len;
+	char user[16];
+	uint8_t password_len;
+	char password[16];
+} __attribute__((packed));
+#define USER_INFO_SIZE			sizeof(struct user_param_snmp_data)
+
 
 #endif /* _XMUX_SNMP_INTSTR_H_ */
 

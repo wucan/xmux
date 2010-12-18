@@ -31,7 +31,6 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 #define PID_TRANS_INFO_NUM		24
 #define LOAD_INFO_SIZE				34
 #define HEART_DEVICE_SIZE			4
-#define USER_INFO_SIZE				6
 
 struct pid_trans_snmp_data sg_mib_trans;
 static uint8_t sg_mib_loadinfo[LOAD_INFO_SIZE];
@@ -249,8 +248,7 @@ static int net_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int user_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	memcpy(sg_mib_User_info, g_eeprom_param.user.user, 2);
-	memcpy(sg_mib_User_info + 2, g_eeprom_param.user.password, 4);
+	memcpy(sg_mib_User_info, &g_eeprom_param.user, USER_INFO_SIZE);
 	v->size = USER_INFO_SIZE;
 	v->data = sg_mib_User_info;
 
@@ -259,10 +257,7 @@ static int user_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int user_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(sg_mib_User_info, v->data, v->size);
-	memcpy(g_eeprom_param.user.user, sg_mib_User_info, 2);
-	g_eeprom_param.user.user_len = 2;
-	memcpy(g_eeprom_param.user.password, sg_mib_User_info + 2, 4);
-	g_eeprom_param.user.password_len = 4;
+	memcpy(&g_eeprom_param.user, sg_mib_User_info, USER_INFO_SIZE);
 	g_eeprom_param.user.csc = wu_csc(&g_eeprom_param.user, offsetof(struct xmux_user_param, csc));
 	eeprom_write(EEPROM_OFF_USER, &g_eeprom_param.user, sizeof(struct xmux_user_param));
 
