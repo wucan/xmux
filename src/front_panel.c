@@ -6,6 +6,7 @@
 #include "wu/message.h"
 #include "xmux.h"
 #include "xmux_config.h"
+#include "xmux_misc.h"
 #include "front_panel.h"
 #include "front_panel_intstr.h"
 #include "front_panel_data_churning.h"
@@ -73,8 +74,7 @@ static int fp_thread(void *data)
 				time_t now = time(NULL);
 				if (now - fp_access_time >= 5) {
 					trace_info("swtich to snmp management mode");
-					management_mode = MANAGEMENT_MODE_SNMP;
-					xmux_config_save_management_mode();
+					leave_fp_management_mode();
 				}
 			}
 			continue;
@@ -102,8 +102,7 @@ static int fp_thread(void *data)
 							 */
 							if (management_mode == MANAGEMENT_MODE_SNMP) {
 								trace_info("switch to fp management mode");
-								management_mode = MANAGEMENT_MODE_FP;
-								xmux_config_save_management_mode();
+								enter_fp_management_mode();
 							}
 							parse_mcu_cmd(fd, recv_buf);
 							break;

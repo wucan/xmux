@@ -33,7 +33,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 
 struct pid_trans_snmp_data sg_mib_trans;
 static uint8_t sg_mib_loadinfo[LOAD_INFO_SIZE];
-static struct heart_device_snmp_data sg_mib_heartDevice;
+struct heart_device_snmp_data sg_mib_heartDevice;
 static struct ip_info_snmp_data sg_mib_IP_info;
 static uint8_t sg_mib_User_info[USER_INFO_SIZE];
 

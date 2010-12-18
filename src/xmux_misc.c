@@ -4,6 +4,7 @@
 #include "xmux.h"
 #include "xmux_config.h"
 #include "xmux_misc.h"
+#include "xmux_snmp.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "misc"};
@@ -85,5 +86,19 @@ void xmux_user_param_dump(struct xmux_user_param *user)
 	memcpy(password, user->password, password_len);
 	password[password_len] = 0;
 	trace_info("user: %s:%s", user_name, password);
+}
+
+void leave_fp_management_mode()
+{
+	sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_IDLE;
+	management_mode = MANAGEMENT_MODE_SNMP;
+	xmux_config_save_management_mode();
+}
+
+void enter_fp_management_mode()
+{
+	sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_BUSY;
+	management_mode = MANAGEMENT_MODE_FP;
+	xmux_config_save_management_mode();
 }
 
