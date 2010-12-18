@@ -49,6 +49,17 @@ enum {
 extern uint8_t management_mode;
 
 /*
+ * snmp client login stats
+ */
+enum {
+	SNMP_LOGIN_STATUS_SUCCESS = 0,
+	SNMP_LOGIN_STATUS_BUSY,
+	SNMP_LOGIN_STATUS_USER_NAME_INVALID,
+	SNMP_LOGIN_STATUS_PASSWORD_INVALID,
+	SNMP_LOGIN_STATUS_IDLE,
+};
+
+/*
  * pid trans info table
  * snmp node 5188.12
  */

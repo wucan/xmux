@@ -30,11 +30,10 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 
 #define PID_TRANS_INFO_NUM		24
 #define LOAD_INFO_SIZE				USER_INFO_SIZE
-#define HEART_DEVICE_SIZE			4
 
 struct pid_trans_snmp_data sg_mib_trans;
 static uint8_t sg_mib_loadinfo[LOAD_INFO_SIZE];
-static uint8_t sg_mib_heartDevice[HEART_DEVICE_SIZE];
+static struct heart_device_snmp_data sg_mib_heartDevice;
 static struct ip_info_snmp_data sg_mib_IP_info;
 static uint8_t sg_mib_User_info[USER_INFO_SIZE];
 
@@ -343,18 +342,22 @@ static int load_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	memcpy(sg_mib_loadinfo, v->data, v->size);
 	if (management_mode == MANAGEMENT_MODE_FP) {
 		trace_err("busy in fp mode!");
+		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_BUSY;
 		return -1;
 	}
 	if (user->user_len != g_eeprom_param.user.user_len ||
 		!memcmp(user->user, g_eeprom_param.user.user, user->user_len)) {
 		trace_err("user error!");
+		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_USER_NAME_INVALID;
 		return -1;
 	}
 	if (user->password_len != g_eeprom_param.user.password_len ||
 		!memcmp(user->password, g_eeprom_param.user.password, user->password_len)) {
 		trace_err("password error!");
+		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_PASSWORD_INVALID;
 		return -1;
 	}
+	sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_SUCCESS;
 
 	return 0;
 }
@@ -364,13 +367,13 @@ static int load_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int heart_device_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	v->size = HEART_DEVICE_SIZE;
-	v->data = sg_mib_heartDevice;
+	v->data = &sg_mib_heartDevice;
 
 	return 0;
 }
 static int heart_device_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	memcpy(sg_mib_heartDevice, v->data, v->size);
+	memcpy(&sg_mib_heartDevice, v->data, v->size);
 
 	return 0;
 }

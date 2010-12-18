@@ -38,6 +38,13 @@ struct user_param_snmp_data {
 } __attribute__((packed));
 #define USER_INFO_SIZE			sizeof(struct user_param_snmp_data)
 
+struct heart_device_snmp_data {
+	uint16_t flag; // SNMP_LOGIN_STATUS_XXX
+	uint8_t lock_state;
+	uint8_t mode;
+} __attribute__((packed));
+#define HEART_DEVICE_SIZE			sizeof(struct heart_device_snmp_data)
+
 
 #endif /* _XMUX_SNMP_INTSTR_H_ */
 
