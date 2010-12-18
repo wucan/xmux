@@ -24,6 +24,13 @@ int main(int argc, char **argv)
 	xmux_config_load_from_eeprom();
 
 	/*
+	 * set login status idle when start up in snmp mode
+	 */
+	if (management_mode == MANAGEMENT_MODE_SNMP) {
+		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_IDLE;
+	}
+
+	/*
 	 * restore all system to work again!
 	 */
 	restore_work_field();
