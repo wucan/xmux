@@ -317,6 +317,16 @@ static int psi_status_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	return 0;
 }
 /*
+ * APPLY PSI
+ */
+static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
+{
+	psi_gen_output_psi_from_sections();
+	psi_apply_from_output_psi();
+
+	return 0;
+}
+/*
  * LOAD INFO
  */
 static int load_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
@@ -329,9 +339,6 @@ static int load_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int load_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(sg_mib_loadinfo, v->data, v->size);
-
-	psi_gen_output_psi_from_sections();
-	psi_apply_from_output_psi();
 
 	return 0;
 }
@@ -435,6 +442,11 @@ static struct wu_oid_object solo_oid_objs[] = {
 	{"PSI_STATUS", {XMUX_ROOT_OID, 16}, 7,
 	 0, OID_STATUS_READ,
 	 psi_status_get, NULL,
+	},
+	// APPLY psi
+	{"APPLY_PSI", {XMUX_ROOT_OID, 17}, 7,
+	 0, OID_STATUS_WRITE,
+	 NULL, apply_psi_set,
 	},
 	// LOAD INFO
 	{"LOAD_INFO", {XMUX_ROOT_OID, 100}, 7,
