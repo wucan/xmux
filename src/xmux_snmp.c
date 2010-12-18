@@ -356,6 +356,27 @@ static int heart_device_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 
 	return 0;
 }
+/*
+ * TEST DATA SIZE
+ */
+static uint8_t test_buf[2 + 1024];
+static int test_data_size_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
+{
+	uint16_t len = 1024;
+
+	memcpy(test_buf, &len, sizeof(len));
+	v->size = 2 + 1024;
+	v->data = test_buf;
+
+	return 0;
+}
+static int test_data_size_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
+{
+	memcpy(test_buf, v->data, v->size);
+	trace_info("test_data_size set, size %d", v->size);
+
+	return 0;
+}
 
 static struct wu_oid_object chan_oid_objs[] = {
 	// PAT
@@ -429,6 +450,11 @@ static struct wu_oid_object solo_oid_objs[] = {
 	{"HEART_DEVICE", {XMUX_ROOT_OID, 101}, 7,
 	 0, OID_STATUS_RWRITE,
 	 heart_device_get, heart_device_set, HEART_DEVICE_SIZE,
+	},
+	// test node for max data size test
+	{"TEST_DATA_SIZE", {XMUX_ROOT_OID, 200}, 7,
+	 0, OID_STATUS_RWRITE,
+	 test_data_size_get, test_data_size_set, 0,
 	},
 };
 
