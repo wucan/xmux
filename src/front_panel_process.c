@@ -183,6 +183,12 @@ pid_map_gen_done:
 	 * generate and download psi to fpga
 	 */
 	psi_gen_and_apply_from_fp();
+
+	/*
+	 * and at last save pid_trans_info
+	 */
+	prog_info_2_pid_trans_info();
+	xmux_config_save_pid_trans_info();
 }
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,

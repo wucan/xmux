@@ -160,6 +160,13 @@ void xmux_config_save_management_mode()
 	eeprom_write(EEPROM_OFF_MNG_MODE, &g_eeprom_param.mng_mode, 1);
 }
 
+void xmux_config_save_pid_trans_info()
+{
+	eeprom_write(EEPROM_OFF_PID_TRANS_INFO,
+		&g_eeprom_param.pid_trans_info_area.bytes,
+		sizeof(g_eeprom_param.pid_trans_info_area.pid_trans_info));
+}
+
 void xmux_config_save_output_psi_data()
 {
 	eeprom_write(EEPROM_OFF_OUTPUT_PSI, &g_eeprom_param.output_psi_area,
