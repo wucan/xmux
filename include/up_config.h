@@ -6,6 +6,8 @@
 #define _UP_CONFIG_H_
 
 
+#define SAVE_NET_PARAM_TO_BOOTROM		1
+
 /*
  * MIB loaded need long time, so the fast method is to not use it,
  * but use the OIDOps infomation

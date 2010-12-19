@@ -97,6 +97,7 @@ int net_set_mac (int ethid, char *mac)
 	}
 	mac[17] = 0;
 	if (mac[0] != '0' || mac[1] != '0') {
+		printf("mac %s invalidate!\n", mac);
 		return -1;
 	}
 	/*
