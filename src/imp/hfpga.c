@@ -87,6 +87,9 @@ static void prt_pid_map(ACCESS_HFPGA_PID_MAP * p_pid_map)
 		if (0x01 & cha) {
 			trace_info("channel %d[%d] pid map table:", chn, p_pid_map->cha);
 			for (i = 0; i < 32; i++) {
+				if (p_pid_map->pid_map[chn * 32 + i].in_pid == PID_MAP_TABLE_PAD_PID && p_pid_map->pid_map[chn * 32 + i].out_pid == PID_MAP_TABLE_PAD_PID) {
+					continue;
+				}
 				trace_info("%d(%#x) => %d(%#x)",
 					p_pid_map->pid_map[chn * 32 + i].in_pid,
 					p_pid_map->pid_map[chn * 32 + i].in_pid,
