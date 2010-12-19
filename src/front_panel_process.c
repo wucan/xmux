@@ -178,6 +178,7 @@ pid_map_gen_done:
 	pid_map_table_gen_end(&pid_map_gen_ctx, 0xFF);
 	xmux_config_save_pid_map_table(&pid_map_gen_ctx.pid_map);
 	hfpga_write_pid_map(&pid_map_gen_ctx.pid_map);
+	g_param_mng_info.eeprom_pid_map_table_version++;
 
 	/*
 	 * generate and download psi to fpga
@@ -189,6 +190,7 @@ pid_map_gen_done:
 	 */
 	prog_info_2_pid_trans_info();
 	xmux_config_save_pid_trans_info();
+	g_param_mng_info.eeprom_pid_trans_info_version++;
 }
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,

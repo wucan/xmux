@@ -265,6 +265,15 @@ struct xmux_eeprom_param {
 #define EEPROM_OFF_SYS_PACKET_FORMAT \
 	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, format)))
 
+struct xmux_param_management_info {
+	uint32_t eeprom_pid_trans_info_version;
+	uint32_t eeprom_pid_map_table_version;
+
+	uint32_t snmp_pid_trans_info_version;
+	uint32_t snmp_pid_map_table_version;
+};
+extern struct xmux_param_management_info g_param_mng_info;
+
 
 #endif /* _XMUX_H_ */
 

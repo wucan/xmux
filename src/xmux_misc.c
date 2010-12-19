@@ -5,6 +5,7 @@
 #include "xmux_config.h"
 #include "xmux_misc.h"
 #include "xmux_snmp.h"
+#include "pid_trans_info.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "misc"};
@@ -91,6 +92,21 @@ void xmux_user_param_dump(struct xmux_user_param *user)
 void leave_fp_management_mode()
 {
 	sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_IDLE;
+	if (g_param_mng_info.eeprom_pid_trans_info_version !=
+		g_param_mng_info.snmp_pid_trans_info_version) {
+		g_param_mng_info.snmp_pid_trans_info_version =
+			g_param_mng_info.eeprom_pid_trans_info_version;
+		memcpy(&sg_mib_pid_trans_info, g_eeprom_param.pid_trans_info_area.bytes,
+			sizeof(g_eeprom_param.pid_trans_info_area.pid_trans_info));
+	}
+	if (g_param_mng_info.eeprom_pid_map_table_version !=
+		g_param_mng_info.snmp_pid_map_table_version) {
+		g_param_mng_info.snmp_pid_map_table_version =
+			g_param_mng_info.eeprom_pid_map_table_version;
+		memcpy(&sg_mib_trans.table, g_eeprom_param.pid_map_table_area.bytes,
+			sizeof(g_eeprom_param.pid_map_table_area.pid_map_table));
+	}
+
 	management_mode = MANAGEMENT_MODE_SNMP;
 	xmux_config_save_management_mode();
 }

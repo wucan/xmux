@@ -132,14 +132,8 @@ void xmux_config_load_from_eeprom()
 	} else {
 		trace_info("xmux root param success load from eeprom");
 	}
-
-	/*
-	 * copy to system runtime data
-	 */
-	memcpy(&sg_mib_pid_trans_info, g_eeprom_param.pid_trans_info_area.bytes,
-		sizeof(g_eeprom_param.pid_trans_info_area.pid_trans_info));
-	memcpy(&sg_mib_trans.table, g_eeprom_param.pid_map_table_area.bytes,
-		sizeof(g_eeprom_param.pid_map_table_area.pid_map_table));
+	g_param_mng_info.eeprom_pid_trans_info_version++;
+	g_param_mng_info.eeprom_pid_map_table_version++;
 }
 
 void xmux_config_save_output_bitrate(uint32_t bitrate)

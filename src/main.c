@@ -11,6 +11,7 @@
 
 
 uint8_t management_mode = MANAGEMENT_MODE_SNMP;
+struct xmux_param_management_info g_param_mng_info;
 
 static void restore_work_field();
 
@@ -24,10 +25,10 @@ int main(int argc, char **argv)
 	xmux_config_load_from_eeprom();
 
 	/*
-	 * set login status idle when start up in snmp mode
+	 * set login status idle and more data when start up in snmp mode
 	 */
 	if (management_mode == MANAGEMENT_MODE_SNMP) {
-		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_IDLE;
+		leave_fp_management_mode();
 	}
 
 	/*
