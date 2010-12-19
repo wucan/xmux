@@ -56,3 +56,14 @@ int xmux_net_set(struct xmux_net_param *net)
 	return 0;
 }
 
+int xmux_net_restore()
+{
+	struct xmux_net_param *net = &g_eeprom_param.net;
+
+	/*
+	 * TODO
+	 */
+
+	return 0;
+}
+

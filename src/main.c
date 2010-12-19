@@ -6,6 +6,7 @@
 #include "xmux_config.h"
 #include "wu_snmp_agent.h"
 #include "xmux_snmp.h"
+#include "xmux_net.h"
 #include "psi_gen.h"
 #include "pid_map_table.h"
 
@@ -23,6 +24,8 @@ int main(int argc, char **argv)
 
 	xmux_config_init();
 	xmux_config_load_from_eeprom();
+
+	xmux_net_restore();
 
 	/*
 	 * set login status idle and more data when start up in snmp mode
