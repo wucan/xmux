@@ -24,9 +24,22 @@ void xmux_net_param_init_default(struct xmux_net_param *net)
 	net->csc = wu_csc(net, offsetof(struct xmux_net_param, csc));
 }
 
+static const char *mac_string(struct xmux_net_param *net)
+{
+	static char mac_str[64];
+
+	sprintf(mac_str, "%#x:%#x:%#x:%#x:%#x:%#x",
+		net->mac[0], net->mac[1], net->mac[2],
+		net->mac[3], net->mac[4], net->mac[5]);
+
+	return mac_str;
+}
+
 void xmux_net_param_dump(struct xmux_net_param *net)
 {
-	trace_info("net: ");
+	trace_info("net: ip %s, netmask %s, gw %s, mac %s, server ip %s",
+		inet_ntoa(net->ip), inet_ntoa(net->netmask), inet_ntoa(net->gateway),
+		mac_string(net), inet_ntoa(net->server_ip));
 }
 
 int xmux_net_set(struct xmux_net_param *net)
