@@ -5,6 +5,7 @@
 #include "wu/wu_csc.h"
 
 #include "xmux_config.h"
+#include "xmux_misc.h"
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
 #include "front_panel_data_churning.h"
@@ -193,12 +194,20 @@ static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 	trace_info("process system cmd %d", sys_cmd);
 	switch (sys_cmd) {
 		case FP_SYS_CMD_ENTER_FP_MANAGEMENT_MODE:
-			management_mode = MANAGEMENT_MODE_FP;
-			trace_info("switch to front panel management mode!");
+			if (management_mode == MANAGEMENT_MODE_SNMP) {
+				trace_info("switch to fp management mode");
+				enter_fp_management_mode();
+			} else {
+				trace_warn("enter again, alreay in fp management mode!");
+			}
 			break;
 		case FP_SYS_CMD_EXIT_FP_MANAGEMENT_MODE:
-			management_mode = MANAGEMENT_MODE_SNMP;
-			trace_info("switch to net management mode!");
+			if (management_mode == MANAGEMENT_MODE_FP) {
+				trace_info("leave fp management mode");
+				leave_fp_management_mode();
+			} else {
+				trace_warn("already leave fp management mode!");
+			}
 			break;
 		case FP_SYS_CMD_START_ANALYSE_PSI:
 			pid_map_table_reset();

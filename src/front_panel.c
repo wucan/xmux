@@ -6,7 +6,6 @@
 #include "wu/message.h"
 #include "xmux.h"
 #include "xmux_config.h"
-#include "xmux_misc.h"
 #include "front_panel.h"
 #include "front_panel_intstr.h"
 #include "front_panel_data_churning.h"
@@ -20,7 +19,6 @@ extern int openport();
 static Thread *fp_thr;
 static bool fp_thread_quit;
 static int fd;
-static time_t fp_access_time;
 
 int front_panel_open()
 {
@@ -67,16 +65,6 @@ static int fp_thread(void *data)
 
 		rc = select(fd + 1, &rset, NULL, NULL, &tv);
 		if (rc <= 0) {
-			if (management_mode == MANAGEMENT_MODE_FP) {
-				/*
-				 * switch to snmp mode when fp idle for at least 5 seconds
-				 */
-				time_t now = time(NULL);
-				if (now - fp_access_time >= 5) {
-					trace_info("swtich to snmp management mode");
-					leave_fp_management_mode();
-				}
-			}
 			continue;
 		} else if (FD_ISSET(fd, &rset)) {
 			int i;
@@ -96,14 +84,6 @@ static int fp_thread(void *data)
 						if (cmd_len > FP_RECV_MSG_MAX_SIZE)
 							break;
 						if (nlen >= cmd_len) {
-							fp_access_time = time(NULL);
-							/*
-							 * local user had something to do, order to him
-							 */
-							if (management_mode == MANAGEMENT_MODE_SNMP) {
-								trace_info("switch to fp management mode");
-								enter_fp_management_mode();
-							}
 							parse_mcu_cmd(fd, recv_buf);
 							break;
 						} else
