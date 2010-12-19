@@ -7,6 +7,8 @@
 
 #include "wu_snmp_agent.h"
 
+#include "xmux.h"
+
 
 static Thread *agent_thr;
 static bool agent_thread_quit;
@@ -121,6 +123,8 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 			   below won't be called. */
 			break;
 		case MODE_SET_ACTION:
+			if (management_mode == MANAGEMENT_MODE_FP)
+				return SNMP_ERR_GENERR;
 			v.data = requests->requestvb->val.string;
 			v.size = requests->requestvb->val_len;
 			obj->setter(obj, &v);
