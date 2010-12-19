@@ -16,6 +16,8 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_config"};
 
 struct xmux_eeprom_param g_eeprom_param;
 
+static void eeprom_rw_test();
+
 int xmux_config_init()
 {
 	int rc = eeprom_open();
@@ -174,5 +176,24 @@ void xmux_config_save_net_param(struct xmux_net_param *net)
 {
 	net->csc = wu_csc(net, sizeof(*net) - 1);
 	eeprom_write(EEPROM_OFF_NET, net, sizeof(*net));
+}
+
+static void eeprom_rw_test()
+{
+	uint8_t data[1024], read_data[1024];
+	int i;
+
+	trace_info("eeprom test...");
+	for (i = 0; i < 1024; i++)
+		data[i] = i;
+
+	eeprom_write(0, data, 1024);
+	eeprom_read(0, read_data, 1024);
+	for (i = 0; i < 1024; i++) {
+		if (read_data[i] != data[i]) {
+			trace_err("#%d write %#x, read %#x",
+				i, data[i], read_data[i]);
+		}
+	}
 }
 
