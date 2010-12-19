@@ -44,9 +44,12 @@ void xmux_net_param_dump(struct xmux_net_param *net)
 
 int xmux_net_set(struct xmux_net_param *net)
 {
+	char mac_str[64];
+
+	strcpy(mac_str, mac_string(net));
 	up_set_net_param(0, net->ip, net->netmask);
 	up_set_gateway(net->gateway);
-	up_set_mac(0, net->mac);
+	up_set_mac(0, mac_str);
 
 	xmux_config_save_net_param(net);
 
