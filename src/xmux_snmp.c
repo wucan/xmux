@@ -6,6 +6,7 @@
 #include "wu/wu_csc.h"
 
 #include "xmux_net.h"
+#include "xmux_config.h"
 #include "wu_snmp_agent.h"
 
 #include "xmux_config.h"
@@ -211,6 +212,11 @@ static int pid_trans_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int pid_trans_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(&sg_mib_trans, v->data, v->size);
+	if (!pid_map_table_validate(&sg_mib_trans.table)) {
+		trace_err("pid map table invalidate set!");
+		return -1;
+	}
+	pid_map_table_dump(&sg_mib_trans.table);
 	xmux_config_save_pid_map_table(&sg_mib_trans.table);
 	pid_map_table_apply(&sg_mib_trans.table);
 	set_output_bitrate(sg_mib_trans.output_bitrate);
