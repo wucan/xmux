@@ -4,10 +4,12 @@
 #include "wu/message.h"
 
 #include "xmux.h"
+#include "xmux_config.h"
 #include "wu_snmp_agent.h"
 #include "psi_parse.h"
 #include "xmux_snmp_intstr.h"
 #include "eeprom.h"
+#include "pid_trans_info.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "pid_trans_info"};
@@ -46,6 +48,15 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 	 * save to eeprom if channel's pid trans info all got
 	 */
 	if (v->size < NODE_MAX_SIZE || chan_idx == 2) {
+		/* checking */
+		if (!pid_trans_info_validate(&sg_mib_pid_trans_info[chan_idx])) {
+			trace_err("#%d pid trans info invalidate set!", chan_idx);
+			return;
+		}
+		pid_trans_info_dump(&sg_mib_pid_trans_info[chan_idx]);
+		/* save it */
+		memcpy(g_eeprom_param.pid_trans_info_area.bytes,
+			&sg_mib_pid_trans_info[chan_idx], PID_TRANS_INFO_SIZE);
 		eeprom_write(EEPROM_OFF_PID_TRANS_INFO + PID_TRANS_INFO_SIZE * chan_idx,
 			&sg_mib_pid_trans_info[chan_idx], PID_TRANS_INFO_SIZE);
 	}
