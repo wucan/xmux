@@ -174,4 +174,43 @@ int net_ioctl_get_mac(int ethid, char *mac)
 
 	return rc;
 }
+/*
+ * Convert Ethernet address string representation to binary data
+ * @param    a    string in xx:xx:xx:xx:xx:xx notation
+ * @param    e    binary data
+ * @return    TRUE if conversion was successful and FALSE otherwise
+ */
+int ether_atoe(const char *a, unsigned char *e)
+{
+    char *c = (char *) a;
+    int i = 0;
+
+    memset(e, 0, IFHWADDRLEN);
+    for (;;) {
+        e[i++] = (unsigned char) strtoul(c, &c, 16);
+        if (!*c++ || i == IFHWADDRLEN)
+            break;
+    }
+
+    return (i == IFHWADDRLEN);
+}
+/*
+ * Convert Ethernet address binary data to string representation
+ * @param    e    binary data
+ * @param    a    string in xx:xx:xx:xx:xx:xx notation
+ * @return    a
+ */
+char *ether_etoa(const unsigned char *e, char *a)
+{
+    char *c = a;
+    int i;
+
+    for (i = 0; i < IFHWADDRLEN; i++) {
+        if (i)
+            *c++ = ':';
+        c += sprintf(c, "%02X", e[i] & 0xff);
+    }
+
+    return a;
+}
 
