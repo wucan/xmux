@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <net/if.h>
+#include <net/if_arp.h>
+#include <sys/ioctl.h>
 
 #include "net.h"
 
@@ -119,6 +122,55 @@ int net_set_mac (int ethid, char *mac)
 	 */
 	sprintf(cmd, "ifconfig eth%d up", ethid);
 	system(cmd);
+
+	return rc;
+}
+/*
+ * set new Media Control Address(MAC) through ioctl
+ */
+int net_ioctl_set_mac(int ethid, char *mac)
+{
+	int sk, rc;
+	struct ifreq ifr;
+
+	sk = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+	if (sk < 0) {
+		perror("socket");
+		return -1;
+	}
+	sprintf(ifr.ifr_name, "eth%d", ethid);
+	ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+	memcpy(ifr.ifr_hwaddr.sa_data, mac, 6);
+	rc = ioctl(sk, SIOCSIFHWADDR, &ifr);
+	if (rc < 0) {
+		perror("SIOCSIFHWADDR");
+	}
+	close(sk);
+
+	return rc;
+}
+/*
+ * get Media Control Address(MAC)
+ */
+int net_ioctl_get_mac(int ethid, char *mac)
+{
+	int sk, rc;
+	struct ifreq ifr;
+
+	sk = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+	if (sk < 0) {
+		perror("socket");
+		return -1;
+	}
+	sprintf(ifr.ifr_name, "eth%d", ethid);
+	ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+	rc = ioctl(sk, SIOCGIFHWADDR, &ifr);
+	if (rc < 0) {
+		perror("SIOCSIFHWADDR");
+	} else {
+		memcpy(mac, ifr.ifr_hwaddr.sa_data, 6);
+	}
+	close(sk);
 
 	return rc;
 }
