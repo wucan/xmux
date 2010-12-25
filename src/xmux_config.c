@@ -156,6 +156,19 @@ void xmux_config_save_management_mode()
 
 void xmux_config_save_pid_trans_info()
 {
+	uint8_t chan_idx;
+	struct pid_trans_info_snmp_data *info;
+
+	trace_info("save pid trans info...");
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		info = &g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx];
+		if (!pid_trans_info_validate(info)) {
+			trace_err("#%d pid trans info invalidate!", chan_idx);
+			continue;
+		}
+		pid_trans_info_dump(info);
+	}
+
 	eeprom_write(EEPROM_OFF_PID_TRANS_INFO,
 		&g_eeprom_param.pid_trans_info_area.bytes,
 		sizeof(g_eeprom_param.pid_trans_info_area.pid_trans_info));
