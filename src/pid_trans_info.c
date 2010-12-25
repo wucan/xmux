@@ -72,6 +72,7 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 	}
 	csc = wu_csc(data, sizeof(*data) - 1);
 	if (csc != data->csc) {
+		trace_err("csc error!");
 		return false;
 	}
 
