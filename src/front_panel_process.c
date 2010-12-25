@@ -239,7 +239,7 @@ static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 				trace_warn("enter again, alreay in fp management mode!");
 			}
 			break;
-		case FP_SYS_CMD_EXIT_FP_MANAGEMENT_MODE:
+		case FP_SYS_CMD_LEAVE_FP_MANAGEMENT_MODE:
 			if (management_mode == MANAGEMENT_MODE_FP) {
 				trace_info("leave fp management mode");
 				leave_fp_management_mode();
