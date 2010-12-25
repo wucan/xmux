@@ -28,6 +28,7 @@
 #define READ_BYTES(s,d,n)		(memcsy((d), (s), (n)))
 
 
+#define WRITE_U8(s, v)			((s)[0] = (v))
 #define WRITE_U16(s, v)			(s)[0] = (v) & 0xFF; (s)[1] = (v) >> 8;
 
 #define WRITE_U16_BE(s, v)		(s)[1] = (v) & 0xFF; (s)[0] = (v) >> 8;
