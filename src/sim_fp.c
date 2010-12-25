@@ -2,6 +2,16 @@
 #include <glib.h>
 #include <gdk/gdktypes.h>
 
+#include "wu/wu_byte_stream.h"
+#include "wu/wu_csc.h"
+
+#include "front_panel.h"
+#include "front_panel_intstr.h"
+#include "front_panel_define.h"
+
+
+static uint8_t req_buf[1024], resp_buf[1024];
+static uint16_t resp_len;
 
 static gboolean window_delete_event(GtkWidget *widget,
 		GdkEvent *event, gpointer data)
@@ -19,9 +29,20 @@ static void window_key_press_event(GtkWidget *w, GdkEventKey *event)
 	guint keyval = event->keyval;
 }
 
-static void left_key_btn_press(GtkWidget *widget,
+static void get_ts_status_btn_press(GtkWidget *widget,
 		GdkEventButton *event, gpointer *user_data)
 {
+	uint16_t sys_cmd = FP_SYS_CMD_READ_TS_STATUS;
+
+	sys_cmd = htons(sys_cmd);
+	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
+	if (!fp_validate_cmd(resp_buf, resp_len, 1)) {
+		g_print("response cmd invalidate!\n");
+		return;
+	}
+	uint8_t ts_status = resp_buf[sizeof(struct fp_cmd_header)];
+	g_print("ts status: %#x\n", ts_status);
 }
 
 static void build_control_ui(GtkWidget *vbox)
@@ -30,9 +51,9 @@ static void build_control_ui(GtkWidget *vbox)
 	GtkWidget *hbox;
 
 	hbox = gtk_hbox_new(TRUE, 2);
-	btn = gtk_button_new_with_label("Left");
+	btn = gtk_button_new_with_label("Get TS Status");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
-		GTK_SIGNAL_FUNC(left_key_btn_press), NULL);
+		GTK_SIGNAL_FUNC(get_ts_status_btn_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
