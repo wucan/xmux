@@ -8,19 +8,20 @@
 
 
 static inline void
-pid_map_table_set_in_pid(ACCESS_HFPGA_PID_MAP *pid_map,
+pid_map_table_set_in_pid(struct xmux_pid_map_table *pid_map,
 	 	int chan_idx, int pid_idx, uint16_t pid)
 {
-	pid_map->pid_map[chan_idx * FPGA_PID_MAP_TABLE_CHAN_PIDS + pid_idx].in_pid = pid;
+	pid_map->chans[chan_idx].ents[pid_idx].input_pid = pid;
 }
 static inline void
-pid_map_table_set_out_pid(ACCESS_HFPGA_PID_MAP *pid_map,
+pid_map_table_set_out_pid(struct xmux_pid_map_table *pid_map,
 	 	int chan_idx, int pid_idx, uint16_t pid)
 {
-	pid_map->pid_map[chan_idx * FPGA_PID_MAP_TABLE_CHAN_PIDS + pid_idx].out_pid = pid;
+	pid_map->chans[chan_idx].ents[pid_idx].output_pid = pid;
 }
 
-void pid_map_table_clear(ACCESS_HFPGA_PID_MAP *pid_map);
+void pid_map_table_clear(struct xmux_pid_map_table *pid_map);
+void fpga_pid_map_table_clear(ACCESS_HFPGA_PID_MAP *pid_map);
 void pid_map_table_reset();
 int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data);
 
@@ -28,7 +29,7 @@ int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data);
  * route to generate pid_map table
  */
 struct pid_map_table_gen_context {
-	ACCESS_HFPGA_PID_MAP pid_map;
+	ACCESS_HFPGA_PID_MAP fpga_pid_map;
 
 	uint8_t cur_chan_idx;
 	uint8_t cur_chan_map_pid_cnt;

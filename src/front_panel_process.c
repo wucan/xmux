@@ -176,9 +176,6 @@ static void _apply_pid_map_table_and_psi()
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
 			PROG_INFO_T *prog_info = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
-			trace_info("#%d/%d status %d, input PCR PID %u",
-				chan_idx, prog_idx,
-				prog_info->status, prog_info->info.pcr.in);
 			if (prog_info->status == 1) {
 				if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
 					prog_info->info.pmt.in, prog_info->info.pmt.out)) {
@@ -206,8 +203,8 @@ static void _apply_pid_map_table_and_psi()
 
 pid_map_gen_done:
 	pid_map_table_gen_end(&pid_map_gen_ctx, 0xFF);
-	xmux_config_save_pid_map_table(&pid_map_gen_ctx.pid_map);
-	hfpga_write_pid_map(&pid_map_gen_ctx.pid_map);
+	xmux_config_save_pid_map_table(pid_map_gen_ctx.fpga_pid_map.pid_map);
+	hfpga_write_pid_map(&pid_map_gen_ctx.fpga_pid_map);
 	g_param_mng_info.eeprom_pid_map_table_version++;
 
 	/*
