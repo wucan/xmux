@@ -31,6 +31,20 @@ static int fp_create_response_cmd(uint8_t *buf, struct fp_cmd_header *req_cmd_he
 
 	return (sizeof(struct fp_cmd_header) + size + FP_MSG_CRC_SIZE);
 }
+int fp_build_cmd(uint8_t *buf, bool is_read, int cmd,
+		void *param, int param_size)
+{
+	struct fp_cmd_header hdr;
+
+	hdr.sync = defMcuSyncFlag;
+	if (is_read)
+		hdr.seq = (1 << 31) | cmd;
+	else
+		hdr.seq = cmd;
+	hdr.len = param_size;
+
+	return fp_create_response_cmd(buf, &hdr, param, param_size);
+}
 
 static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
