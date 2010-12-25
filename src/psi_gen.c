@@ -274,6 +274,7 @@ void nit_gen_context_init(struct nit_gen_context *ctx)
 	int i;
 	uv_nit_data *nit_data = &ctx->nit_data;
 
+	ctx->stream_num = 0;
 	ctx->desc_num = 1;
 
 	nit_data->i_table_id = 0x40;
