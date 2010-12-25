@@ -92,6 +92,16 @@ static void get_ts_status_btn_press(GtkWidget *widget,
 	g_print("ts status: %#x\n", ts_status);
 }
 
+static void apply_btn_press(GtkWidget *widget,
+		GdkEventButton *event, gpointer *user_data)
+{
+	uint16_t sys_cmd = FP_SYS_CMD_APPLY_MAP_ANALYSE;
+
+	sys_cmd = htons(sys_cmd);
+	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
+}
+
 static void build_control_ui(GtkWidget *vbox)
 {
 	GtkWidget *btn, *radio1, *radio2;
@@ -122,6 +132,11 @@ static void build_control_ui(GtkWidget *vbox)
 	btn = gtk_button_new_with_label("Get TS Status");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 		GTK_SIGNAL_FUNC(get_ts_status_btn_press), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
+	/* FP_SYS_CMD_APPLY_MAP_ANALYSE */
+	btn = gtk_button_new_with_label("Apply");
+	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
+		GTK_SIGNAL_FUNC(apply_btn_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
