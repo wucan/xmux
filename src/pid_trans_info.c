@@ -109,7 +109,7 @@ void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
 				continue;
 			if (!data_pid_validate(prog->data[pid_idx].in)) {
 				trace_err("  #%d, data pid %d(%#x) invalidate!",
-					pid_idx, data_pid_in);
+					pid_idx, data_pid_in, data_pid_in);
 				continue;
 			}
 			trace_info("  #%d, pid(%d => %d, type %d)",
