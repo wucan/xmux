@@ -49,6 +49,16 @@ static void leave_fp_management_mode_btn_press(GtkWidget *widget,
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 }
 
+static void analyse_psi_btn_press(GtkWidget *widget,
+		GdkEventButton *event, gpointer *user_data)
+{
+	uint16_t sys_cmd = FP_SYS_CMD_START_ANALYSE_PSI;
+
+	sys_cmd = htons(sys_cmd);
+	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
+}
+
 static void get_ts_status_btn_press(GtkWidget *widget,
 		GdkEventButton *event, gpointer *user_data)
 {
@@ -80,6 +90,11 @@ static void build_control_ui(GtkWidget *vbox)
 	btn = gtk_button_new_with_label("Leave Manage");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 		GTK_SIGNAL_FUNC(leave_fp_management_mode_btn_press), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
+	/* FP_SYS_CMD_START_ANALYSE_PSI */
+	btn = gtk_button_new_with_label("Analyse PSI");
+	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
+		GTK_SIGNAL_FUNC(analyse_psi_btn_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
 	/* FP_SYS_CMD_READ_TS_STATUS */
 	btn = gtk_button_new_with_label("Get TS Status");
