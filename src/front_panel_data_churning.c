@@ -116,7 +116,7 @@ void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
 			out_pid = xmux_prog->data[pid_idx].out;
 			fp_prog->data[pid_idx].in = DATA_PID_VALUE(in_pid);
 			fp_prog->data[pid_idx].out = DATA_PID_VALUE(out_pid);
-			fp_prog->data[pid_idx].type = DATA_PID_TYPE(in_pid);
+			fp_prog->data[pid_idx].type = pid_type_xmux_2_es(DATA_PID_TYPE(in_pid));
 		}
 		memcpy(fp_prog->prog_name, xmux_prog->prog_name,
 			sizeof(fp_prog->prog_name));
@@ -171,7 +171,7 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 		for (pid_idx = 0; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
 			in_pid = fp_prog->data[pid_idx].in;
 			out_pid = fp_prog->data[pid_idx].out;
-			pid_type = fp_prog->data[pid_idx].type;
+			pid_type = pid_type_es_2_xmux(fp_prog->data[pid_idx].type);
 			xmux_prog->data[pid_idx].in = PACK_DATA_PID(pid_type, in_pid);
 			xmux_prog->data[pid_idx].out = PACK_DATA_PID(pid_type, out_pid);
 		}

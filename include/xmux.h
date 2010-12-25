@@ -111,6 +111,24 @@ struct pid_trans_info_snmp_data {
 #define PACK_DATA_DATA_PID(pid)			((DATA_PID_TYPE_DATA << 13) | pid)
 #define PACK_OTHER_DATA_PID(pid)		((DATA_PID_TYPE_OTHER << 13) | pid)
 
+static inline uint8_t pid_type_es_2_xmux(uint8_t es_type)
+{
+	switch (es_type) {
+		case 2: return DATA_PID_TYPE_VIDEO; break;
+		case 4: return DATA_PID_TYPE_AUDIO; break;
+		default: break;
+	}
+	return DATA_PID_TYPE_OTHER;
+}
+static inline uint8_t pid_type_xmux_2_es(uint8_t xmux_type)
+{
+	switch (xmux_type) {
+		case DATA_PID_TYPE_VIDEO: return 2; break;
+		case DATA_PID_TYPE_AUDIO: return 4; break;
+		default: break;
+	}
+	return 7; // FIXME
+}
 static inline bool pcr_video_same(uint16_t pcr_pid_value)
 {
 	if ((pcr_pid_value >> 13) == 0x4) {
