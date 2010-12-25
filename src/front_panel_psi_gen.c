@@ -112,7 +112,7 @@ int gen_pat_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 				}
 			}
 			pmt_gen_context_pack(&pmt_gen_ctx);
-			trace_info("generate PMT of program $#%d ...", i);
+			trace_info("generate PMT of program #%d ...", i);
 			dvbSI_Gen_PMT(&pmt_gen_ctx.tpmt, pmt_gen_ctx.tes, pmt_gen_ctx.nes);
 			nProgSel++;
 
