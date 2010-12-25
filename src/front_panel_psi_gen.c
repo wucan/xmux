@@ -54,7 +54,7 @@ int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 		pProg = (PROG_INFO_T *) pProgpara + ncount;
 		if (pProg->status == 1) {
 			pProg->info.prog_name[1][pProg->info.prog_name[1][0]] = 0;
-			sdt_gen_context_add_service(&gen_ctx, pProg->info.prog_name[1][1], nProgSel + 1, defProviderDsw);
+			sdt_gen_context_add_service(&gen_ctx, &pProg->info.prog_name[1][1], nProgSel + 1, defProviderDsw);
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
 				break;
