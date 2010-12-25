@@ -59,6 +59,23 @@ static void analyse_psi_btn_press(GtkWidget *widget,
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 }
 
+static void read_map_analyse_status_btn_press(GtkWidget *widget,
+		GdkEventButton *event, gpointer *user_data)
+{
+	uint16_t sys_cmd = FP_SYS_CMD_READ_MAP_ANALYSE_STATUS;
+	CHN_NUM_T chnum;
+
+	sys_cmd = htons(sys_cmd);
+	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
+	if (!fp_validate_cmd(resp_buf, resp_len, sizeof(CHN_NUM_T))) {
+		g_print("response cmd invalidate!\n");
+		return;
+	}
+	memcpy(&chnum, &resp_buf[sizeof(struct fp_cmd_header)], sizeof(chnum));
+	hex_dump("chan num", &chnum, sizeof(chnum));
+}
+
 static void get_ts_status_btn_press(GtkWidget *widget,
 		GdkEventButton *event, gpointer *user_data)
 {
@@ -95,6 +112,11 @@ static void build_control_ui(GtkWidget *vbox)
 	btn = gtk_button_new_with_label("Analyse PSI");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 		GTK_SIGNAL_FUNC(analyse_psi_btn_press), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
+	/* FP_SYS_CMD_READ_MAP_ANALYSE_STATUS */
+	btn = gtk_button_new_with_label("Analyse Status");
+	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
+		GTK_SIGNAL_FUNC(read_map_analyse_status_btn_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
 	/* FP_SYS_CMD_READ_TS_STATUS */
 	btn = gtk_button_new_with_label("Get TS Status");
