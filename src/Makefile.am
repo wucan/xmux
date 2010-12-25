@@ -23,7 +23,12 @@ xmux_LDADD = $(DVBPSI_LIBS) $(NETSNMP_LIBS) -lm \
 	imp/libimp.la \
 	imp/fpga/libimpfpga.la \
 	libwu/libwu.la \
-	imp/uvPSI/libuvpsi.a
+	imp/uvPSI/libuvpsi.a \
+	$(gtk_LIBS)
+
+AM_CFLAGS += $(gtk_CFLAGS)
+
+SIM_SRC = sim_fp.c
 endif
 
 
@@ -60,6 +65,7 @@ xmux_SOURCES = \
 	net.c \
 	xmux_net.c \
 	xmux_misc.c \
+	$(SIM_SRC) \
 	$(NULL_FILE)
 
 SUBDIRS = imp libwu

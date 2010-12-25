@@ -36,6 +36,10 @@ AC_SUBST(DVBPSI_CFLAGS)
 AC_SUBST(DVBPSI_LIBS)
 AC_SUBST(HAVE_DVBPSI)
 
+# gtk support for simulation
+PKG_CHECK_MODULES(gtk, "gtk+-2.0", have_gtk=yes, have_gtk=no)
+AM_CONDITIONAL(HAVE_GTK, test "x$have_gtk" = "yes")
+
 AC_SUBST(VERSION)
 
 AC_OUTPUT([Makefile

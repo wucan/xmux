@@ -53,6 +53,10 @@ int main(int argc, char **argv)
 	 */
 	front_panel_run();
 
+#ifndef _UCLINUX_
+	sim_fp_run();
+#endif
+
 	while (1) {
 		sleep(1);
 	}
