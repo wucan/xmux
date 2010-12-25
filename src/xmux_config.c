@@ -182,6 +182,12 @@ void xmux_config_save_output_psi_data()
 
 void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t)
 {
+	trace_info("save pid map table...");
+	if (!pid_map_table_validate(t)) {
+		trace_err("pid map table invalidate! save nothing!");
+		return;
+	}
+	pid_map_table_dump(t);
 	g_eeprom_param.pid_map_table_area.pid_map_table = *t;
 	eeprom_write(EEPROM_OFF_PID_MAP_TABLE, t, sizeof(*t));
 }
