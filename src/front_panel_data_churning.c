@@ -156,8 +156,12 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 	pid_trans_info->data_len = sizeof(*pid_trans_info) - 2;
 	pid_trans_info->update_flag_and_chan_num = chan_idx;
 	pid_trans_info->nprogs = g_chan_num.num[chan_idx];
-	if (pid_trans_info->nprogs == 0)
+	if (pid_trans_info->nprogs == 0) {
+		pid_trans_info->csc = wu_csc(pid_trans_info, sizeof(*pid_trans_info) - 1);
+		trace_info("channel #%d no program! generated pid_trans_info csc = %#x",
+			chan_idx, pid_trans_info->csc);
 		return;
+	}
 
 	for (prog_idx = 0; prog_idx < pid_trans_info->nprogs; prog_idx++) {
 		xmux_prog = &pid_trans_info->programs[prog_idx];
