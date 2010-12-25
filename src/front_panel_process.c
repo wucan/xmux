@@ -45,6 +45,22 @@ int fp_build_cmd(uint8_t *buf, bool is_read, int cmd,
 
 	return fp_create_response_cmd(buf, &hdr, param, param_size);
 }
+bool fp_validate_cmd(uint8_t *buf, int size, int expect_param_size)
+{
+	struct fp_cmd_header hdr;
+
+	if (size < (sizeof(struct fp_cmd_header) + 1))
+		return false;
+	buf_2_fp_cmd_header(&hdr, buf);
+	if (sizeof(struct fp_cmd_header) + hdr.len + 1 != size)
+		return false;
+	if (hdr.len != expect_param_size)
+		return false;
+	if (wu_csc(buf, size - 1) != buf[size - 1])
+		return false;
+
+	return true;
+}
 
 static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
