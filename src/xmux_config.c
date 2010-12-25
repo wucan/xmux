@@ -164,7 +164,7 @@ void xmux_config_save_pid_trans_info()
 		info = &g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx];
 		if (!pid_trans_info_validate(info)) {
 			trace_err("#%d pid trans info invalidate!", chan_idx);
-			continue;
+			return;
 		}
 		pid_trans_info_dump(info);
 	}
