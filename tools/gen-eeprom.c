@@ -95,6 +95,8 @@ static void build_test_param()
 	/* net */
 
 	/* user */
+
+	eeprom.mng_mode = MANAGEMENT_MODE_SNMP;
 }
 
 int main(int argc, char **argv)
