@@ -17,7 +17,7 @@
 #include "program_pid_validater.h"
 
 
-static msgobj mo = {MSG_INFO, ENCOLOR, "mcu_rs232"};
+static msgobj mo = {MSG_INFO, ENCOLOR, "fp_process"};
 
 PROG_INFO_T g_prog_info_table[CHANNEL_MAX_NUM * PROGRAM_MAX_NUM];
 CHN_NUM_T g_chan_num;
