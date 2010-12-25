@@ -12,8 +12,12 @@
 	#define true	(!false)
 #endif
 
+#ifndef MIN
 #define MIN(a,b)			((a) < (b) ? (a) : (b))
+#endif
+#ifndef MAX
 #define MAX(a,b)			((a) > (b) ? (a) : (b))
+#endif
 #define ARRAY_ESIZE(a)		(sizeof(a) / sizeof(a[0]))
 
 
