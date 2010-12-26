@@ -37,6 +37,7 @@ static uint8_t sg_mib_loadinfo[LOAD_INFO_SIZE];
 struct heart_device_snmp_data sg_mib_heartDevice;
 static struct ip_info_snmp_data sg_mib_IP_info;
 static uint8_t sg_mib_User_info[USER_INFO_SIZE];
+struct apply_psi_snmp_data sg_mib_apply_psi;
 
 
 /*
@@ -327,6 +328,7 @@ static int psi_status_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	trace_info("apply psi...");
+	memcpy(&sg_mib_apply_psi, v->data, v->size);
 	psi_gen_output_psi_from_sections();
 	psi_apply_from_output_psi();
 
@@ -481,7 +483,7 @@ static struct wu_oid_object solo_oid_objs[] = {
 	// APPLY psi
 	{"APPLY_PSI", {XMUX_ROOT_OID, 17}, 7,
 	 0, OID_STATUS_WRITE,
-	 NULL, apply_psi_set,
+	 NULL, apply_psi_set, sizeof(struct apply_psi_snmp_data),
 	},
 	// LOAD INFO
 	{"LOAD_INFO", {XMUX_ROOT_OID, 100}, 7,

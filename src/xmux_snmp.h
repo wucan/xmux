@@ -6,6 +6,7 @@
 
 extern struct pid_trans_snmp_data sg_mib_trans;
 extern struct heart_device_snmp_data sg_mib_heartDevice;
+extern struct apply_psi_snmp_data sg_mib_apply_psi;
 
 int xmux_snmp_register_all_oids();
 
