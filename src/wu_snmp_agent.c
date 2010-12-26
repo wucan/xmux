@@ -4,6 +4,7 @@
 
 #include "wu/wu_base_type.h"
 #include "wu/thread.h"
+#include "wu/message.h"
 
 #include "wu_snmp_agent.h"
 
@@ -142,6 +143,7 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 			v.data = requests->requestvb->val.string;
 			v.size = requests->requestvb->val_len;
 			printf("snmp: %s set, data %d bytes\n", oid_str(obj), v.size);
+			hex_dump("snmp set", v.data, MIN(v.size, 48));
 			obj->setter(obj, &v);
 			if (0) {
 				netsnmp_set_request_error(reqinfo, requests, SNMP_ERR_WRONGVALUE);
