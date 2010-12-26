@@ -49,9 +49,12 @@ struct apply_psi_snmp_data {
 	uint16_t magic; // 0xAA55
 	uint8_t other_table_flag;
 	uint32_t pmt_flag;
-	uint8_t pmt_cnt;
 	uint16_t pmt_pid_table[PROGRAM_MAX_NUM];
 } __attribute__((packed));
+#define PAT_FLAG_SHIFT		7
+#define CAT_FLAG_SHIFT		6
+#define NIT_FLAG_SHIFT		5
+#define SDT_FLAG_SHIFT		4
 
 
 #endif /* _XMUX_SNMP_INTSTR_H_ */
