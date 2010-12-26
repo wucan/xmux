@@ -57,6 +57,7 @@ static uv_descriptor cat_descr[5];
 static unsigned char p_cat_descr_data[5][UV_DESCR_LEN];
 static uint16_t cat_descr_num;
 
+static void clear_prog_info_table();
 
 static void extract_program_name(unsigned char *desc_content,
 									 unsigned char *prog_name)
@@ -279,6 +280,7 @@ int fp_psi_parse()
 
 	/* clear fp psi_parse state data */
 	memset(&g_chan_num, 0, sizeof(g_chan_num));
+	clear_prog_info_table();
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		progs = parse_channel(chan_idx);
@@ -288,5 +290,29 @@ int fp_psi_parse()
 	trace_info("there are total %d programs", total_progs);
 
 	return total_progs;
+}
+
+static void clear_prog_info_table()
+{
+	uint8_t chan_idx;
+	uint8_t prog_idx, pid_idx;
+	uint16_t in_pid, out_pid;
+	struct fp_program_info *prog;
+
+	memset(g_prog_info_table, 0,
+		sizeof(PROG_INFO_T) * CHANNEL_MAX_NUM * PROGRAM_MAX_NUM);
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
+			prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx].info;
+			prog->pmt.in = DATA_PID_PAD_VALUE;
+			prog->pmt.out = DATA_PID_PAD_VALUE;
+			prog->pcr.in = DATA_PID_PAD_VALUE;
+			prog->pcr.out = DATA_PID_PAD_VALUE;
+			for (pid_idx = 0; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
+				prog->data[pid_idx].in = DATA_PID_PAD_VALUE;
+				prog->data[pid_idx].out = DATA_PID_PAD_VALUE;
+			}
+		}
+	}
 }
 
