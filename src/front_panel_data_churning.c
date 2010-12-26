@@ -98,8 +98,11 @@ void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
 	pid_trans_info = &g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx];
 
 	g_chan_num.num[chan_idx] = pid_trans_info->nprogs;
-	if (pid_trans_info->nprogs == 0)
+	if (pid_trans_info->nprogs == 0) {
+		memset(&g_prog_info_table[chan_idx * PROGRAM_MAX_NUM], 0,
+			sizeof(*prog) * PROGRAM_MAX_NUM);
 		return;
+	}
 
 	for (prog_idx = 0; prog_idx < pid_trans_info->nprogs; prog_idx++) {
 		xmux_prog = &pid_trans_info->programs[prog_idx];
