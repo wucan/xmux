@@ -314,8 +314,8 @@ int __parse_mcu_cmd(uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 	else
 		is_read = 0;
 	cmd = cmd_header.seq & 0x7FFF;
-	trace_info("cmd %d(%#x), len %d, seq %d",
-		cmd, cmd, cmd_header.len, cmd_header.seq);
+	trace_info("cmd %d(%#x), len %d, %s",
+		cmd, cmd, cmd_header.len, is_read ? "read" : "write");
 	if (cmd < PROGRAM_MAX_NUM * CHANNEL_MAX_NUM) {
 		return cmd_program_info_handler(&cmd_header, is_read,
 			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
