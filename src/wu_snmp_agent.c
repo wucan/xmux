@@ -70,6 +70,17 @@ struct wu_oid_object * wu_oid_object_dup(struct wu_oid_object *obj)
 
 	return new_obj;
 }
+static const char *oid_str(struct wu_oid_object *obj)
+{
+	static char buf[128];
+	int i, off = 0;
+
+	for (i = 0; i < obj->oid_len; i++) {
+		off += sprintf(buf + off, "%d,", obj->oid[i]);
+	}
+
+	return buf;
+}
 #ifdef _UCLINUX_
 static int netsnmp_check_vb_type_and_max_size(netsnmp_variable_list *var,
                                int type, size_t max_size)
@@ -98,6 +109,7 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 
 	switch (reqinfo->mode) {
 		case MODE_GET:
+			printf("snmp: %s get\n", oid_str(obj));
 			obj->getter(obj, &v);
 			snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR,
 				(u_char *)v.data, v.size);
@@ -106,9 +118,11 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 		 * SET REQUEST
 		 */
 		case MODE_SET_RESERVE1:
-			rc = netsnmp_check_vb_type_and_max_size(requests->requestvb, ASN_OCTET_STR, obj->max_set_size);
-			if (rc != SNMP_ERR_NOERROR) {
-				netsnmp_set_request_error(reqinfo, requests, rc);
+			if (obj->max_set_size > 0) {
+				rc = netsnmp_check_vb_type_and_max_size(requests->requestvb, ASN_OCTET_STR, obj->max_set_size);
+				if (rc != SNMP_ERR_NOERROR) {
+					netsnmp_set_request_error(reqinfo, requests, rc);
+				}
 			}
 			break;
 		case MODE_SET_RESERVE2:
@@ -127,6 +141,7 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 				return SNMP_ERR_GENERR;
 			v.data = requests->requestvb->val.string;
 			v.size = requests->requestvb->val_len;
+			printf("snmp: %s set, data %d bytes\n", oid_str(obj), v.size);
 			obj->setter(obj, &v);
 			if (0) {
 				netsnmp_set_request_error(reqinfo, requests, SNMP_ERR_WRONGVALUE);
@@ -159,16 +174,7 @@ int wu_snmp_agent_register(struct wu_oid_object *reg_obj)
 {
 	netsnmp_handler_registration *reg;
 	struct wu_oid_object *obj = wu_oid_object_dup(reg_obj);
-	int i;
 	int modes;
-
-#if 0
-	printf("register oid: ");
-	for (i = 0; i < obj->oid_len; i++) {
-		printf("%d,", obj->oid[i]);
-	}
-	printf("\n");
-#endif
 
 	/*
 	 * setup modes
