@@ -35,8 +35,10 @@ int psi_gen_output_psi_from_sections()
 	cc = 0;
 	sec_len = sg_mib_xxx_len(sg_mib_pat[CHANNEL_MAX_NUM]);
 	ts_len = section_to_ts_length(sec_len);
+	hex_dump("pat sec", sg_mib_pat[CHANNEL_MAX_NUM] + 2, MIN(sec_len, 64));
 	ts_len = section_to_ts(sg_mib_pat[CHANNEL_MAX_NUM] + 2, sec_len, ts_buf, PAT_PID, &cc);
 	fill_output_psi_data(0, ts_buf, ts_len);
+	hex_dump("pat ts", ts_buf, MIN(ts_len, 64));
 	trace_info("pat ts len %d", ts_len);
 	}
 
