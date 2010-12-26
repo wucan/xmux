@@ -47,6 +47,13 @@ enum {
 	MANAGEMENT_MODE_FP = 0xAA,
 };
 extern uint8_t management_mode;
+static inline const char *management_mode_str(mode)
+{
+	if (mode == MANAGEMENT_MODE_SNMP)
+		return "SNMP";
+
+	return "FP";
+}
 
 /*
  * snmp client login stats

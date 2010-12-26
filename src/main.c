@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "wu/message.h"
 #include "wu/mem.h"
 #include "front_panel.h"
 #include "psi_worker.h"
@@ -11,6 +12,8 @@
 #include "pid_map_table.h"
 
 
+static msgobj mo = {MSG_INFO, ENCOLOR, "main"};
+
 uint8_t management_mode = MANAGEMENT_MODE_SNMP;
 struct xmux_param_management_info g_param_mng_info;
 
@@ -18,7 +21,7 @@ static void restore_work_field();
 
 int main(int argc, char **argv)
 {
-	printf("xmux %s\n", XMUX_VERSION_STR);
+	trace_info("xmux %s", XMUX_VERSION_STR);
 
 	mem_init_size(1024 * 1024 * 3);
 
@@ -30,6 +33,8 @@ int main(int argc, char **argv)
 	/*
 	 * set login status idle and more data when start up in snmp mode
 	 */
+	trace_info("startup management mode: %s",
+		management_mode_str(management_mode));
 	if (management_mode == MANAGEMENT_MODE_SNMP) {
 		leave_fp_management_mode();
 	}
