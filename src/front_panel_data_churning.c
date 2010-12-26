@@ -171,7 +171,6 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 		prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 		fp_prog = &prog->info;
 
-		prog->status = PROGRAM_SELECTED(pid_trans_info->status, prog_idx) ? 1: 0;
 		if (prog->status) {
 			SELECT_PROGRAM(pid_trans_info, prog_idx);
 		} else {
