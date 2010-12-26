@@ -38,6 +38,13 @@ bool xmux_net_param_validate(struct xmux_net_param *net)
 
 void xmux_net_param_init_default(struct xmux_net_param *net)
 {
+	uint8_t default_mac[6] = {0x00, 0x09, 0x30, 0x28, 0x12, 0x22};
+
+	net->ip = inet_addr("192.168.0.125");
+	net->netmask = inet_addr("255.255.255.0");
+	net->server_ip = inet_addr("192.168.0.100");
+	net->gateway = inet_addr("192.168.0.1");
+	memcpy(net->mac, default_mac, 6);
 	net->csc = wu_csc(net, offsetof(struct xmux_net_param, csc));
 }
 
