@@ -174,6 +174,8 @@ static void _apply_pid_map_table_and_psi()
 
 	pid_map_table_gen_start(&pid_map_gen_ctx);
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		if (!g_chan_num.num[chan_idx])
+			continue;
 		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
 			PROG_INFO_T *prog_info = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 			if (prog_info->status == 1) {
