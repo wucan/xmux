@@ -6,6 +6,7 @@
 #include "xmux_config.h"
 #include "output_psi_data.h"
 #include "gen_dvb_si.h"
+#include "hfpga.h"
 
 
 extern uv_dvb_io hfpga_dev;
@@ -91,12 +92,16 @@ int psi_apply_from_output_psi()
 	 * FIXME: PAT, PMT, CAT: howto = 0; SDT, NIT: howto = 1
 	 */
 	dvbSI_Start(&hfpga_dev);
+	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
 	for (psi_type = 0; psi_type < OUTPUT_PSI_TYPE_MAX_NUM; psi_type++) {
 		ent = &psi_data->psi_ents[psi_type];
 		if (ent->nr_ts_pkts) {
+			trace_info("write type %d, offset %d, %d packets",
+				psi_type, ent->offset, ent->nr_ts_pkts);
 			hfpga_dev.write(&psi_data->ts_pkts[ent->offset], 188 * ent->nr_ts_pkts, howto);
 		}
 	}
+	dvbSI_GenSS(HFPGA_CMD_SI_START);
 	dvbSI_Stop(&hfpga_dev);
 
 	return 0;
