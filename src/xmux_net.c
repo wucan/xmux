@@ -4,6 +4,7 @@
 #include "xmux.h"
 #include "xmux_config.h"
 #include "up_support.h"
+#include "net.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "net"};
@@ -11,10 +12,26 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "net"};
 bool xmux_net_param_validate(struct xmux_net_param *net)
 {
 	uint8_t csc;
+	uint8_t *p;
+	int i;
 
 	csc = wu_csc(net, offsetof(struct xmux_net_param, csc));
 	if (net->csc != csc)
 		return false;
+	/* check netmask */
+	p = (uint8_t *)&net->netmask;
+	for (i = 0; i < 4; i++) {
+		if (p[i] != 0x00 && p[i] != 0xFF) {
+			trace_err("netmask %#x invalidate!", net->netmask);
+			return false;
+		}
+	}
+	/* check mac */
+	if (net->mac[0] != 0x00) {
+		trace_err("mac invalidate!");
+		hex_dump("mac", net->mac, sizeof(net->mac));
+		return false;
+	}
 
 	return true;
 }
@@ -44,12 +61,9 @@ void xmux_net_param_dump(struct xmux_net_param *net)
 
 int xmux_net_set(struct xmux_net_param *net)
 {
-	char mac_str[64];
-
-	strcpy(mac_str, mac_string(net));
 	up_set_net_param(0, net->ip, net->netmask);
 	up_set_gateway(net->gateway);
-	up_set_mac(0, mac_str);
+	net_ioctl_set_mac(0, net->mac);
 
 	xmux_config_save_net_param(net);
 
@@ -60,9 +74,13 @@ int xmux_net_restore()
 {
 	struct xmux_net_param *net = &g_eeprom_param.net;
 
-	/*
-	 * TODO
-	 */
+	if (!xmux_net_param_validate(net)) {
+		trace_err("net param invalidate, no restore!");
+		return -1;
+	}
+	up_set_net_param(0, net->ip, net->netmask);
+	up_set_gateway(net->gateway);
+	net_ioctl_set_mac(0, net->mac);
 
 	return 0;
 }

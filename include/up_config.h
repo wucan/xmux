@@ -6,7 +6,10 @@
 #define _UP_CONFIG_H_
 
 
-#define SAVE_NET_PARAM_TO_BOOTROM		1
+/*
+ * don't save to armboot eeprom, else halt system. just save to xmux eeprom
+ */
+#define SAVE_NET_PARAM_TO_BOOTROM		0
 
 /*
  * MIB loaded need long time, so the fast method is to not use it,
