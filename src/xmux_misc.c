@@ -114,6 +114,8 @@ void leave_fp_management_mode()
 void enter_fp_management_mode()
 {
 	sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_BUSY;
+	pid_trans_info_2_prog_info();
+
 	management_mode = MANAGEMENT_MODE_FP;
 	xmux_config_save_management_mode();
 }
