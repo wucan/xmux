@@ -25,6 +25,7 @@ int psi_gen_output_psi_from_sections()
 	int cc;
 	uint8_t sec_idx;
 
+	trace_info("generate psi from sections...");
 	/*
 	 * PAT
 	 */
@@ -33,6 +34,7 @@ int psi_gen_output_psi_from_sections()
 	ts_len = section_to_ts_length(sec_len);
 	ts_len = section_to_ts(sg_mib_pat[CHANNEL_MAX_NUM] + 2, sec_len, ts_buf, PAT_PID, &cc);
 	fill_output_psi_data(0, ts_buf, ts_len);
+	trace_info("pat ts len %d", ts_len);
 
 	/*
 	 * PMT
@@ -57,6 +59,8 @@ int psi_gen_output_psi_from_sections()
 			ts_len = section_to_ts(sg_mib_pmt[CHANNEL_MAX_NUM][sel_nprogs] + 2,
 				sec_len, ts_buf, prog->pmt.out, &cc);
 			fill_output_psi_data(1, ts_buf, ts_len);
+			trace_info("pmt ts len %d of chan #%d, prog #%d",
+				ts_len, chan_idx, prog_idx);
 			sel_nprogs++;
 			if (sel_nprogs >= PROGRAM_MAX_NUM) {
 				printf("pid_gen: gen pmt, max program reached, can't add more!",
@@ -79,6 +83,7 @@ gen_pmt_done:
 		ts_len = section_to_ts(sg_mib_sdt[CHANNEL_MAX_NUM][sec_idx] + 2,
 			sec_len, ts_buf, SDT_PID, &cc);
 		fill_output_psi_data(2, ts_buf, ts_len);
+		trace_info("sdt ts len %d", ts_len);
 	}
 
 	/*
@@ -90,6 +95,7 @@ gen_pmt_done:
 	ts_len = section_to_ts(sg_mib_nit[CHANNEL_MAX_NUM] + 2,
 		sec_len, ts_buf, NIT_PID, &cc);
 	fill_output_psi_data(3, ts_buf, ts_len);
+	trace_info("nit ts len %d", ts_len);
 
 	/*
 	 * CAT
@@ -100,6 +106,7 @@ gen_pmt_done:
 	ts_len = section_to_ts(sg_mib_cat[CHANNEL_MAX_NUM] + 2,
 		sec_len, ts_buf, CAT_PID, &cc);
 	fill_output_psi_data(4, ts_buf, ts_len);
+	trace_info("cat ts len %d", ts_len);
 
 	/*
 	 * at last save it to eeprom

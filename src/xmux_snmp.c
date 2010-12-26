@@ -326,6 +326,7 @@ static int psi_status_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
+	trace_info("apply psi...");
 	psi_gen_output_psi_from_sections();
 	psi_apply_from_output_psi();
 

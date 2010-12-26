@@ -86,6 +86,7 @@ int psi_apply_from_output_psi()
 	struct output_psi_data_entry *ent;
 	uint8_t psi_type, howto = 0;
 
+	trace_info("apply psi to fpga...");
 	/*
 	 * FIXME: PAT, PMT, CAT: howto = 0; SDT, NIT: howto = 1
 	 */
