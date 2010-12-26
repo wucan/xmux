@@ -98,6 +98,8 @@ int psi_apply_from_output_psi()
 		if (ent->nr_ts_pkts) {
 			trace_info("write type %d, offset %d, %d packets",
 				psi_type, ent->offset, ent->nr_ts_pkts);
+			hex_dump("ts", &psi_data->ts_pkts[ent->offset],
+				MIN(188 * ent->nr_ts_pkts, 48));
 			hfpga_dev.write(&psi_data->ts_pkts[ent->offset], 188 * ent->nr_ts_pkts, howto);
 		}
 	}
