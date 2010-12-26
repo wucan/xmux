@@ -6,6 +6,7 @@
 
 #include "xmux_config.h"
 #include "xmux_misc.h"
+#include "xmux_net.h"
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
 #include "front_panel_data_churning.h"
@@ -281,6 +282,11 @@ static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 			break;
 		case FP_SYS_CMD_APPLY_MAP_ANALYSE:
 			_apply_pid_map_table_and_psi();
+			return 1;
+			break;
+		case FP_SYS_CMD_RESET_NET:
+			xmux_net_param_init_default(&g_eeprom_param.net);
+			xmux_net_set(&g_eeprom_param.net);
 			return 1;
 			break;
 		default:
