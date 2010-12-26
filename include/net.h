@@ -4,6 +4,8 @@
 #include "up_type.h"
 
 
+const char *mac_string(unsigned char *mac);
+
 int net_set_eth_ip_netmask (int ethid, IPAddress ip, IPAddress netmask);
 int net_set_gateway (IPAddress gateway);
 int net_set_mac (int ethid, char *mac);

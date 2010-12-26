@@ -10,6 +10,17 @@
 #include "net.h"
 
 
+const char *mac_string(unsigned char *mac)
+{
+	static char mac_str[64];
+
+	sprintf(mac_str, "%#x:%#x:%#x:%#x:%#x:%#x",
+		mac[0], mac[1], mac[2],
+		mac[3], mac[4], mac[5]);
+
+	return mac_str;
+}
+
 /*
  * set the ethX IP and netmask
  *
@@ -146,6 +157,7 @@ int net_ioctl_set_mac(int ethid, char *mac)
 		perror("SIOCSIFHWADDR");
 	}
 	close(sk);
+	printf("net: set mac %s success\n", mac_string(mac));
 
 	return rc;
 }
