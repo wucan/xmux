@@ -352,6 +352,7 @@ int parse_mcu_cmd(int fdttyS1, uint8_t *recv_msg_buf)
 	rc = __parse_mcu_cmd(recv_msg_buf, resp_msg_buf, &resp_msg_len);
 	trace_info("respose msg len %d", resp_msg_len);
 	if (resp_msg_len > 0) {
+		hex_dump("resp", resp_msg_buf, MIN(resp_msg_len, 32));
 		write(fdttyS1, resp_msg_buf, resp_msg_len);
 	}
 
