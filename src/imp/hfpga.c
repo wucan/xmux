@@ -78,7 +78,6 @@ int hfpga_get_ts_status(int chan_idx, uint16_t *ts_status_para)
 
 static void prt_pid_map(ACCESS_HFPGA_PID_MAP * p_pid_map)
 {
-	uint16_t offset = HFPGA_MAP_MEM_ADDR_BASE;
 	uint8_t cha = p_pid_map->cha;
 	int chn = 0, j = 0;
 	int i;
@@ -143,6 +142,7 @@ static int __write_pids_map(int hdev, ACCESS_HFPGA_PID_MAP *pid_map)
 		return -1;
 	}
 
+#if 0
 	trace_info("read pid pap table ...");
 	for (i = 0; i < 32; i++) {
 		pid_map->pid_map[chno * 32 + i].in_pid = 0x0000;
@@ -154,6 +154,9 @@ static int __write_pids_map(int hdev, ACCESS_HFPGA_PID_MAP *pid_map)
 		return -1;
 	}
 	prt_pid_map(pid_map);
+#endif
+
+	return 0;
 }
 
 int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP *pid_map)
