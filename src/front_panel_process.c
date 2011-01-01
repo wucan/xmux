@@ -348,11 +348,12 @@ int parse_mcu_cmd(int fdttyS1, uint8_t *recv_msg_buf)
 	uint8_t resp_msg_buf[defMcuBufMax];
 	uint16_t resp_msg_len = 0;
 
+	hex_dump("recv", recv_msg_buf, 32);
 	memset(resp_msg_buf, 0x00, sizeof(resp_msg_buf));
 	rc = __parse_mcu_cmd(recv_msg_buf, resp_msg_buf, &resp_msg_len);
 	trace_info("respose msg len %d", resp_msg_len);
 	if (resp_msg_len > 0) {
-		hex_dump("resp", resp_msg_buf, MIN(resp_msg_len, 32));
+		hex_dump("resp", resp_msg_buf, resp_msg_len);
 		write(fdttyS1, resp_msg_buf, resp_msg_len);
 	}
 
