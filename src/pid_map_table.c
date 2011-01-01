@@ -12,6 +12,7 @@
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "pid_map_table"};
 
+static ACCESS_HFPGA_PID_MAP tmp_pid_map;
 
 void pid_map_table_clear(struct xmux_pid_map_table *pid_map)
 {
@@ -33,23 +34,21 @@ void fpga_pid_map_table_clear(ACCESS_HFPGA_PID_MAP *pid_map)
 
 void pid_map_table_reset()
 {
-	ACCESS_HFPGA_PID_MAP pid_map;
-	fpga_pid_map_table_clear(&pid_map);
-	hfpga_write_pid_map(&pid_map);
+	fpga_pid_map_table_clear(&tmp_pid_map);
+	hfpga_write_pid_map(&tmp_pid_map);
 }
 
 int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data)
 {
-	ACCESS_HFPGA_PID_MAP pid_map;
 	int size = sizeof(struct xmux_pid_map_table);
 
-	if (size != sizeof(pid_map.pid_map))
+	if (size != sizeof(tmp_pid_map.pid_map))
 		return -1;
 
-	pid_map.cha = 0xFF;
-	memcpy(pid_map.pid_map, pid_map_data, sizeof(pid_map.pid_map));
+	tmp_pid_map.cha = 0xFF;
+	memcpy((unsigned char *)&tmp_pid_map + 4, pid_map_data, sizeof(tmp_pid_map.pid_map));
 
-	hfpga_write_pid_map(&pid_map);
+	hfpga_write_pid_map(&tmp_pid_map);
 
 	return 0;
 }
@@ -91,6 +90,7 @@ bool pid_map_table_validate(struct xmux_pid_map_table *pid_map)
 {
 	uint8_t chan_idx, pid_idx;
 	struct pid_map_entry *ent;
+	uint16_t in, out;
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		for (pid_idx = 0; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
@@ -98,16 +98,17 @@ bool pid_map_table_validate(struct xmux_pid_map_table *pid_map)
 			 * ignore pad pid
 			 */
 			ent= &pid_map->chans[chan_idx].ents[pid_idx];
-			if (ent->input_pid == PID_MAP_TABLE_PAD_PID &&
-				ent->output_pid == PID_MAP_TABLE_PAD_PID) {
+			in = ent->input_pid;
+			out = ent->output_pid;
+			if ((in == 15) && (out == 15)) {
 				continue;
 			}
 			/*
 			 * check output_pid which got from pid_map_rule on input_pid
 			 */
-			if (!pid_map_rule_channel_output_pid_validate(chan_idx, ent->output_pid)) {
-				trace_err("chan #%d pid(%d => %d), output pid invalidate!",
-					chan_idx, ent->input_pid, ent->output_pid);
+			if (!pid_map_rule_channel_output_pid_validate(chan_idx, out)) {
+				trace_err("chan #%d pid(%d(%#x) => %d(%#x)), output pid invalidate!",
+					chan_idx, in, in, out, out);
 				trace_err("discard all channel's pid map table!");
 				return false;
 			}
@@ -121,17 +122,20 @@ void pid_map_table_dump(struct xmux_pid_map_table *pid_map)
 {
 	uint8_t chan_idx, pid_idx;
 	struct pid_map_entry *ent;
+	uint16_t in, out;
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		trace_info("chan #%d pid map:", chan_idx);
 		for (pid_idx = 0; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
 			ent= &pid_map->chans[chan_idx].ents[pid_idx];
-			if (ent->input_pid == PID_MAP_TABLE_PAD_PID &&
-				ent->output_pid == PID_MAP_TABLE_PAD_PID) {
+			in = ent->input_pid;
+			out = ent->output_pid;
+			if (in == PID_MAP_TABLE_PAD_PID &&
+				out == PID_MAP_TABLE_PAD_PID) {
 				continue;
 			}
-			trace_info("  #%d pid(%d => %d)",
-				chan_idx, ent->input_pid, ent->output_pid);
+			trace_info("  #%d, pid_idx #%d pid(%d(%#x) => %d(%#x))",
+				chan_idx, pid_idx, in, in, out, out);
 		}
 	}
 }
