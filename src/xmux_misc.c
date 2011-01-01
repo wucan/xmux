@@ -12,7 +12,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "misc"};
 
 void set_output_bitrate(uint32_t new_bitrate)
 {
-	/* TODO: set */
+	hfpga_write_sys_output_bitrate(new_bitrate);
 
 	xmux_config_save_output_bitrate(new_bitrate);
 }
@@ -22,7 +22,7 @@ void set_packet_format(uint8_t new_fmt)
 	if (new_fmt != FORMAT_BC && new_fmt != FORMAT_CC)
 		return;
 
-	/* TODO: set */
+	hfpga_write_sys_packet_length(new_fmt);
 
 	xmux_config_save_packet_format(new_fmt);
 }

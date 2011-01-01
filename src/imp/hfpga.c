@@ -174,6 +174,60 @@ int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP *pid_map)
 
 	return 0;
 }
+int hfpga_write_sys_output_bitrate(uint32_t bitrate)
+{
+	ACCESS_HFPGA_REGS hregs;
+	int rc;
+	int hdev;
+
+	hdev = open(UV_HFPGA_DEV_PATH, O_RDWR);
+	if (-1 == hdev) {
+		trace_err("failed to open HFPGA dev, path %s!", UV_HFPGA_DEV_PATH);
+		return -1;
+	}
+
+	hregs.reg = HFPGA_REG_ADDR_SYS_RATE_MSB;
+	hregs.data = bitrate >> 16;
+	rc = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_REGS, &hregs);
+	if (rc < 0) {
+		trace_err("write SYS_RATE_MSB reg failed! rc %d!", rc);
+		close(hdev);
+		return -1;
+	}
+	hregs.reg = HFPGA_REG_ADDR_SYS_RATE_LSB;
+	hregs.data = bitrate & 0xFFFF;
+	rc = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_REGS, &hregs);
+	if (rc < 0) {
+		trace_err("write SYS_RATE_LSB reg failed! rc %d!", rc);
+		close(hdev);
+		return -1;
+	}
+	close(hdev);
+
+	return 0;
+}
+int hfpga_write_sys_packet_length(uint16_t pkt_len)
+{
+	ACCESS_HFPGA_REGS hregs;
+	int rc;
+	int hdev;
+
+	hdev = open(UV_HFPGA_DEV_PATH, O_RDWR);
+	if (-1 == hdev) {
+		trace_err("failed to open HFPGA dev, path %s!", UV_HFPGA_DEV_PATH);
+		return -1;
+	}
+	hregs.reg = HFPGA_REG_ADDR_SYS_PALENGTH;
+	hregs.data = pkt_len;
+	rc = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_REGS, &hregs);
+	close(hdev);
+	if (rc < 0) {
+		trace_err("write SYS_PALENGTH reg failed! rc %d!", rc);
+		return -1;
+	}
+
+	return 0;
+}
 #else
 int hfpga_get_ts_status(int chan_idx, uint16_t *ts_status_para)
 {
@@ -195,5 +249,18 @@ int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP *pid_map)
 
 	return 0;
 }
+int hfpga_write_sys_output_bitrate(uint32_t bitrate)
+{
+	trace_info("%s: bitrate %d", __func__, bitrate);
+
+	return 0;
+}
+int hfpga_write_sys_packet_length(uint16_t pkt_len)
+{
+	trace_info("%s: pkt_len %d", __func__, pkt_len);
+
+	return 0;
+}
+
 #endif
 
