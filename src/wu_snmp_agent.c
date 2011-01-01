@@ -123,6 +123,7 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 				rc = netsnmp_check_vb_type_and_max_size(requests->requestvb, ASN_OCTET_STR, obj->max_set_size);
 				if (rc != SNMP_ERR_NOERROR) {
 					netsnmp_set_request_error(reqinfo, requests, rc);
+					return SNMP_ERR_GENERR;
 				}
 			}
 			break;
