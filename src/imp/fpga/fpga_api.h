@@ -20,4 +20,8 @@ int hfpga_readn(unsigned char *p_buf, unsigned int len, void *p_param,int nbgn);
 int hfpga_writen(unsigned char *p_data, unsigned int len, void *p_param);
 int hfpga_ioctl(unsigned int cmd, void *p_param);
 
+typedef void (*FPGAWriteHook)(void *data, int len);
+void fpga_set_write_hook(FPGAWriteHook hook);
+
+
 #endif

@@ -29,6 +29,14 @@ static ACCESS_HFPGA_PID_MAP pid_map;
 static ACCESS_HFPGA_STR_DATA str_data;
 static ACCESS_HFPGA_CMD hfpga_cmd;
 
+/*
+ * user supplied write data recorder function hook
+ */
+static FPGAWriteHook write_hook;
+void fpga_set_write_hook(FPGAWriteHook hook)
+{
+	write_hook = hook;
+}
 
 void dbgoutputHex(unsigned char *data, unsigned int len, unsigned char width)
 {
@@ -156,6 +164,9 @@ int hfpga_writen(unsigned char *p_data, unsigned int len, void *p_param)
 {
 	int i, retval = 0;
 
+	if (write_hook) {
+		write_hook(p_data, len);
+	}
 	// get ts
 	str_data.len = len;
 	str_data.pdata = p_data;
