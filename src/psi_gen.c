@@ -368,6 +368,11 @@ void cat_gen_context_free(struct cat_gen_context *ctx)
 /*
  * generate psi and download to fpga
  */
+static int psi_type;
+static void write_hook_psi(void *data, int len)
+{
+	fill_output_psi_data(psi_type, data, len);
+}
 int psi_gen_and_apply_from_fp()
 {
 	uint8_t *packpara[8192];
@@ -377,15 +382,23 @@ int psi_gen_and_apply_from_fp()
 	trace_info("stop gen si");
 	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
 
+	fpga_set_write_hook(write_hook_psi);
+	psi_type = 0;
 	gen_pat_pmt_from_fp(packpara, g_prog_info_table);
+	psi_type = 2;
 	gen_sdt_from_fp(packpara, g_prog_info_table);
+	psi_type = 3;
 	gen_nit_from_fp();
+	psi_type = 4;
 	gen_cat_from_fp();
+	fpga_set_write_hook(NULL);
 
 	trace_info("start gen si");
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
 
 	dvbSI_Stop();
+
+	xmux_config_save_output_psi_data();
 
 	return 0;
 }
