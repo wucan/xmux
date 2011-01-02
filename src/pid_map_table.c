@@ -46,7 +46,7 @@ int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data)
 		return -1;
 
 	tmp_pid_map.cha = 0xFF;
-	memcpy((unsigned char *)&tmp_pid_map + 4, pid_map_data, sizeof(tmp_pid_map.pid_map));
+	memcpy((unsigned char *)&tmp_pid_map.pid_map, pid_map_data, sizeof(tmp_pid_map.pid_map));
 
 	hfpga_write_pid_map(&tmp_pid_map);
 
