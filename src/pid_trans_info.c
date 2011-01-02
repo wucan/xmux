@@ -55,10 +55,8 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 		}
 		pid_trans_info_dump(&sg_mib_pid_trans_info[chan_idx]);
 		/* save it */
-		memcpy(g_eeprom_param.pid_trans_info_area.bytes,
-			&sg_mib_pid_trans_info[chan_idx], PID_TRANS_INFO_SIZE);
-		eeprom_write(EEPROM_OFF_PID_TRANS_INFO + PID_TRANS_INFO_SIZE * chan_idx,
-			&sg_mib_pid_trans_info[chan_idx], PID_TRANS_INFO_SIZE);
+		xmux_config_save_pid_trans_info_channel(chan_idx,
+			&sg_mib_pid_trans_info[chan_idx]);
 	}
 }
 

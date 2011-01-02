@@ -154,6 +154,17 @@ void xmux_config_save_management_mode()
 	eeprom_write(EEPROM_OFF_MNG_MODE, &g_eeprom_param.mng_mode, 1);
 }
 
+void xmux_config_save_pid_trans_info_channel(uint8_t chan_idx,
+	struct pid_trans_info_snmp_data *chan_info)
+{
+	trace_info("save pid trans info of channel #%d...", chan_idx);
+	pid_trans_info_dump(chan_info);
+	memcpy(&g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx],
+		chan_info, PID_TRANS_INFO_SIZE);
+	eeprom_write(EEPROM_OFF_PID_TRANS_INFO + PID_TRANS_INFO_SIZE * chan_idx,
+		chan_info, PID_TRANS_INFO_SIZE);
+}
+
 void xmux_config_save_pid_trans_info_all()
 {
 	uint8_t chan_idx;
