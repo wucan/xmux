@@ -39,7 +39,7 @@ int fp_build_cmd(uint8_t *buf, bool is_read, int cmd,
 
 	hdr.sync = defMcuSyncFlag;
 	if (is_read)
-		hdr.seq = (1 << 31) | cmd;
+		hdr.seq = (1 << 15) | cmd;
 	else
 		hdr.seq = cmd;
 	hdr.len = param_size;
