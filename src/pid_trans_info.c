@@ -36,23 +36,31 @@ void pid_trans_info_read_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 	}
 }
 
+static void fix_data(uint8_t chan_idx)
+{
+	sg_mib_pid_trans_info[chan_idx].data_len = sizeof(sg_mib_pid_trans_info[0]) - 2;
+	sg_mib_pid_trans_info[chan_idx].csc = wu_csc(&sg_mib_pid_trans_info[chan_idx],
+		sizeof(sg_mib_pid_trans_info[0]) - 1);
+}
 void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 {
 	uint8_t chan_idx = trans_idx / 3;
 	int idx = trans_idx % 3;
 	struct access_data *d = (struct access_data *)&sg_mib_pid_trans_info[chan_idx];
 
+	if (idx == 0) {
+		trace_info("begin recv pid_trans_info of channel #%d, clear it at first",
+			chan_idx);
+		memset(&sg_mib_pid_trans_info[chan_idx], 0, sizeof(sg_mib_pid_trans_info[0]));
+	}
 	memcpy(d->node[idx], v->data, v->size);
 
 	/*
 	 * save to eeprom if channel's pid trans info all got
 	 */
 	if (v->size < NODE_MAX_SIZE || chan_idx == 2) {
-		/* checking */
-		if (!pid_trans_info_validate(&sg_mib_pid_trans_info[chan_idx])) {
-			trace_err("#%d pid trans info invalidate set!", chan_idx);
-			return;
-		}
+		/* fix received data */
+		fix_data(chan_idx);
 		pid_trans_info_dump(&sg_mib_pid_trans_info[chan_idx]);
 		/* save it */
 		xmux_config_save_pid_trans_info_channel(chan_idx,
