@@ -22,6 +22,7 @@ void xmux_config_save_pid_trans_info_all();
 void xmux_config_save_output_psi_data();
 void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t);
 void xmux_config_save_net_param(struct xmux_net_param *net);
+void xmux_config_save_mux_program_info(struct xmux_mux_program_info *info);
 
 
 #endif /* _XMUX_CONFIG_H_ */

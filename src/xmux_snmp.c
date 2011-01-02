@@ -335,6 +335,25 @@ static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	return 0;
 }
 /*
+ * output mux program info
+ */
+static int mux_program_info_get(struct wu_oid_object *obj,
+		struct wu_snmp_value *v)
+{
+	v->size = sizeof(struct xmux_mux_program_info);
+	v->data = &g_eeprom_param.mux_prog_info;
+	xmux_config_save_mux_program_info(&g_eeprom_param.mux_prog_info);
+
+	return 0;
+}
+static int mux_program_info_set(struct wu_oid_object *obj,
+		struct wu_snmp_value *v)
+{
+	memcpy(&g_eeprom_param.mux_prog_info, v->data, v->size);
+
+	return 0;
+}
+/*
  * LOAD INFO
  */
 static int load_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
@@ -484,6 +503,12 @@ static struct wu_oid_object solo_oid_objs[] = {
 	{"APPLY_PSI", {XMUX_ROOT_OID, 17}, 7,
 	 0, OID_STATUS_WRITE,
 	 NULL, apply_psi_set, sizeof(struct apply_psi_snmp_data),
+	},
+	// output mux program info
+	{"MUX_PROGRAM_INFO", {XMUX_ROOT_OID, 18}, 7,
+	 0, OID_STATUS_RWRITE,
+	 mux_program_info_get, mux_program_info_set,
+	 sizeof(struct xmux_mux_program_info),
 	},
 	// LOAD INFO
 	{"LOAD_INFO", {XMUX_ROOT_OID, 100}, 7,

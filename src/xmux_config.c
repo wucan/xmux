@@ -209,6 +209,11 @@ void xmux_config_save_net_param(struct xmux_net_param *net)
 	eeprom_write(EEPROM_OFF_NET, net, sizeof(*net));
 }
 
+void xmux_config_save_mux_program_info(struct xmux_mux_program_info *info)
+{
+	eeprom_write(EEPROM_OFF_MUX_PROG_INFO, info, sizeof(*info));
+}
+
 static void eeprom_rw_test()
 {
 	uint8_t data[1024], read_data[1024];

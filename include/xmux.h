@@ -209,6 +209,18 @@ struct xmux_user_param {
 } __attribute__((packed));
 
 /*
+ * output mux program info
+ */
+struct xmux_mux_program_info {
+	uint16_t nprogs;
+
+	struct mux_program_entry {
+		uint8_t chan_idx;
+		uint8_t prog_idx;
+	} programs[PROGRAM_MAX_NUM];
+} __attribute__ ((__packed__));
+
+/*
  * EEPROM parameter layout:
  *   struct xmux_program_map_table prog_map_table;
  *   struct pid_trans_info_snmp_data pid_trans_info;
@@ -216,6 +228,8 @@ struct xmux_user_param {
  *   struct xmux_system_param sys;
  *   struct xmux_net_param net;
  *   struct xmux_user_param user;
+ *   management_mode;
+ *	 struct xmux_mux_program_info mux_prog_info;
  */
 
 struct xmux_eeprom_param {
@@ -235,6 +249,8 @@ struct xmux_eeprom_param {
 	struct xmux_net_param net;
 	struct xmux_user_param user;
 	uint8_t mng_mode;
+
+	struct xmux_mux_program_info mux_prog_info;
 };
 
 /*
@@ -247,6 +263,7 @@ struct xmux_eeprom_param {
 #define EEPROM_OFF_NET						(offsetof(struct xmux_eeprom_param, net))
 #define EEPROM_OFF_USER						(offsetof(struct xmux_eeprom_param, user))
 #define EEPROM_OFF_MNG_MODE					(offsetof(struct xmux_eeprom_param, mng_mode))
+#define EEPROM_OFF_MUX_PROG_INFO			(offsetof(struct xmux_eeprom_param, mux_prog_info))
 
 #define EEPROM_OFF_SYS_OUTPUT_BITRATE \
 	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, output_bitrate)))

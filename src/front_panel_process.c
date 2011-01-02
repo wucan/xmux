@@ -221,6 +221,10 @@ pid_map_gen_done:
 	prog_info_2_pid_trans_info();
 	xmux_config_save_pid_trans_info_all();
 	g_param_mng_info.eeprom_pid_trans_info_version++;
+
+	/*
+	 * TODO: generate default output mux program info
+	 */
 }
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
