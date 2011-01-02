@@ -13,6 +13,7 @@ struct pid_trans_snmp_data {
 	uint16_t data_len;
 	uint32_t output_bitrate;
 	uint8_t format;
+	uint8_t reserve;
 	struct xmux_pid_map_table table;
 } __attribute__((packed));
 #define PID_TRANS_SIZE		sizeof(struct pid_trans_snmp_data)
