@@ -112,6 +112,15 @@ static void reset_net_btn_press(GtkWidget *widget,
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 }
 
+static void prog_0_btn_press(GtkWidget *widget,
+		GdkEventButton *event, gpointer *user_data)
+{
+	fp_build_cmd(req_buf, true, 0, NULL, 0);
+	hex_dump("req", req_buf, 6);
+	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
+	hex_dump("resp", resp_buf, resp_len);
+}
+
 static void build_control_ui(GtkWidget *vbox)
 {
 	GtkWidget *btn, *radio1, *radio2;
@@ -152,6 +161,11 @@ static void build_control_ui(GtkWidget *vbox)
 	btn = gtk_button_new_with_label("Reset Net");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 		GTK_SIGNAL_FUNC(reset_net_btn_press), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
+	/* get program info */
+	btn = gtk_button_new_with_label("Prog 0");
+	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
+		GTK_SIGNAL_FUNC(prog_0_btn_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
