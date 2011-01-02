@@ -234,6 +234,9 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 					j, serv[j].i_serv_id);
 				extract_program_name(serv[j].p_descr->p_data,
 						(unsigned char *)prog_info->info.prog_name);
+				/* set default output program name same with original */
+				memcpy(prog_info->info.prog_name[1],
+					prog_info->info.prog_name[0], PROGRAM_NAME_SIZE);
 			}
 		}
 		if (i == prog_cnt) {
