@@ -4,27 +4,11 @@
 #include "xmux.h"
 
 
-struct fp_data_pid_trans_entry {
-	uint8_t type;
-	uint16_t in;
-	uint16_t out;
-} __attribute__ ((__packed__));
-
-struct fp_program_info {
-	uint16_t prog_num;
-
-	struct pid_trans_entry pmt;
-	struct pid_trans_entry pcr;
-	struct fp_data_pid_trans_entry data[PROGRAM_DATA_PID_MAX_NUM];
-
-	char prog_name[2][PROGRAM_NAME_SIZE];
-} __attribute__ ((__packed__));
-
 typedef struct					// output one program to mcu_panel
 {
 	uint8_t status;
 
-	struct fp_program_info info;
+	struct xmux_program_info info;
 } __attribute__ ((__packed__)) PROG_INFO_T;
 
 struct fp_cmd_header {

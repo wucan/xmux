@@ -71,9 +71,10 @@ enum {
  * snmp node 5188.12
  */
 struct pid_trans_entry {
+	uint8_t type;
 	uint16_t in;
 	uint16_t out;
-};
+} __attribute__ ((__packed__));
 struct xmux_program_info {
 	uint16_t prog_num;
 
@@ -103,67 +104,23 @@ struct pid_trans_info_snmp_data {
 	(info->status |= (1 << prog_idx))
 #define DESELECT_PROGRAM(info, prog_idx) \
 	(info->status &= ~(1 << prog_idx))
-#define DATA_PID_TYPE(data_pid_value)			(data_pid_value >> 13)
-#define DATA_PID_VALUE(data_pid_value)			(data_pid_value & 0x1FFF)
 
-#define DATA_PID_TYPE_VIDEO		0x1
-#define DATA_PID_TYPE_AUDIO		0x2
-#define DATA_PID_TYPE_DATA		0x3
-#define DATA_PID_TYPE_OTHER		0x6
-
-#define PACK_DATA_PID(type, pid)		((type << 13) | pid)
-
-#define PACK_VIDEO_DATA_PID(pid)		((DATA_PID_TYPE_VIDEO << 13) | pid)
-#define PACK_AUDIO_DATA_PID(pid)		((DATA_PID_TYPE_AUDIO << 13) | pid)
-#define PACK_DATA_DATA_PID(pid)			((DATA_PID_TYPE_DATA << 13) | pid)
-#define PACK_OTHER_DATA_PID(pid)		((DATA_PID_TYPE_OTHER << 13) | pid)
-
-static inline uint8_t pid_type_es_2_xmux(uint8_t es_type)
-{
-	switch (es_type) {
-		case 0x1b:
-		case 1:
-		case 2: return DATA_PID_TYPE_VIDEO; break;
-		case 0x06: return DATA_PID_TYPE_OTHER; break;
-		case 0x0F:
-		case 0x11:
-		case 3:
-		case 4: return DATA_PID_TYPE_AUDIO; break;
-		default: break;
-	}
-	return DATA_PID_TYPE_OTHER;
-}
-static inline uint8_t pid_type_xmux_2_es(uint8_t xmux_type)
-{
-	switch (xmux_type) {
-		case DATA_PID_TYPE_VIDEO: return 2; break;
-		case DATA_PID_TYPE_AUDIO: return 4; break;
-		default: break;
-	}
-	return 7; // FIXME
-}
-static inline bool pcr_video_same(uint16_t pcr_pid_value)
-{
-	if ((pcr_pid_value >> 13) == 0x4) {
-		return true;
-	}
-	return false;
-}
-static inline bool pcr_audio_same(uint16_t pcr_pid_value)
-{
-	if ((pcr_pid_value >> 13) == 0x5) {
-		return true;
-	}
-	return false;
-}
+/*
+ * FIXME: xmux define pid type for pcr, pmt, pcr_audio, pcr=video, pid=pad
+ */
+enum {
+	PID_TYPE_PMT = 0x80,
+	PID_TYPE_PCR = 0x81,
+	PID_TYPE_PCR_VIDEO = 0x82,
+	PID_TYPE_PCR_AUDIO = 0x83,
+	PID_TYPE_PAD = 0x84,
+};
 
 #define DATA_PID_PAD_VALUE			0x000F
 #define PID_NO_PAD_VALUE			0x00FF
-static inline bool data_pid_validate(uint16_t data_pid)
+static inline bool data_pid_validate(uint8_t type)
 {
-	uint8_t type = DATA_PID_TYPE(data_pid);
-	if (type != DATA_PID_TYPE_VIDEO && type != DATA_PID_TYPE_AUDIO &&
-		type != DATA_PID_TYPE_DATA && type != DATA_PID_TYPE_OTHER) {
+	if (type == PID_TYPE_PAD) {
 		return false;
 	}
 

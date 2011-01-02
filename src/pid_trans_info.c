@@ -106,17 +106,15 @@ void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
 			uint16_t data_pid_in = prog->data[pid_idx].in;
 			if (data_pid_in == DATA_PID_PAD_VALUE)
 				continue;
-			if (!data_pid_validate(data_pid_in)) {
+			if (!data_pid_validate(prog->data[pid_idx].type)) {
 				trace_err("  #%d, data pid %d(%#x) invalidate!(type %d)",
 					pid_idx, data_pid_in, data_pid_in,
-					DATA_PID_TYPE(data_pid_in));
+					prog->data[pid_idx].type);
 				continue;
 			}
 			trace_info("  #%d, pid(%d => %d, type %d)",
 				pid_idx,
-				DATA_PID_VALUE(data_pid_in),
-				DATA_PID_VALUE(prog->data[pid_idx].out),
-				DATA_PID_TYPE(data_pid_in));
+				data_pid_in, prog->data[pid_idx].out, prog->data[pid_idx].type);
 		}
 	}
 }
