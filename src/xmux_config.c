@@ -154,7 +154,7 @@ void xmux_config_save_management_mode()
 	eeprom_write(EEPROM_OFF_MNG_MODE, &g_eeprom_param.mng_mode, 1);
 }
 
-void xmux_config_save_pid_trans_info()
+void xmux_config_save_pid_trans_info_all()
 {
 	uint8_t chan_idx;
 	struct pid_trans_info_snmp_data *info;

@@ -219,7 +219,7 @@ pid_map_gen_done:
 	 * and at last save pid_trans_info
 	 */
 	prog_info_2_pid_trans_info();
-	xmux_config_save_pid_trans_info();
+	xmux_config_save_pid_trans_info_all();
 	g_param_mng_info.eeprom_pid_trans_info_version++;
 }
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
