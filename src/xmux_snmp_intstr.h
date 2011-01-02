@@ -55,7 +55,7 @@ struct apply_psi_snmp_data {
 #define PAT_FLAG_SHIFT		7
 #define CAT_FLAG_SHIFT		6
 #define NIT_FLAG_SHIFT		5
-#define SDT_FLAG_SHIFT		4
+#define SDT_FLAG_SHIFT		0 /* bit(4-0) for 5 sdt section, use 0 now */
 
 
 #endif /* _XMUX_SNMP_INTSTR_H_ */
