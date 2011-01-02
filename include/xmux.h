@@ -121,7 +121,13 @@ struct pid_trans_info_snmp_data {
 static inline uint8_t pid_type_es_2_xmux(uint8_t es_type)
 {
 	switch (es_type) {
+		case 0x1b:
+		case 1:
 		case 2: return DATA_PID_TYPE_VIDEO; break;
+		case 0x06: return DATA_PID_TYPE_OTHER; break;
+		case 0x0F:
+		case 0x11:
+		case 3:
 		case 4: return DATA_PID_TYPE_AUDIO; break;
 		default: break;
 	}
