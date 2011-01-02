@@ -7,6 +7,25 @@
 struct xmux_output_psi_data;
 
 
+/*
+ * psi type store in output_psi_area
+ * PAT, PMT, CAT: (hfpga write) howto = 0; SDT, NIT: howto = 1
+ */
+enum {
+	PSI_TYPE_PAT = 0,
+	PSI_TYPE_PMT,
+	PSI_TYPE_CAT,
+	PSI_TYPE_SDT,
+	PSI_TYPE_NIT,
+};
+static inline psi_type_2_howto(type)
+{
+	if (type >= PSI_TYPE_PAT && type <= PSI_TYPE_CAT)
+		return 0;
+
+	return 1;
+}
+
 bool output_psi_data_validate(struct xmux_output_psi_data *psi);
 void output_psi_data_dump(struct xmux_output_psi_data *psi);
 void output_psi_data_clear(struct xmux_output_psi_data *psi);

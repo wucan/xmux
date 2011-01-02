@@ -88,14 +88,12 @@ int psi_apply_from_output_psi()
 	uint8_t psi_type, howto = 0;
 
 	trace_info("apply psi to fpga...");
-	/*
-	 * FIXME: PAT, PMT, CAT: howto = 0; SDT, NIT: howto = 1
-	 */
 	dvbSI_Start(&hfpga_dev);
 	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
 	for (psi_type = 0; psi_type < OUTPUT_PSI_TYPE_MAX_NUM; psi_type++) {
 		ent = &psi_data->psi_ents[psi_type];
 		if (ent->nr_ts_pkts) {
+			howto = psi_type_2_howto(psi_type);
 			trace_info("write type %d, offset %d, %d packets",
 				psi_type, ent->offset, ent->nr_ts_pkts);
 			hex_dump("ts", &psi_data->ts_pkts[ent->offset],

@@ -37,7 +37,7 @@ int psi_gen_output_psi_from_sections()
 	ts_len = section_to_ts_length(sec_len);
 	hex_dump("pat sec", sg_mib_pat[CHANNEL_MAX_NUM] + 2, MIN(sec_len, 64));
 	ts_len = section_to_ts(sg_mib_pat[CHANNEL_MAX_NUM] + 2, sec_len, ts_buf, PAT_PID, &cc);
-	fill_output_psi_data(0, ts_buf, ts_len);
+	fill_output_psi_data(PSI_TYPE_PAT, ts_buf, ts_len);
 	hex_dump("pat ts", ts_buf, MIN(ts_len, 64));
 	trace_info("pat ts len %d", ts_len);
 	}
@@ -56,7 +56,7 @@ int psi_gen_output_psi_from_sections()
 			ts_len = section_to_ts_length(sec_len);
 			ts_len = section_to_ts(sg_mib_pmt[CHANNEL_MAX_NUM][bit] + 2,
 				sec_len, ts_buf, sg_mib_apply_psi.pmt_pid_table[bit], &cc);
-			fill_output_psi_data(1, ts_buf, ts_len);
+			fill_output_psi_data(PSI_TYPE_PMT, ts_buf, ts_len);
 			trace_info("pmt ts len %d of oid #%d", ts_len, bit);
 			sel_nprogs++;
 		}
@@ -73,7 +73,7 @@ int psi_gen_output_psi_from_sections()
 		ts_len = section_to_ts_length(sec_len);
 		ts_len = section_to_ts(sg_mib_sdt[CHANNEL_MAX_NUM][sec_idx] + 2,
 			sec_len, ts_buf, SDT_PID, &cc);
-		fill_output_psi_data(2, ts_buf, ts_len);
+		fill_output_psi_data(PSI_TYPE_SDT, ts_buf, ts_len);
 		trace_info("sdt ts len %d", ts_len);
 	}
 	}
@@ -87,7 +87,7 @@ int psi_gen_output_psi_from_sections()
 	ts_len = section_to_ts_length(sec_len);
 	ts_len = section_to_ts(sg_mib_nit[CHANNEL_MAX_NUM] + 2,
 		sec_len, ts_buf, NIT_PID, &cc);
-	fill_output_psi_data(3, ts_buf, ts_len);
+	fill_output_psi_data(PSI_TYPE_NIT, ts_buf, ts_len);
 	trace_info("nit ts len %d", ts_len);
 	}
 
@@ -100,7 +100,7 @@ int psi_gen_output_psi_from_sections()
 	ts_len = section_to_ts_length(sec_len);
 	ts_len = section_to_ts(sg_mib_cat[CHANNEL_MAX_NUM] + 2,
 		sec_len, ts_buf, CAT_PID, &cc);
-	fill_output_psi_data(4, ts_buf, ts_len);
+	fill_output_psi_data(PSI_TYPE_CAT, ts_buf, ts_len);
 	trace_info("cat ts len %d", ts_len);
 	}
 
@@ -383,13 +383,15 @@ int psi_gen_and_apply_from_fp()
 	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
 
 	fpga_set_write_hook(write_hook_psi);
-	psi_type = 0;
-	gen_pat_pmt_from_fp(packpara, g_prog_info_table);
-	psi_type = 2;
+	psi_type = PSI_TYPE_PAT;
+	gen_pat_from_fp(packpara, g_prog_info_table);
+	psi_type = PSI_TYPE_PMT;
+	gen_pmt_from_fp(packpara, g_prog_info_table);
+	psi_type = PSI_TYPE_SDT;
 	gen_sdt_from_fp(packpara, g_prog_info_table);
-	psi_type = 3;
+	psi_type = PSI_TYPE_NIT;
 	gen_nit_from_fp();
-	psi_type = 4;
+	psi_type = PSI_TYPE_CAT;
 	gen_cat_from_fp();
 	fpga_set_write_hook(NULL);
 

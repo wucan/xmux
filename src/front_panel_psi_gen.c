@@ -67,7 +67,7 @@ int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	return 0;
 }
 
-int gen_pat_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
+int gen_pat_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 {
 	int i, j;
 
@@ -76,7 +76,7 @@ int gen_pat_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	PROG_INFO_T *pProg = (PROG_INFO_T *) pProgpara;
 	struct pat_gen_context pat_gen_ctx;
 
-	trace_info("generate PAT&PMT ...");
+	trace_info("generate PAT ...");
 
 	// Begin Set Values
 	pat_gen_context_init(&pat_gen_ctx);
@@ -94,7 +94,16 @@ int gen_pat_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	trace_info("generate PAT ...");
 	dvbSI_Gen_PAT(&pat_gen_ctx.tpat, pat_gen_ctx.tpid_data, pat_gen_ctx.nprogs);
 
-	nProgSel = 0;
+	return 0;
+}
+
+int gen_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
+{
+	int i, j;
+	int nProgSel = 0;
+	PROG_INFO_T *pProg;
+
+	trace_info("generate PMT ...");
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		int j;
 		pProg = (PROG_INFO_T *) pProgpara + i;
