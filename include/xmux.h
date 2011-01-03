@@ -9,6 +9,7 @@
  * EEPROM size
  */
 #define EEPROM_SIZE						(1024 * 128)
+#define EEPROM_PAGE_SIZE				64
 
 #define SECTION_MAX_SIZE				1024
 
@@ -232,7 +233,7 @@ struct xmux_mux_program_info {
  *	 struct xmux_mux_program_info mux_prog_info;
  */
 
-#define EEPROM_PAGE_ALIGN	 __attribute__ ((aligned(64)))
+#define EEPROM_PAGE_ALIGN	 __attribute__ ((aligned(EEPROM_PAGE_SIZE)))
 struct xmux_eeprom_param {
 	union {
 		uint8_t bytes[25904];
