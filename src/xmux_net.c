@@ -16,8 +16,10 @@ bool xmux_net_param_validate(struct xmux_net_param *net)
 	int i;
 
 	csc = wu_csc(net, offsetof(struct xmux_net_param, csc));
-	if (net->csc != csc)
+	if (net->csc != csc) {
+		trace_err("csc invalidate!");
 		return false;
+	}
 	/* check netmask */
 	p = (uint8_t *)&net->netmask;
 	for (i = 0; i < 4; i++) {
@@ -50,9 +52,18 @@ void xmux_net_param_init_default(struct xmux_net_param *net)
 
 void xmux_net_param_dump(struct xmux_net_param *net)
 {
+	char *ip = strdup(inet_ntoa(net->ip));
+	char *netmask = strdup(inet_ntoa(net->netmask));
+	char *gw = strdup(inet_ntoa(net->gateway));
+	char *server_ip = strdup(inet_ntoa(net->server_ip));
+
 	trace_info("net: ip %s, netmask %s, gw %s, mac %s, server ip %s",
-		inet_ntoa(net->ip), inet_ntoa(net->netmask), inet_ntoa(net->gateway),
-		mac_string(net->mac), inet_ntoa(net->server_ip));
+		ip, netmask, gw, mac_string(net->mac), server_ip);
+
+	free(ip);
+	free(netmask);
+	free(gw);
+	free(server_ip);
 }
 
 int xmux_net_set(struct xmux_net_param *net)
