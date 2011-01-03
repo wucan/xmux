@@ -88,15 +88,19 @@ struct xmux_program_info {
 
 	char prog_name[2][PROGRAM_NAME_SIZE];
 } __attribute__ ((__packed__));
+
+struct xmux_program_info_with_csc {
+	struct xmux_program_info info;
+	uint8_t csc;
+} __attribute__ ((__packed__));
+
 struct pid_trans_info_snmp_data {
 	uint16_t data_len;
 
 	uint8_t update_flag_and_chan_num;
 	uint8_t nprogs;
 	uint32_t status;
-	struct xmux_program_info programs[PROGRAM_MAX_NUM];
-
-	uint8_t csc;
+	struct xmux_program_info_with_csc programs[PROGRAM_MAX_NUM];
 } __attribute__((packed));
 #define PID_TRANS_INFO_SIZE			sizeof(struct pid_trans_info_snmp_data)
 

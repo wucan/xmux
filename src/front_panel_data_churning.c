@@ -110,9 +110,6 @@ void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
 		prog->status = PROGRAM_SELECTED(pid_trans_info->status, prog_idx) ? 1: 0;
 		memcpy(&prog->info, xmux_prog, sizeof(struct xmux_program_info));
 	}
-
-	trace_info("channel #%d original pid_trans_info csc = %#x",
-		chan_idx, pid_trans_info->csc);
 }
 
 void pid_trans_info_2_prog_info()
@@ -139,9 +136,7 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 	pid_trans_info->update_flag_and_chan_num = chan_idx;
 	pid_trans_info->nprogs = g_chan_num.num[chan_idx];
 	if (pid_trans_info->nprogs == 0) {
-		pid_trans_info->csc = wu_csc(pid_trans_info, sizeof(*pid_trans_info) - 1);
-		trace_info("channel #%d no program! generated pid_trans_info csc = %#x",
-			chan_idx, pid_trans_info->csc);
+		trace_info("channel #%d no program!", chan_idx);
 		return;
 	}
 
@@ -156,11 +151,9 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 		}
 
 		memcpy(xmux_prog, &prog->info, sizeof(struct xmux_program_info));
+		pid_trans_info->programs[prog_idx].csc = wu_csc(
+			&pid_trans_info->programs[prog_idx], sizeof(struct xmux_program_info_with_csc) - 1);
 	}
-	pid_trans_info->csc = wu_csc(pid_trans_info, sizeof(*pid_trans_info) - 1);
-
-	trace_info("channel #%d generated pid_trans_info csc = %#x",
-		chan_idx, pid_trans_info->csc);
 }
 
 void prog_info_2_pid_trans_info()

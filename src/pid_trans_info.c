@@ -39,8 +39,6 @@ void pid_trans_info_read_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 static void fix_data(uint8_t chan_idx)
 {
 	sg_mib_pid_trans_info[chan_idx].data_len = sizeof(sg_mib_pid_trans_info[0]) - 2;
-	sg_mib_pid_trans_info[chan_idx].csc = wu_csc(&sg_mib_pid_trans_info[chan_idx],
-		sizeof(sg_mib_pid_trans_info[0]) - 1);
 }
 void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 {
@@ -71,15 +69,19 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 {
 	uint8_t csc;
+	uint8_t prog_idx;
+	struct xmux_program_info_with_csc *prog;
 
 	if (data->data_len != sizeof(*data) - 2) {
 		trace_err("data_len 0, but expect %d!", sizeof(*data) - 2);
 		return false;
 	}
-	csc = wu_csc(data, sizeof(*data) - 1);
-	if (csc != data->csc) {
-		trace_err("csc error!");
-		return false;
+	for (prog_idx = 0; prog_idx < data->nprogs; prog_idx++) {
+		prog = &data->programs[prog_idx];
+		if (prog->csc != wu_csc(prog, sizeof(*prog) - 1)) {
+			trace_err("program #%d csc error!", prog_idx);
+			return false;
+		}
 	}
 
 	return true;
