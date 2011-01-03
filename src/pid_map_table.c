@@ -86,12 +86,14 @@ int pid_map_table_push_pid_pair(struct pid_map_table_gen_context *ctx,
 	return 0;
 }
 
+static uint16_t validate_pid_table[0x1FFFF + 1];
 bool pid_map_table_validate(struct xmux_pid_map_table *pid_map)
 {
 	uint8_t chan_idx, pid_idx;
 	struct pid_map_entry *ent;
 	uint16_t in, out;
 
+	memset(validate_pid_table, 0, sizeof(validate_pid_table));
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		for (pid_idx = 0; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
 			/*
@@ -104,12 +106,16 @@ bool pid_map_table_validate(struct xmux_pid_map_table *pid_map)
 				continue;
 			}
 			/*
-			 * check output_pid which got from pid_map_rule on input_pid
+			 * check pid value invalidate
 			 */
-			if (!pid_map_rule_channel_output_pid_validate(chan_idx, out)) {
-				trace_err("chan #%d pid(%d(%#x) => %d(%#x)), output pid invalidate!",
-					chan_idx, in, in, out, out);
-				trace_err("discard all channel's pid map table!");
+			if (out > 0x1FFF) {
+				trace_err("invalidate output pid %#x!", out);
+				return false;
+			}
+			if (!validate_pid_table[out]) {
+				validate_pid_table[out]++;
+			} else {
+				trace_err("detect dup output pid %#x!", out);
 				return false;
 			}
 		}
