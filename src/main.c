@@ -8,6 +8,7 @@
 #include "wu_snmp_agent.h"
 #include "xmux_snmp.h"
 #include "xmux_net.h"
+#include "xmux_misc.h"
 #include "psi_gen.h"
 #include "pid_map_table.h"
 
@@ -78,5 +79,8 @@ static void restore_work_field()
 	/* download psi and pid map table */
 	pid_map_table_apply(&g_eeprom_param.pid_map_table_area.pid_map_table);
 	psi_apply_from_output_psi();
+	/* set output bitrate and packet length */
+	hfpga_write_sys_output_bitrate(g_eeprom_param.sys.output_bitrate);
+	hfpga_write_sys_packet_length(g_eeprom_param.sys.format);
 }
 
