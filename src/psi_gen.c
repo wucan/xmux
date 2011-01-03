@@ -28,6 +28,7 @@ int psi_gen_output_psi_from_sections()
 	uint8_t sec_idx;
 
 	trace_info("generate psi from sections...");
+	begin_fill_output_psi_data();
 	/*
 	 * PAT
 	 */
@@ -64,6 +65,19 @@ int psi_gen_output_psi_from_sections()
 	}
 
 	/*
+	 * CAT
+	 */
+	if (sg_mib_apply_psi.other_table_flag & (1 << CAT_FLAG_SHIFT)) {
+	cc = 0;
+	sec_len = sg_mib_xxx_len(sg_mib_cat[CHANNEL_MAX_NUM]);
+	ts_len = section_to_ts_length(sec_len);
+	ts_len = section_to_ts(sg_mib_cat[CHANNEL_MAX_NUM] + 2,
+		sec_len, ts_buf, CAT_PID, &cc);
+	fill_output_psi_data(PSI_TYPE_CAT, ts_buf, ts_len);
+	trace_info("cat ts len %d", ts_len);
+	}
+
+	/*
 	 * SDT
 	 */
 	if (sg_mib_apply_psi.other_table_flag & (1 << SDT_FLAG_SHIFT)) {
@@ -89,19 +103,6 @@ int psi_gen_output_psi_from_sections()
 		sec_len, ts_buf, NIT_PID, &cc);
 	fill_output_psi_data(PSI_TYPE_NIT, ts_buf, ts_len);
 	trace_info("nit ts len %d", ts_len);
-	}
-
-	/*
-	 * CAT
-	 */
-	if (sg_mib_apply_psi.other_table_flag & (1 << CAT_FLAG_SHIFT)) {
-	cc = 0;
-	sec_len = sg_mib_xxx_len(sg_mib_cat[CHANNEL_MAX_NUM]);
-	ts_len = section_to_ts_length(sec_len);
-	ts_len = section_to_ts(sg_mib_cat[CHANNEL_MAX_NUM] + 2,
-		sec_len, ts_buf, CAT_PID, &cc);
-	fill_output_psi_data(PSI_TYPE_CAT, ts_buf, ts_len);
-	trace_info("cat ts len %d", ts_len);
 	}
 
 	/*
@@ -382,17 +383,18 @@ int psi_gen_and_apply_from_fp()
 	trace_info("stop gen si");
 	dvbSI_GenSS(HFPGA_CMD_SI_STOP);
 
+	begin_fill_output_psi_data();
 	fpga_set_write_hook(write_hook_psi);
 	psi_type = PSI_TYPE_PAT;
 	gen_pat_from_fp(packpara, g_prog_info_table);
 	psi_type = PSI_TYPE_PMT;
 	gen_pmt_from_fp(packpara, g_prog_info_table);
+	psi_type = PSI_TYPE_CAT;
+	gen_cat_from_fp();
 	psi_type = PSI_TYPE_SDT;
 	gen_sdt_from_fp(packpara, g_prog_info_table);
 	psi_type = PSI_TYPE_NIT;
 	gen_nit_from_fp();
-	psi_type = PSI_TYPE_CAT;
-	gen_cat_from_fp();
 	fpga_set_write_hook(NULL);
 
 	trace_info("start gen si");
