@@ -179,7 +179,11 @@ int hfpga_write_sys_output_bitrate(uint32_t bitrate)
 	ACCESS_HFPGA_REGS hregs;
 	int rc;
 	int hdev;
+	uint32_t bitrate_reg_value;
 
+	bitrate_reg_value = (((uint64_t)bitrate) << 32) / (8 * 54000);
+	trace_info("output bitrate %d, reg value %#x",
+		bitrate, bitrate_reg_value);
 	hdev = open(UV_HFPGA_DEV_PATH, O_RDWR);
 	if (-1 == hdev) {
 		trace_err("failed to open HFPGA dev, path %s!", UV_HFPGA_DEV_PATH);
@@ -187,7 +191,7 @@ int hfpga_write_sys_output_bitrate(uint32_t bitrate)
 	}
 
 	hregs.reg = HFPGA_REG_ADDR_SYS_RATE_MSB;
-	hregs.data = bitrate >> 16;
+	hregs.data = bitrate_reg_value >> 16;
 	rc = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_REGS, &hregs);
 	if (rc < 0) {
 		trace_err("write SYS_RATE_MSB reg failed! rc %d!", rc);
@@ -195,7 +199,7 @@ int hfpga_write_sys_output_bitrate(uint32_t bitrate)
 		return -1;
 	}
 	hregs.reg = HFPGA_REG_ADDR_SYS_RATE_LSB;
-	hregs.data = bitrate & 0xFFFF;
+	hregs.data = bitrate_reg_value & 0xFFFF;
 	rc = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_REGS, &hregs);
 	if (rc < 0) {
 		trace_err("write SYS_RATE_LSB reg failed! rc %d!", rc);
