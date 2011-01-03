@@ -173,6 +173,9 @@ static void _apply_pid_map_table_and_psi()
 	int chan_idx, prog_idx;
 	int j;
 
+	/* clear mux program info */
+	memset(&g_eeprom_param.mux_prog_info, 0, sizeof(struct xmux_mux_program_info));
+
 	pid_map_table_gen_start(&pid_map_gen_ctx);
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		if (!g_chan_num.num[chan_idx])
@@ -180,6 +183,7 @@ static void _apply_pid_map_table_and_psi()
 		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
 			PROG_INFO_T *prog_info = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 			if (prog_info->status == 1) {
+				/* fill pid map table */
 				if (pid_map_table_push_pid_pair(&pid_map_gen_ctx, chan_idx,
 					prog_info->info.pmt.in, prog_info->info.pmt.out)) {
 					goto pid_map_gen_done;
@@ -200,6 +204,10 @@ static void _apply_pid_map_table_and_psi()
 						}
 					}
 				}
+				/* fill mux program info */
+				g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].chan_idx = chan_idx;
+				g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].prog_idx = prog_idx;
+				g_eeprom_param.mux_prog_info.nprogs++;
 			}
 		}
 	}
@@ -223,8 +231,9 @@ pid_map_gen_done:
 	g_param_mng_info.eeprom_pid_trans_info_version++;
 
 	/*
-	 * TODO: generate default output mux program info
+	 * save mux program info
 	 */
+	xmux_config_save_mux_program_info(&g_eeprom_param.mux_prog_info);
 }
 static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
