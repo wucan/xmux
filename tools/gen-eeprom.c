@@ -15,6 +15,7 @@ static void build_pid_trans_info()
 {
 	struct pid_trans_info_snmp_data *d;
 	struct xmux_program_info *prog;
+	struct xmux_program_info_with_csc *prog_csc;
 	uint8_t chan_idx, prog_idx, pid_idx;
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
@@ -27,24 +28,25 @@ static void build_pid_trans_info()
 		for (prog_idx = 0; prog_idx < d->nprogs; prog_idx++) {
 			uint16_t pids[3];
 			prog = &d->programs[prog_idx];
+			prog_csc = &d->programs[prog_idx];
 			prog->prog_num = 100 + prog_idx;
 			prog->pmt.in = 64 + 10 * prog_idx + 0;
 			prog->pmt.out = pid_map_rule_map_psi_pid(chan_idx,
 				0, DSW_PID_PMT, prog->pmt.in, NULL, 0);
 			prog->pcr.in = 64 + 10 * prog_idx + 1;
-			prog->data[0].in = PACK_VIDEO_DATA_PID(64 + 10 * prog_idx + 2);
-			prog->data[1].in = PACK_AUDIO_DATA_PID(64 + 10 * prog_idx + 3);
+			prog->data[0].in = (64 + 10 * prog_idx + 2);
+			prog->data[1].in = (64 + 10 * prog_idx + 3);
 
 			pids[0] = prog->pcr.in;
-			pids[1] = DATA_PID_VALUE(prog->data[0].in);
-			pids[2] = DATA_PID_VALUE(prog->data[1].in);
+			pids[1] = (prog->data[0].in);
+			pids[2] = (prog->data[1].in);
 
 			prog->pcr.out = pid_map_rule_map_psi_pid(chan_idx,
 				prog_idx, DSW_PID_PCR, prog->pcr.in, pids, 3);
 			prog->data[0].out = pid_map_rule_map_psi_pid(chan_idx,
-				prog_idx, DSW_PID_VIDEO, DATA_PID_VALUE(prog->data[0].in), pids, 3);
+				prog_idx, DSW_PID_VIDEO, (prog->data[0].in), pids, 3);
 			prog->data[1].out = pid_map_rule_map_psi_pid(chan_idx,
-				prog_idx, DSW_PID_VIDEO, DATA_PID_VALUE(prog->data[1].in), pids, 3);
+				prog_idx, DSW_PID_VIDEO, (prog->data[1].in), pids, 3);
 
 			for (pid_idx = 2; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
 				prog->data[pid_idx].in = DATA_PID_PAD_VALUE;
@@ -52,8 +54,8 @@ static void build_pid_trans_info()
 			}
 			prog->prog_name[0][0] = sprintf(&prog->prog_name[0][1],
 				"CCTV%d", prog_idx);
+			prog_csc->csc = wu_csc((uint8_t *)prog_csc, sizeof(*prog_csc) - 1);
 		}
-		d->csc = wu_csc((uint8_t *)d, sizeof(*d) - 1);
 	}
 }
 static void build_pid_map_table()
