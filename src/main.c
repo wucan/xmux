@@ -38,6 +38,8 @@ int main(int argc, char **argv)
 		management_mode_str(management_mode));
 	if (management_mode == MANAGEMENT_MODE_SNMP) {
 		leave_fp_management_mode();
+	} else {
+		enter_fp_management_mode();
 	}
 
 	/*
