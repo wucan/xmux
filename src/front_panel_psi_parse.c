@@ -150,7 +150,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 
 	trace_info("decode PMT ...");
 	for (i = 0; i < pid_num; i++) {
-		if (pid_data[i].i_pid != NIT_PID) {
+		if (pid_data[i].i_pg_num != 0x00) {
 			prog_info = chan_prog_info + prog_cnt;
 			prog_cnt++;
 			prog_info->info.pmt.in = pid_data[i].i_pid;
