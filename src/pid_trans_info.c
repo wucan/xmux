@@ -16,15 +16,16 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "pid_trans_info"};
 
 struct pid_trans_info_snmp_data sg_mib_pid_trans_info[CHANNEL_MAX_NUM];
 
-#define NODE_MAX_SIZE			1422
+#define NODE_NUM				4
+#define NODE_MAX_SIZE			1194
 struct access_data {
-	uint8_t node[3][NODE_MAX_SIZE];
+	uint8_t node[NODE_NUM][NODE_MAX_SIZE];
 };
 
 void pid_trans_info_read_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = trans_idx / 3;
-	int idx = trans_idx % 3;
+	uint8_t chan_idx = trans_idx / NODE_NUM;
+	int idx = trans_idx % NODE_NUM;
 	uint16_t mib_data_len = sg_mib_pid_trans_info[chan_idx].data_len + 2;
 	struct access_data *d = (struct access_data *)&sg_mib_pid_trans_info[chan_idx];
 
@@ -42,8 +43,8 @@ static void fix_data(uint8_t chan_idx)
 }
 void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 {
-	uint8_t chan_idx = trans_idx / 3;
-	int idx = trans_idx % 3;
+	uint8_t chan_idx = trans_idx / NODE_NUM;
+	int idx = trans_idx % NODE_NUM;
 	struct access_data *d = (struct access_data *)&sg_mib_pid_trans_info[chan_idx];
 
 	if (idx == 0) {
