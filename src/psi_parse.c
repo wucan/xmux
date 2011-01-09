@@ -119,12 +119,11 @@ static int parse_pmt()
 	uint8_t chan_idx = sg_si_param.cha;
 	uint32_t pmt_state = 0;
 
-	/* skip NIT */
-	if (pid_data[0].i_pid == 0x10)
-		cnt = 1;
-	else
-		cnt = 0;
-	for (i = cnt; i < pid_num; i++) {
+	for (i = 0; i < pid_num; i++) {
+		/* skip NIT */
+		if (pid_data[i].i_pg_num == 0x00) {
+			continue;
+		}
 		pmt.i_pg_num = pid_data[i].i_pg_num;
 		pmt.i_pmt_pid = pid_data[i].i_pid;
 		sg_si_param.cur_cnt = 0;
@@ -143,9 +142,10 @@ static int parse_pmt()
 		printf("[uvSI] pmt pid %#x, got section, len %d\n",
 			pmt.i_pmt_pid, len);
 		if (len > 0) {
-			memcpy(sg_mib_pmt[sg_si_param.cha][i - cnt], sg_mib_curpmt, len + 2);
-			pmt_state |= 1 << (i - cnt);
+			memcpy(sg_mib_pmt[sg_si_param.cha][cnt], sg_mib_curpmt, len + 2);
+			pmt_state |= 1 << cnt;
 		}
+		cnt++;
 	}
 	memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state, 4);
 
