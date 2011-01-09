@@ -179,7 +179,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			prog_info->info.pcr.out =
 				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
 					DSW_PID_PCR, pmt.i_pcr_pid, pids, nr_pids);
-			trace_info("PCR %#x, %s descrs",
+			trace_info("PCR %#x, %d descrs",
 					pmt.i_pcr_pid, pmt.i_descr_num);
 
 			for (j = 0; j < pmt.i_descr_num; j++) {
