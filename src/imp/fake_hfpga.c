@@ -52,13 +52,14 @@ int fake_hfpga_readn(unsigned char *p_buf, unsigned int len,
 	int rc;
 	unsigned short pid;
 	int rewind_cnt = 0;
+	uint8_t buf[188 * 2];
 
 	if (nbgn) {
 		filter_pid = param->pid;
-		trace_info("readn(), begin filter pid %d", filter_pid);
+		trace_info("readn(), begin filter pid %d(%#x)", filter_pid, filter_pid);
 	}
 read_again:
-	rc = read(ts_fd, p_buf, len);
+	rc = read(ts_fd, buf, len);
 	if (rc != len) {
 		lseek(ts_fd, 0, SEEK_SET);
 		rewind_cnt++;
@@ -66,16 +67,31 @@ read_again:
 			trace_err("file rewind exceed for filter pid %d", filter_pid);
 			return 0;
 		}
-		rc = read(ts_fd, p_buf, len);
+		rc = read(ts_fd, buf, len);
 		if (rc != len) {
 			return 0;
 		}
 	}
+	// sync stream
+	int i;
+	for (i = 0; i < len; i++) {
+		if (buf[i] == 0x47) {
+			break;
+		}
+	}
+	if (i > 0) {
+		//trace_err("lost synced! skip %d bytes\n", i);
+		read(ts_fd, buf + len, i);
+		memcpy(p_buf, buf + i, 188);
+	} else {
+		memcpy(p_buf, buf, 188);
+	}
+
 	pid = GET_PID(p_buf);
 	if (pid_table[pid] == 0) {
 		trace_info("pid %d seen", pid);
-		pid_table[pid]++;
 	}
+	pid_table[pid]++;
 	if (pid != filter_pid) {
 		goto read_again;
 	}
