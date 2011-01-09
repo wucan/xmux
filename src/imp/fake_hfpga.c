@@ -53,6 +53,7 @@ int fake_hfpga_readn(unsigned char *p_buf, unsigned int len,
 	unsigned short pid;
 	int rewind_cnt = 0;
 	uint8_t buf[188 * 2];
+	int i;
 
 	if (nbgn) {
 		filter_pid = param->pid;
@@ -73,7 +74,6 @@ read_again:
 		}
 	}
 	// sync stream
-	int i;
 	for (i = 0; i < len; i++) {
 		if (buf[i] == 0x47) {
 			break;
