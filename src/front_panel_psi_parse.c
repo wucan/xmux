@@ -141,10 +141,10 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 		trace_err("pat parse failed! rc %d\n", rc);
 		goto channel_analyse_done;
 	}
-	trace_info("PAT decode done, TS id %02x, pmt pid num %d",
+	trace_info("PAT decode done, TS id %#x, pmt pid num %d",
 		pat.i_tran_stream_id, pid_num);
 	for (i = 0; i < pid_num; i++) {
-		trace_info("  program #%d: program number %02x, PMT %02x",
+		trace_info("  program #%d: program number %#x, PMT %#x",
 			i, pid_data[i].i_pg_num, pid_data[i].i_pid);
 	}
 
