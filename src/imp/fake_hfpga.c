@@ -48,11 +48,13 @@ void fake_hfpga_close(int hdev)
 int fake_hfpga_readn(unsigned char *p_buf, unsigned int len,
 		void *p_param, int nbgn)
 {
+#define PLEN		188
 	uv_io_param *param = (uv_io_param *)p_param;
 	int rc;
 	unsigned short pid;
 	int rewind_cnt = 0;
-	uint8_t buf[188 * 2];
+	uint8_t buf[PLEN * 2];
+	uint8_t next_buf[PLEN];
 	int i;
 
 	if (nbgn) {
@@ -74,17 +76,36 @@ read_again:
 		}
 	}
 	// sync stream
+sync_again:
 	for (i = 0; i < len; i++) {
 		if (buf[i] == 0x47) {
 			break;
 		}
 	}
 	if (i > 0) {
-		//trace_err("lost synced! skip %d bytes\n", i);
+		//trace_err("lost synced! skip %d bytes", i);
 		read(ts_fd, buf + len, i);
-		memcpy(p_buf, buf + i, 188);
+		memcpy(buf, buf + i, PLEN);
+		goto sync_again;
+	}
+	memcpy(p_buf, buf, PLEN);
+
+	//trace_err("seems sync at fpos %#x", lseek(ts_fd, 0, SEEK_CUR) - PLEN);
+	/*
+	 * ensure really synced
+	 */
+	i = read(ts_fd, next_buf, PLEN);
+	if (i == PLEN) {
+		lseek(ts_fd, -PLEN, SEEK_CUR);
+		if (next_buf[0] != 0x47) {
+			//trace_err("next not sync at fpos %#x", lseek(ts_fd, 0, SEEK_CUR));
+			memcpy(buf, p_buf, PLEN);
+			buf[0] = 0x00;
+			goto sync_again;
+		}
+		//trace_err("next sync at fpos %#x", lseek(ts_fd, 0, SEEK_CUR));
 	} else {
-		memcpy(p_buf, buf, 188);
+		goto read_again;
 	}
 
 	pid = GET_PID(p_buf);
