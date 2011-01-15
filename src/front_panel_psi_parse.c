@@ -237,6 +237,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 				/* set default output program name same with original */
 				memcpy(prog_info->info.prog_name[1],
 					prog_info->info.prog_name[0], PROGRAM_NAME_SIZE);
+				break;
 			}
 		}
 		if (i == prog_cnt) {
