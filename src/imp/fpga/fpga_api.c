@@ -150,7 +150,12 @@ static int _hfpga_readn(unsigned char *p_buf, unsigned int len, void *p_param,in
 	if(0 > retval)
 	{
 		dbg_prt("[HFPGA-API] dvb_io_dev.hdev %02x  errno %02x \n", dvb_io_dev.hdev, errno);
-		goto ERR_RETURN;
+		dbg_prt("[HFPGA-API] timeout!? retry...\n");
+		retval = ioctl(dvb_io_dev.hdev, UV_HFPGA_IOCTL_CMD_READ_STR_DATA, &str_data);
+		if (retval < 0) {
+			dbg_prt("[HFPGA-API] rety failed with errno %#x!\n", errno);
+			goto ERR_RETURN;
+		}
 	}
 
 SUCCESS_RETURN:
