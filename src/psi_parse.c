@@ -94,16 +94,16 @@ static int parse_pat()
 	rc = dvbSI_Dec_PAT(&pat, pid_data, &pid_num);
 	psi_parse_timer_stop();
 	if (rc) {
-		printf("pat parse failed! rc %d\n", rc);
+		trace_err("pat parse failed! rc %d", rc);
 		return -1;
 	}
 	memcpy(&len, sg_mib_pat[sg_si_param.cha], 2);
-	printf("[uvSI] channel %d got pat section, len %d\n",
+	trace_info("channel %d got pat section, len %d",
 		sg_si_param.cha + 1, len);
-	printf("[uvSI] TS id %#x, %d programs\n",
+	trace_info("TS id %#x, %d programs",
 		pat.i_tran_stream_id, pid_num);
 	for (i = 0; i < pid_num; i++) {
-		printf("program number %#x, PMT pid %#x\n",
+		trace_info("program number %#x, PMT pid %#x",
 			pid_data[i].i_pg_num, pid_data[i].i_pid);
 	}
 
@@ -134,12 +134,12 @@ static int parse_pmt()
 		rc = dvbSI_Dec_PMT(&pmt, es, &es_num);
 		psi_parse_timer_stop();
 		if (rc) {
-			printf("pmt parse failed! rc %d\n", rc);
+			trace_err("pmt parse failed! rc %d", rc);
 			memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state, 4);
 			return -1;
 		}
 		memcpy(&len, sg_mib_curpmt, 2);
-		printf("[uvSI] pmt pid %#x, got section, len %d\n",
+		trace_info("pmt pid %#x, got section, len %d",
 			pmt.i_pmt_pid, len);
 		if (len > 0) {
 			memcpy(sg_mib_pmt[sg_si_param.cha][cnt], sg_mib_curpmt, len + 2);
@@ -165,7 +165,7 @@ static int parse_cat()
 	rc = dvbSI_Dec_CAT(cat_descr, &cat_descr_num);
 	psi_parse_timer_stop();
 	if (rc) {
-		printf("cat parse failed! rc %d\n", rc);
+		trace_err("cat parse failed! rc %d", rc);
 		return -1;
 	}
 
@@ -187,14 +187,14 @@ static int parse_sdt()
 	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
 	psi_parse_timer_stop();
 	if (rc) {
-		printf("sdt parse failed! rc %d\n", rc);
+		trace_err("sdt parse failed! rc %d", rc);
 		return -1;
 	}
 	for (i = 0; i < 5; i++) {
 		memcpy(&len, sg_mib_sdt[sg_si_param.cha][i], 2);
-		printf("[uvSI] got sdt section #%d, len %d\n", i, len);
+		trace_info("got sdt section #%d, len %d", i, len);
 	}
-	printf("[uvSI] there are total %d services\n", serv_num);
+	trace_info("there are total %d services", serv_num);
 
 	return 0;
 }
@@ -212,11 +212,11 @@ static int parse_nit()
 	rc = dvbSI_Dec_NIT(&nit, stream, &stream_num);
 	psi_parse_timer_stop();
 	if (rc) {
-		printf("nit parse failed! rc %d\n", rc);
+		trace_err("nit parse failed! rc %d", rc);
 		return -1;
 	}
 	memcpy(&len, sg_mib_nit[sg_si_param.cha], 2);
-	printf("[uvSI] got nit section, len %d\n", len);
+	trace_info("got nit section, len %d", len);
 
 	return 0;
 }
@@ -233,39 +233,39 @@ int uvSI_psi_parse()
 		if (request_stop_parse)
 			break;
 		if (hfpga_get_ts_status(k, &ts_status) <= 0) {
-			printf("[uvSI] channel %d had no ts!\n", k + 1);
+			trace_warn("channel %d had no ts!", k + 1);
 			sg_si_param.cur_stat->ch_s |= 0x01 << k;
 			continue;
 		}
 
-		printf("[uvSI] channel %d start parse psi ...\n", k + 1);
+		trace_info("channel %d start parse psi ...", k + 1);
 		sg_si_param.cha = k;
 		for (i = 0; i < UV_MAX_SI_SECTION_CNT; i++)
 			sg_si_param.sec_len[i] = 0;
 		hfpga_dev.cha = sg_si_param.cha;
 		dvbSI_Start(&hfpga_dev);
 
-		printf("[uvSI] decode PAT ...\n");
+		trace_info("decode PAT ...");
 		rc = parse_pat();
 		if (rc)
 			goto channel_analyse_done;
 
-		printf("[uvSI] decode PMT ...\n");
+		trace_info("decode PMT ...");
 		rc = parse_pmt();
 		if (rc)
 			goto channel_analyse_done;
 
-		printf("[uvSI] decode CAT ...\n");
+		trace_info("decode CAT ...");
 		rc = parse_cat();
 		if (rc)
 			goto channel_analyse_done;
 
-		printf("[uvSI] decode SDT ...\n");
+		trace_info("decode SDT ...");
 		rc = parse_sdt();
 		if (rc)
 			goto channel_analyse_done;
 
-		printf("[uvSI] decode NIT ...\n");
+		trace_info("decode NIT ...");
 		rc = parse_nit();
 		if (rc)
 			goto channel_analyse_done;
@@ -275,7 +275,7 @@ channel_analyse_done:
 
 		dvbSI_Stop();
 
-		printf("[uvSI] channel %d psi parse finished.", sg_si_param.cha + 1);
+		trace_info("channel %d psi parse finished.", sg_si_param.cha + 1);
 	}
 
 	for (; k < CHANNEL_MAX_NUM; k++) {
