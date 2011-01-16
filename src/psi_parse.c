@@ -124,6 +124,12 @@ static int parse_pmt()
 		if (pid_data[i].i_pg_num == 0x00) {
 			continue;
 		}
+
+		/*
+		 * reset section length field, in case no section got
+		 */
+		memset(sg_mib_curpmt, 0, 2);
+
 		pmt.i_pg_num = pid_data[i].i_pg_num;
 		pmt.i_pmt_pid = pid_data[i].i_pid;
 		sg_si_param.cur_cnt = 0;
