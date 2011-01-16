@@ -79,6 +79,27 @@ static uv_nit_data nit;
 static uv_nit_stream_data stream[PROGRAM_MAX_NUM];
 static uint16_t stream_num;
 
+static void clear_channel_section_data(uint8_t chan_id)
+{
+	int i;
+
+	memset(sg_mib_pat[chan_id], 0, 2);
+	for (i = 0; i < 5; i++)
+		memset(sg_mib_sdt[chan_id][i], 0, 2);
+	memset(sg_mib_cat[chan_id], 0, 2);
+	memset(sg_mib_nit[chan_id], 0, 2);
+	for (i = 0; i < PROGRAM_MAX_NUM; i++)
+		memset(sg_mib_pmt[chan_id][i], 0, 2);
+	memset(sg_mib_eit[chan_id], 0, 2);
+}
+static void clear_section_data()
+{
+	uint8_t chan_id;
+
+	memset(&All_Channel_Psi_Status, 0, sizeof(All_Channel_Psi_Status));
+	for (chan_id = 0; chan_id < CHANNEL_MAX_NUM; chan_id++)
+		clear_channel_section_data(chan_id);
+}
 static int parse_pat()
 {
 	int i, rc;
@@ -233,7 +254,7 @@ int uvSI_psi_parse()
 	int rc;
 	uint16_t ts_status;
 
-	memset(&All_Channel_Psi_Status, 0, sizeof(All_Channel_Psi_Status));
+	clear_section_data();
 	sg_si_param.cur_stat = &All_Channel_Psi_Status;
 	for (k = 0; k < CHANNEL_MAX_NUM; k++) {
 		if (request_stop_parse)
