@@ -32,7 +32,7 @@ void uvSI_psi_parse_stop();
  * psi parse timeout api
  */
 int psi_parse_timer_is_timeouted();
-void psi_parse_timer_start();
+void psi_parse_timer_start(int timeout_sec);
 void psi_parse_timer_stop();
 
 

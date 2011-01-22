@@ -135,7 +135,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 
 	trace_info("decode PAT ...");
 	sg_si_param.tbl_type = EUV_TBL_PAT;
-	psi_parse_timer_start();
+	psi_parse_timer_start(5);
 	rc = dvbSI_Dec_PAT(&pat, pid_data, &pid_num);
 	psi_parse_timer_stop();
 	if (rc) {
@@ -165,7 +165,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			trace_info("decode PMT %#x ...", pid_data[i].i_pid);
 			pmt.i_pg_num = pid_data[i].i_pg_num;
 			pmt.i_pmt_pid = pid_data[i].i_pid;
-			psi_parse_timer_start();
+			psi_parse_timer_start(5);
 			rc = dvbSI_Dec_PMT(&pmt, es, &es_num);
 			psi_parse_timer_stop();
 			if (rc) {
@@ -223,7 +223,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 
 	trace_info("decode SDT ...");
 	sg_si_param.tbl_type = EUV_TBL_SDT;
-	psi_parse_timer_start();
+	psi_parse_timer_start(20);
 	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
 	psi_parse_timer_stop();
 	if (rc) {

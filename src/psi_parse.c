@@ -29,7 +29,6 @@ uint8_t sg_mib_eit[CHANNEL_MAX_NUM + 1][EIT_SECTION_NUM][SECTION_MAX_SIZE];
 /*
  * psi parse timeout manangement
  */
-static int psi_parse_timeout_sec = 20;
 static int psi_parse_timeouted;
 static bool request_stop_parse;
 int psi_parse_timer_is_timeouted()
@@ -42,12 +41,12 @@ static void sig_alarm(int signo)
 {
 	psi_parse_timeouted = 1;
 }
-void psi_parse_timer_start()
+void psi_parse_timer_start(int timeout_sec)
 {
 	uvPSI_SetTimeoutFunc(psi_parse_timer_is_timeouted);
 	signal(SIGALRM, sig_alarm);
 	psi_parse_timeouted = 0;
-	alarm(psi_parse_timeout_sec);
+	alarm(timeout_sec);
 }
 void psi_parse_timer_stop()
 {
@@ -111,7 +110,7 @@ static int parse_pat()
 	sg_si_param.type = EUV_BOTH;
 	sg_si_param.tbl_type = EUV_TBL_PAT;
 	sg_si_param.sec[0] = sg_mib_pat[sg_si_param.cha];
-	psi_parse_timer_start();
+	psi_parse_timer_start(5);
 	rc = dvbSI_Dec_PAT(&pat, pid_data, &pid_num);
 	psi_parse_timer_stop();
 	if (rc) {
@@ -157,13 +156,13 @@ static int parse_pmt()
 		sg_si_param.type = EUV_SECTION;
 		sg_si_param.tbl_type = EUV_TBL_PMT;
 		sg_si_param.sec[0] = sg_mib_curpmt;
-		psi_parse_timer_start();
+		psi_parse_timer_start(5);
 		rc = dvbSI_Dec_PMT(&pmt, es, &es_num);
 		psi_parse_timer_stop();
 		if (rc) {
 			trace_err("pmt parse failed! rc %d", rc);
 			memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state, 4);
-			return -1;
+			continue;
 		}
 		memcpy(&len, sg_mib_curpmt, 2);
 		trace_info("pmt pid %#x, got section, len %d",
@@ -188,7 +187,7 @@ static int parse_cat()
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_CAT;
 	sg_si_param.sec[0] = sg_mib_cat[sg_si_param.cha];
-	psi_parse_timer_start();
+	psi_parse_timer_start(5);
 	rc = dvbSI_Dec_CAT(cat_descr, &cat_descr_num);
 	psi_parse_timer_stop();
 	if (rc) {
@@ -210,7 +209,7 @@ static int parse_sdt()
 	sg_si_param.tbl_type = EUV_TBL_SDT;
 	for (i = 0; i < 5; i++)
 		sg_si_param.sec[i] = sg_mib_sdt[sg_si_param.cha][i];
-	psi_parse_timer_start();
+	psi_parse_timer_start(20);
 	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
 	psi_parse_timer_stop();
 	if (rc) {
@@ -235,7 +234,7 @@ static int parse_nit()
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_NIT;
 	sg_si_param.sec[0] = sg_mib_nit[sg_si_param.cha];
-	psi_parse_timer_start();
+	psi_parse_timer_start(20);
 	rc = dvbSI_Dec_NIT(&nit, stream, &stream_num);
 	psi_parse_timer_stop();
 	if (rc) {
@@ -284,8 +283,6 @@ int uvSI_psi_parse()
 
 		trace_info("decode CAT ...");
 		rc = parse_cat();
-		if (rc)
-			goto channel_analyse_done;
 
 		trace_info("decode SDT ...");
 		rc = parse_sdt();
