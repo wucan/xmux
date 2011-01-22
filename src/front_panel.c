@@ -7,6 +7,7 @@
 #include "xmux.h"
 #include "xmux_config.h"
 #include "front_panel.h"
+#include "front_panel_define.h"
 #include "front_panel_intstr.h"
 #include "front_panel_data_churning.h"
 
@@ -67,32 +68,33 @@ static int fp_thread(void *data)
 		if (rc <= 0) {
 			continue;
 		} else if (FD_ISSET(fd, &rset)) {
-			int i;
 			int nlen = 0;
-			int nwantlen = FP_RECV_MSG_MAX_SIZE;
-			uint16_t cmd_len;
-			memset(recv_buf, 0x00, sizeof(recv_buf));
+			struct fp_cmd_header hdr;
 
-			for (i = 0; i < 20; i++) {
-				int ntmp = read(fd, &recv_buf[nlen], nwantlen);
-				if (ntmp > 0) {
-					nlen += ntmp;
-					if (nlen >= sizeof(struct fp_cmd_header)) {
-						struct fp_cmd_header cmd_header;
-						buf_2_fp_cmd_header(&cmd_header, recv_buf);
-						cmd_len = cmd_header.len + sizeof(struct fp_cmd_header) + FP_MSG_CRC_SIZE;
-						if (cmd_len > FP_RECV_MSG_MAX_SIZE)
-							break;
-						if (nlen >= cmd_len) {
-							parse_mcu_cmd(fd, recv_buf);
-							break;
-						} else
-							nwantlen = cmd_len - nlen;
-					}
-				}
-				usleep(5000);
+			// read header
+			nlen = read(fd, recv_buf, sizeof(hdr));
+			if (nlen != sizeof(hdr)) {
+				continue;
 			}
-			sleep(1);
+			if (recv_buf[0] != defMcuSyncFlag) {
+				trace_err("invalid sync byte %#x! flush buffer!", recv_buf[0]);
+				hex_dump("invalid header", recv_buf, sizeof(hdr));
+				nlen = read(fd, recv_buf, FP_RECV_MSG_MAX_SIZE);
+				trace_err("discard %d len data!", nlen);
+				if (nlen > 0)
+					hex_dump("flush buffer", recv_buf, MIN(nlen, 16));
+				continue;
+			}
+			buf_2_fp_cmd_header(&hdr, recv_buf);
+			if (hdr.len + sizeof(hdr) + FP_MSG_CRC_SIZE > FP_RECV_MSG_MAX_SIZE) {
+				continue;
+			}
+			// read body and crc
+			nlen = read(fd, recv_buf + sizeof(hdr), hdr.len + FP_MSG_CRC_SIZE);
+			if (nlen == hdr.len + FP_MSG_CRC_SIZE) {
+				// ok, parse the msg
+				parse_mcu_cmd(fd, recv_buf);
+			}
 		}
 	}
 	trace_info("front panel thread quited");
