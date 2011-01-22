@@ -295,8 +295,6 @@ int uvSI_psi_parse()
 
 		trace_info("decode SDT ...");
 		rc = parse_sdt();
-		if (rc)
-			goto channel_analyse_done;
 
 		trace_info("decode NIT ...");
 		rc = parse_nit();
