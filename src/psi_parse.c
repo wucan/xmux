@@ -26,6 +26,8 @@ uint8_t sg_mib_nit[CHANNEL_MAX_NUM + 1][SECTION_MAX_SIZE];
 uint8_t sg_mib_sdt[CHANNEL_MAX_NUM + 1][SDT_SECTION_NUM][SECTION_MAX_SIZE];
 uint8_t sg_mib_eit[CHANNEL_MAX_NUM + 1][EIT_SECTION_NUM][SECTION_MAX_SIZE];
 
+static bool had_nit = false;
+
 /*
  * psi parse timeout manangement
  */
@@ -139,9 +141,11 @@ static int parse_pmt()
 	uint8_t chan_idx = sg_si_param.cha;
 	uint32_t pmt_state = 0;
 
+	had_nit = false;
 	for (i = 0; i < pid_num; i++) {
 		/* skip NIT */
 		if (pid_data[i].i_pg_num == 0x00) {
+			had_nit = true;
 			continue;
 		}
 
@@ -229,6 +233,11 @@ static int parse_nit()
 {
 	unsigned short len;
 	int rc;
+
+	if (!had_nit) {
+		trace_info("no nit in this channel!");
+		return 0;
+	}
 
 	sg_si_param.cur_cnt = 0;
 	sg_si_param.type = EUV_SECTION;
