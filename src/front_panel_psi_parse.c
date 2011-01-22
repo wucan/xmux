@@ -134,6 +134,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	dvbSI_Start(&hfpga_dev);
 
 	trace_info("decode PAT ...");
+	sg_si_param.tbl_type = EUV_TBL_PAT;
 	psi_parse_timer_start();
 	rc = dvbSI_Dec_PAT(&pat, pid_data, &pid_num);
 	psi_parse_timer_stop();
@@ -149,6 +150,8 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	}
 
 	trace_info("decode PMT ...");
+	//FIXME: PMT table parse!!!
+	//sg_si_param.tbl_type = EUV_TBL_PMT;
 	for (i = 0; i < pid_num; i++) {
 		if (pid_data[i].i_pg_num != 0x00) {
 			prog_info = chan_prog_info + prog_cnt;
@@ -218,6 +221,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	*p_chan_prog_cnt = prog_cnt;
 
 	trace_info("decode SDT ...");
+	sg_si_param.tbl_type = EUV_TBL_SDT;
 	psi_parse_timer_start();
 	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
 	psi_parse_timer_stop();
@@ -248,12 +252,15 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 
 #if 0
 	trace_info("decode CAT ... ");
+	sg_si_param.tbl_type = EUV_TBL_CAT;
 	dvbSI_Dec_CAT(cat_descr, &cat_descr_num);
 
 	trace_info("decode NIT ... ");
+	sg_si_param.tbl_type = EUV_TBL_NIT;
 	dvbSI_Dec_NIT(&nit, stream, &stream_num);
 
 	trace_info("decode EIT ... ");
+	sg_si_param.tbl_type = EUV_TBL_EIT;
 	dvbSI_Dec_EIT(&eit, event, &event_num);
 #endif
 
@@ -268,6 +275,7 @@ static int parse_channel(uint8_t chan_idx)
 	uint16_t ts_status;
 	uint8_t prog_num = 0;
 
+	sg_si_param.type = EUV_DEFAULT;
 	if (hfpga_get_ts_status(chan_idx, &ts_status) > 0) {
 		do_parse_channel(&(g_prog_info_table[chan_idx * PROGRAM_MAX_NUM]),
 			&prog_num, chan_idx);
