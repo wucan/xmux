@@ -178,6 +178,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			 */
 			nr_pids = scan_program_pids(&pmt, &es, es_num, pids);
 
+			prog_info->info.pcr.type = PID_TYPE_PCR;
 			prog_info->info.pcr.in = pmt.i_pcr_pid;
 			prog_info->info.pcr.out =
 				pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
@@ -319,7 +320,7 @@ static void clear_prog_info_table()
 			prog->pmt.type = PID_TYPE_PMT;
 			prog->pmt.in = DATA_PID_PAD_VALUE;
 			prog->pmt.out = DATA_PID_PAD_VALUE;
-			prog->pmt.type = PID_TYPE_PCR;
+			prog->pcr.type = PID_TYPE_PCR;
 			prog->pcr.in = DATA_PID_PAD_VALUE;
 			prog->pcr.out = DATA_PID_PAD_VALUE;
 			for (pid_idx = 0; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
