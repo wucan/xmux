@@ -120,3 +120,15 @@ void enter_fp_management_mode()
 	xmux_config_save_management_mode();
 }
 
+void xmux_program_info_dump(struct xmux_program_info *prog)
+{
+	int i;
+
+	trace_info("program information(prog_num %#x):", prog->prog_num);
+	trace_info("  pmt(%#x -> %#x), pcr(%#x -> %#x)",
+		prog->pmt.in, prog->pmt.out, prog->pcr.in, prog->pcr.out);
+	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
+		trace_info("  data #%d(%#x -> %#x)", i, prog->data[i].in, prog->data[i].out);
+	}
+}
+
