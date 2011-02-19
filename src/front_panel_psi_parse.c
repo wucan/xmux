@@ -90,10 +90,11 @@ static int scan_program_pids(uv_pmt_data *pmt,
 	 * scan pids
 	 */
 	pids[0] = pmt->i_pcr_pid;
+	nr_pids = 1;
 	for (i = 0; i < es_num; i++) {
 		if (es[i].i_pid == pmt->i_pcr_pid)
 			continue;
-		pids[i + 1] = es[i].i_pid;
+		pids[nr_pids] = es[i].i_pid;
 		nr_pids++;
 	}
 
@@ -204,9 +205,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 								DSW_PID_VIDEO, es[j].i_pid, pids, nr_pids);
 					} else {
 						prog_info->info.data[j].in = es[j].i_pid;
-						prog_info->info.data[j].out =
-							pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
-								DSW_PID_PCR, es[j].i_pid, pids, nr_pids);
+						prog_info->info.data[j].out = prog_info->info.pcr.out;
 					}
 				}
 
