@@ -20,9 +20,13 @@ int prog_pid_val_isvalid(uint16_t prog_pid)
 ////////////////////
 int pids_isvalid_in_program(PROG_INFO_T * pProg)
 {
-	int i;
+	int i, j;
+	struct pid_trans_entry *pids = &pProg->info.pmt;
 
 	trace_info("check program output pids valid ...");
+	/*
+	 * check all output pid validate
+	 */
 	if (!prog_pid_val_isvalid(pProg->info.pmt.out)
 		|| !prog_pid_val_isvalid(pProg->info.pcr.out)) {
 		trace_warn("PMT/PCR invalid!");
@@ -38,38 +42,23 @@ int pids_isvalid_in_program(PROG_INFO_T * pProg)
 		}
 	}
 
-	if (pProg->info.pmt.out == pProg->info.pcr.out) {
-		trace_warn("PMT == PCR!");
-		return enm_prog_pid_pmt_pcr;
-	}
-
-	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		if (pProg->info.data[i].in == pProg->info.pcr.in)
-			pProg->info.data[i].out = pProg->info.pcr.out;
-	}
-
-	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		int j;
-		for (j = i + 1; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-			if (prog_pid_val_isvalid(pProg->info.data[j].out)) {
-				if (pProg->info.data[i].out == pProg->info.data[j].out) {
-					trace_warn("data pid %d repeated!", pProg->info.data[j].out);
+	/*
+	 * we only ensure the output pids had same inter-pid relation
+	 * with the input pids
+	 */
+	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM + 2; i++) {
+		for (j = i + 1; j < PROGRAM_DATA_PID_MAX_NUM + 2; j++) {
+			if (pids[i].in == pids[j].in) {
+				if (pids[i].out != pids[j].out) {
+					trace_warn("input pid same, but output pid diff!");
+					return enm_prog_pid_other_other;
+				}
+			} else {
+				if (pids[i].out == pids[j].out) {
+					trace_warn("output pid same, but input pid diff!");
 					return enm_prog_pid_other_other;
 				}
 			}
-		}
-	}
-
-	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		uint16_t in_pid = pProg->info.data[i].in;
-		uint16_t out_pid = pProg->info.data[i].out;
-		if (pProg->info.pmt.out == out_pid) {
-			trace_warn("PMT pid had used in data pids!");
-			return enm_prog_pid_pmt_other;
-		}
-		if (pProg->info.pcr.out == out_pid && pProg->info.pcr.in != in_pid) {
-			trace_warn("PCR pid had used in data pids!");
-			return enm_prog_pid_pcr_other;
 		}
 	}
 
