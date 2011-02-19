@@ -115,10 +115,18 @@ static void reset_net_btn_press(GtkWidget *widget,
 static void prog_0_btn_press(GtkWidget *widget,
 		GdkEventButton *event, gpointer *user_data)
 {
+	static int cnt = 1;
+
 	fp_build_cmd(req_buf, true, 0, NULL, 0);
 	hex_dump("req", req_buf, 6);
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 	hex_dump("resp", resp_buf, resp_len);
+
+	if (cnt % 2)
+		fp_select_program(0);
+	else
+		fp_deselect_program(0);
+	cnt++;
 }
 
 static void build_control_ui(GtkWidget *vbox)

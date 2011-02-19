@@ -374,3 +374,35 @@ int parse_mcu_cmd(int fdttyS1, uint8_t *recv_msg_buf)
 
 }
 
+void fp_select_program(uint8_t prog_idx)
+{
+	PROG_INFO_T prog = g_prog_info_table[prog_idx];
+	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
+
+	if (prog.status == 1) {
+		return;
+	}
+
+	xmux_program_info_dump(&prog.info);
+	if (pids_isvalid_in_program(&prog) != enm_prog_pid_valid ||
+		current_prog_pids_is_repeat(prog_idx, &g_prog_info_table[0]) != enm_prog_pid_valid ||
+		valid_map_pids_in_one_channel(chan_idx_sel, &g_prog_info_table[0]) > FPGA_PID_MAP_TABLE_CHAN_PIDS ||
+		seleted_programs_quant(&g_prog_info_table[0]) > defSelectedProgFpga) {
+		trace_err("select program #%d failed!", prog_idx);
+		return;
+	}
+	prog.status = 1;
+	g_prog_info_table[prog_idx] = prog;
+	trace_info("select program #%d success", prog_idx);
+}
+
+void fp_deselect_program(uint8_t prog_idx)
+{
+	PROG_INFO_T *prog = &g_prog_info_table[prog_idx];
+
+	if (!prog->status) {
+		return;
+	}
+	prog->status = 0;
+}
+
