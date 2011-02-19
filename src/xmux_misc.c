@@ -128,6 +128,8 @@ void xmux_program_info_dump(struct xmux_program_info *prog)
 	trace_info("  pmt(%#x -> %#x), pcr(%#x -> %#x)",
 		prog->pmt.in, prog->pmt.out, prog->pcr.in, prog->pcr.out);
 	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
+		if (prog->data[i].in == DATA_PID_PAD_VALUE)
+			continue;
 		trace_info("  data #%d(%#x -> %#x)", i, prog->data[i].in, prog->data[i].out);
 	}
 }
