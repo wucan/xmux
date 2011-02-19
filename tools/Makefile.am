@@ -1,4 +1,8 @@
-noinst_PROGRAMS = gen-eeprom setmac
+if BUILD_FOR_ARM
+noinst_PROGRAMS = setmac rr wr pcmcia
+else
+noinst_PROGRAMS = gen-eeprom setmac rr wr
+endif
 
 gen_eeprom_CPPFLAGS = \
 	-I $(srcdir) \
@@ -21,4 +25,8 @@ setmac_CPPFLAGS = \
 setmac_LDADD =
 
 setmac_SOURCES = setmac.c
+
+rr_SOURCES = rr.c
+wr_SOURCES = wr.c
+pcmcia_SOURCES = pcmcia.c
 
