@@ -286,6 +286,75 @@ static int parse_channel(uint8_t chan_idx)
 	return prog_num;
 }
 
+struct program_attribute g_prog_attr_table[CHANNEL_MAX_NUM * PROGRAM_MAX_NUM];
+void fp_build_program_attr_table()
+{
+	int i;
+	uint8_t chan_idx, prog_idx, tmp_prog_idx;
+	PROG_INFO_T *prog;
+	PROG_INFO_T *chan_prog_table;
+	struct program_attribute *chan_prog_attr_table;
+
+	memset(g_prog_attr_table, 0, sizeof(g_prog_attr_table));
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		uint8_t prog_num = g_chan_num.num[chan_idx];
+		if (prog_num == 0)
+			continue;
+
+		chan_prog_table = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM];
+		chan_prog_attr_table = &g_prog_attr_table[chan_idx * PROGRAM_MAX_NUM];
+
+		// build pub pcr and solo pcr
+		for (prog_idx = 0; prog_idx < prog_num; prog_idx++) {
+			prog = &chan_prog_table[prog_idx];
+			for (tmp_prog_idx = prog_idx; tmp_prog_idx < prog_num; tmp_prog_idx++) {
+				PROG_INFO_T *tmp_prog;
+				if (prog_idx == tmp_prog_idx)
+					continue;
+				tmp_prog = &chan_prog_table[tmp_prog_idx];
+				if (prog->info.pcr.in == tmp_prog->info.pcr.in) {
+					if (chan_prog_attr_table[tmp_prog_idx].pcr_type == PUB_PCR) {
+						chan_prog_attr_table[prog_idx] = chan_prog_attr_table[tmp_prog_idx];
+					} else {
+						chan_prog_attr_table[prog_idx].pcr_type = PUB_PCR;
+						chan_prog_attr_table[prog_idx].pcr_group_id =
+							chan_idx * PROGRAM_MAX_NUM + prog_idx;
+					}
+					break;
+				}
+			}
+			if (tmp_prog_idx == prog_num) {
+				chan_prog_attr_table[prog_idx].pcr_type = SOLO_PCR;
+				chan_prog_attr_table[prog_idx].pcr_group_id =
+					chan_idx * PROGRAM_MAX_NUM + prog_idx;
+			}
+		}
+
+		// build common pcr
+		for (prog_idx = 0; prog_idx < prog_num; prog_idx++) {
+			prog = &chan_prog_table[prog_idx];
+			if (chan_prog_attr_table[prog_idx].pcr_type == SOLO_PCR) {
+				uint8_t d;
+				for (d = 0; d < PROGRAM_DATA_PID_MAX_NUM; d++) {
+					if (prog->info.data[d].in == prog->info.pcr.in) {
+						chan_prog_attr_table[prog_idx].pcr_type = COM_PCR;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
+		if (g_prog_attr_table[i].pcr_type != NA_PCR) {
+			trace_info("program #%d pcr type %s, group_id %d",
+				i,
+				pcr_type_name(g_prog_attr_table[i].pcr_type),
+				g_prog_attr_table[i].pcr_group_id);
+		}
+	}
+}
+
 int fp_psi_parse()
 {
 	int progs, total_progs = 0;
@@ -301,6 +370,8 @@ int fp_psi_parse()
 		total_progs += progs;
 	}
 	trace_info("there are total %d programs", total_progs);
+
+	fp_build_program_attr_table();
 
 	return total_progs;
 }
