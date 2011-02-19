@@ -306,7 +306,7 @@ void fp_build_program_attr_table()
 		// build pub pcr and solo pcr
 		for (prog_idx = 0; prog_idx < prog_num; prog_idx++) {
 			prog = &chan_prog_table[prog_idx];
-			for (tmp_prog_idx = prog_idx; tmp_prog_idx < prog_num; tmp_prog_idx++) {
+			for (tmp_prog_idx = 0; tmp_prog_idx < prog_num; tmp_prog_idx++) {
 				PROG_INFO_T *tmp_prog;
 				if (prog_idx == tmp_prog_idx)
 					continue;
