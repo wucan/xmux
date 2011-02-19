@@ -68,9 +68,9 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 				uint16_t *p_resp_msg_len)
 {
 	int nlen;
-	uint16_t cmd = cmd_header->seq & 0x7FFF;
+	uint16_t prog_idx = cmd_header->seq & 0x7FFF;
 
-	trace_info("%s program #%d info ...", is_read ? "read" : "write", cmd);
+	trace_info("%s program #%d info ...", is_read ? "read" : "write", prog_idx);
 	if (is_read && cmd_header->len > 0) {
 		trace_err("read encounter len %d!", cmd_header->len);
 		return -1;
@@ -81,7 +81,7 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 	}
 
 	if (is_read) {
-		PROG_INFO_T *pProg = &(g_prog_info_table[cmd]);
+		PROG_INFO_T *pProg = &(g_prog_info_table[prog_idx]);
 		cmd_header->len = sizeof(PROG_INFO_T);
 		nlen = sizeof(struct fp_cmd_header) + cmd_header->len;
 		*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
@@ -92,16 +92,16 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 	} else {
 		uint8_t tmpbuf[5];
 		int isprogvalid = 0;
-		int chan_idx_sel = cmd / PROGRAM_MAX_NUM;
+		int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
 		PROG_INFO_T refProg;
-		PROG_INFO_T *pProg = &(g_prog_info_table[cmd]);
+		PROG_INFO_T *pProg = &(g_prog_info_table[prog_idx]);
 		memcpy(&refProg, pProg, sizeof(PROG_INFO_T));
 		buf_2_prog_info(pProg, recv_msg_buf + sizeof(struct fp_cmd_header));
 		tmpbuf[0] = 0xFF;
 		tmpbuf[1] = 0xFF;
 		if (pProg->status == 1) {
 			if (pids_isvalid_in_program(pProg) != enm_prog_pid_valid ||
-				current_prog_pids_is_repeat(cmd, &g_prog_info_table[0]) != enm_prog_pid_valid ||
+				current_prog_pids_is_repeat(prog_idx, &g_prog_info_table[0]) != enm_prog_pid_valid ||
 				valid_map_pids_in_one_channel(chan_idx_sel, &g_prog_info_table[0]) > FPGA_PID_MAP_TABLE_CHAN_PIDS ||
 				seleted_programs_quant(&g_prog_info_table[0]) > defSelectedProgFpga) {
 				memcpy(pProg, &refProg, sizeof(PROG_INFO_T));
