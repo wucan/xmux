@@ -379,6 +379,9 @@ void fp_select_program(uint8_t prog_idx)
 	PROG_INFO_T prog = g_prog_info_table[prog_idx];
 	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
 
+	if ((prog_idx % PROGRAM_MAX_NUM) >= g_chan_num.num) {
+		return;
+	}
 	if (prog.status == 1) {
 		return;
 	}
@@ -399,7 +402,11 @@ void fp_select_program(uint8_t prog_idx)
 void fp_deselect_program(uint8_t prog_idx)
 {
 	PROG_INFO_T *prog = &g_prog_info_table[prog_idx];
+	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
 
+	if ((prog_idx % PROGRAM_MAX_NUM) >= g_chan_num.num) {
+		return;
+	}
 	if (!prog->status) {
 		return;
 	}
