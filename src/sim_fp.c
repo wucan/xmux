@@ -122,10 +122,17 @@ static void prog_0_btn_press(GtkWidget *widget,
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 	hex_dump("resp", resp_buf, resp_len);
 
-	if (cnt % 2)
+	if (cnt % 2) {
 		fp_select_program(0);
-	else
+		fp_select_program(1);
+		fp_select_program(2);
+		fp_select_program(3);
+	} else {
 		fp_deselect_program(0);
+		fp_deselect_program(1);
+		fp_deselect_program(2);
+		fp_deselect_program(3);
+	}
 	cnt++;
 }
 
