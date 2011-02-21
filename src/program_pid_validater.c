@@ -144,12 +144,18 @@ static int seleted_programs_quant(PROG_INFO_T * pProgPara)
 bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 {
 	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
+	uint8_t old_status;
 
 	if (g_prog_info_table[prog_idx].status == 1 &&
 		memcmp(&sel_prog->info, &g_prog_info_table[prog_idx].info, sizeof(sel_prog->info)) == 0) {
 		trace_warn("selected program's parameter same, do nothing!");
 		return true;
 	}
+
+	// backup old status
+	old_status = g_prog_info_table[prog_idx].status;
+	g_prog_info_table[prog_idx].status = 0;
+
 	if (seleted_programs_quant(g_prog_info_table) + 1 > defSelectedProgFpga) {
 		trace_err("cann't select more programs!");
 	} else if (pids_isvalid_in_program(sel_prog) != enm_prog_pid_valid) {
@@ -164,6 +170,9 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 		g_prog_info_table[prog_idx] = *sel_prog;
 		return true;
 	}
+
+	// restore old status
+	g_prog_info_table[prog_idx].status = old_status;
 
 	return false;
 }
