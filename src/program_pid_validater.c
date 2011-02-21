@@ -86,37 +86,6 @@ int is_prog_pidsel_in_program(uint16_t npid, PROG_INFO_T * pProgPara)
 	return enm_prog_pid_valid;
 }
 
-static int current_prog_pids_is_repeat(int selporg, PROG_INFO_T * pProgPara)
-{
-	int i;
-	PROG_INFO_T *pProgsel = pProgPara + selporg;
-
-	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
-		int j;
-		PROG_INFO_T *pProgtmp = pProgPara + i;
-		if (selporg == i)
-			continue;
-		if (pProgtmp->status != 1)
-			continue;
-		if (is_prog_pidsel_in_program(pProgsel->info.pmt.out, pProgtmp) !=
-			enm_prog_pid_valid
-			|| is_prog_pidsel_in_program(pProgsel->info.pcr.out,
-										 pProgtmp) != enm_prog_pid_valid) {
-			trace_warn("PMT/PCR output pid invalid!");
-			return enm_prog_pid_program;
-		}
-		for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-			if (is_prog_pidsel_in_program(pProgsel->info.data[i].out, pProgtmp)
-				!= enm_prog_pid_valid) {
-				trace_warn("data output pid #%d invalid!", i);
-				return enm_prog_pid_program;
-			}
-		}
-	}
-
-	return enm_prog_pid_valid;
-}
-
 ///////////////////
 // the count of pcr_pid adn other_pids in the program 
 ////////////////////
@@ -188,7 +157,7 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 	} else if (valid_map_pids_in_one_channel(chan_idx_sel, g_prog_info_table) +
 		valid_map_pids_in_one_program(sel_prog) > FPGA_PID_MAP_TABLE_CHAN_PIDS) {
 		trace_err("this channel had exceed pid count to map!");
-	} else if (current_prog_pids_is_repeat(prog_idx, g_prog_info_table) != enm_prog_pid_valid) {
+	} else if (!check_selected_program_output_pid(prog_idx, g_prog_info_table)) {
 		trace_err("selected program pid had conflicted with other programs!");
 	} else {
 		sel_prog->status = 1;

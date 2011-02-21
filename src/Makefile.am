@@ -19,7 +19,7 @@ xmux_LDADD = \
 	libwu/libwu.la \
 	-lm -lpthread
 else
-xmux_LDADD = $(DVBPSI_LIBS) $(NETSNMP_LIBS) -lm \
+xmux_LDADD = $(NETSNMP_LIBS) -lm \
 	imp/libimp.la \
 	imp/fpga/libimpfpga.la \
 	libwu/libwu.la \
@@ -57,6 +57,7 @@ xmux_SOURCES = \
 	pid_map_table.c \
 	pid_map_rule.c \
 	program_pid_validater.c \
+	output_pid_check.c \
 	xmux_snmp.c \
 	wu_snmp_agent.c \
 	xmux.c \
