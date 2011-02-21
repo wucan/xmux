@@ -23,7 +23,6 @@ static int pids_isvalid_in_program(PROG_INFO_T * pProg)
 	int i, j;
 	struct pid_trans_entry *pids = &pProg->info.pmt;
 
-	trace_info("check program output pids valid ...");
 	/*
 	 * check all output pid validate
 	 */
@@ -62,8 +61,6 @@ static int pids_isvalid_in_program(PROG_INFO_T * pProg)
 		}
 	}
 
-	trace_info("check passed");
-
 	return enm_prog_pid_valid;
 }
 
@@ -71,7 +68,6 @@ int is_prog_pidsel_in_program(uint16_t npid, PROG_INFO_T * pProgPara)
 {
 	int i;
 
-	trace_info("check program selected pid %d valide ...");
 	if (prog_pid_val_isvalid(npid)) {
 		if (npid == pProgPara->info.pmt.out ||
 			npid == pProgPara->info.pcr.out) {
@@ -87,8 +83,6 @@ int is_prog_pidsel_in_program(uint16_t npid, PROG_INFO_T * pProgPara)
 		}
 	}
 
-	trace_info("check passed");
-
 	return enm_prog_pid_valid;
 }
 
@@ -97,7 +91,6 @@ static int current_prog_pids_is_repeat(int selporg, PROG_INFO_T * pProgPara)
 	int i;
 	PROG_INFO_T *pProgsel = pProgPara + selporg;
 
-	trace_info("check program %d pid repeat ...", selporg);
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		int j;
 		PROG_INFO_T *pProgtmp = pProgPara + i;
@@ -121,8 +114,6 @@ static int current_prog_pids_is_repeat(int selporg, PROG_INFO_T * pProgPara)
 		}
 	}
 
-	trace_info("check passed");
-
 	return enm_prog_pid_valid;
 }
 
@@ -134,14 +125,12 @@ static int valid_map_pids_in_one_program(PROG_INFO_T * pProg)
 	int j;
 	int npidcount = 1;
 
-	trace_info("valid map pids in program");
 	for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
 		uint16_t in_pid = pProg->info.data[j].in;
 		if (pProg->info.pcr.in != in_pid && prog_pid_val_isvalid(in_pid)) {
 			npidcount++;
 		}
 	}
-	trace_info("there are %d mapped pids valid", npidcount);
 
 	return npidcount;
 }
@@ -154,7 +143,6 @@ static int valid_map_pids_in_one_channel(int nselchn, PROG_INFO_T * pProgpara)
 	int npidcountchn = 0;		//
 	int prog_cnt;
 
-	trace_info("valid map pids in channel %d", nselchn);
 	for (prog_cnt = 0; prog_cnt < PROGRAM_MAX_NUM; prog_cnt++) {
 		PROG_INFO_T *pProg =
 			pProgpara + nselchn * PROGRAM_MAX_NUM + prog_cnt;
@@ -162,7 +150,6 @@ static int valid_map_pids_in_one_channel(int nselchn, PROG_INFO_T * pProgpara)
 			npidcountchn += valid_map_pids_in_one_program(pProg);
 		}
 	}
-	trace_info("there are %d mapped pids valid", npidcountchn);
 
 	return npidcountchn;
 }
@@ -172,14 +159,12 @@ static int seleted_programs_quant(PROG_INFO_T * pProgPara)
 	int i;
 	int nselected = 0;
 
-	trace_info("select program quant ...");
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		PROG_INFO_T *pProg = pProgPara + i;
 		if (pProg->status != 1)
 			continue;
 		nselected++;
 	}
-	trace_info("%d programs selected", nselected);
 
 	return nselected;
 }
