@@ -18,7 +18,7 @@ int prog_pid_val_isvalid(uint16_t prog_pid)
 // if other_pids in the program is same
 // same: 0 ;not same 1
 ////////////////////
-int pids_isvalid_in_program(PROG_INFO_T * pProg)
+static int pids_isvalid_in_program(PROG_INFO_T * pProg)
 {
 	int i, j;
 	struct pid_trans_entry *pids = &pProg->info.pmt;
@@ -92,7 +92,7 @@ int is_prog_pidsel_in_program(uint16_t npid, PROG_INFO_T * pProgPara)
 	return enm_prog_pid_valid;
 }
 
-int current_prog_pids_is_repeat(int selporg, PROG_INFO_T * pProgPara)
+static int current_prog_pids_is_repeat(int selporg, PROG_INFO_T * pProgPara)
 {
 	int i;
 	PROG_INFO_T *pProgsel = pProgPara + selporg;
@@ -129,7 +129,7 @@ int current_prog_pids_is_repeat(int selporg, PROG_INFO_T * pProgPara)
 ///////////////////
 // the count of pcr_pid adn other_pids in the program 
 ////////////////////
-int valid_map_pids_in_one_program(PROG_INFO_T * pProg)
+static int valid_map_pids_in_one_program(PROG_INFO_T * pProg)
 {
 	int j;
 	int npidcount = 1;
@@ -149,7 +149,7 @@ int valid_map_pids_in_one_program(PROG_INFO_T * pProg)
 ///////////////////
 // the count of pcr_pid adn other_pids the selected programs in a channel 
 ////////////////////
-int valid_map_pids_in_one_channel(int nselchn, PROG_INFO_T * pProgpara)
+static int valid_map_pids_in_one_channel(int nselchn, PROG_INFO_T * pProgpara)
 {
 	int npidcountchn = 0;		//
 	int prog_cnt;
@@ -167,7 +167,7 @@ int valid_map_pids_in_one_channel(int nselchn, PROG_INFO_T * pProgpara)
 	return npidcountchn;
 }
 
-int seleted_programs_quant(PROG_INFO_T * pProgPara)
+static int seleted_programs_quant(PROG_INFO_T * pProgPara)
 {
 	int i;
 	int nselected = 0;
