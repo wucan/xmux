@@ -18,7 +18,7 @@ int prog_pid_val_isvalid(uint16_t prog_pid)
 // if other_pids in the program is same
 // same: 0 ;not same 1
 ////////////////////
-static int pids_isvalid_in_program(PROG_INFO_T * pProg)
+static int valid_program_pids(PROG_INFO_T * pProg)
 {
 	int i, j;
 	struct pid_trans_entry *pids = &pProg->info.pmt;
@@ -89,7 +89,7 @@ int is_prog_pidsel_in_program(uint16_t npid, PROG_INFO_T * pProgPara)
 ///////////////////
 // the count of pcr_pid adn other_pids in the program 
 ////////////////////
-static int valid_map_pids_in_one_program(PROG_INFO_T * pProg)
+static int program_mapped_pid_count(PROG_INFO_T * pProg)
 {
 	int j;
 	int npidcount = 1;
@@ -107,29 +107,29 @@ static int valid_map_pids_in_one_program(PROG_INFO_T * pProg)
 ///////////////////
 // the count of pcr_pid adn other_pids the selected programs in a channel 
 ////////////////////
-static int valid_map_pids_in_one_channel(int nselchn, PROG_INFO_T * pProgpara)
+static int channel_mapped_pid_count(int nselchn)
 {
 	int npidcountchn = 0;		//
 	int prog_cnt;
 
 	for (prog_cnt = 0; prog_cnt < PROGRAM_MAX_NUM; prog_cnt++) {
 		PROG_INFO_T *pProg =
-			pProgpara + nselchn * PROGRAM_MAX_NUM + prog_cnt;
+			g_prog_info_table + nselchn * PROGRAM_MAX_NUM + prog_cnt;
 		if (pProg->status == 1) {
-			npidcountchn += valid_map_pids_in_one_program(pProg);
+			npidcountchn += program_mapped_pid_count(pProg);
 		}
 	}
 
 	return npidcountchn;
 }
 
-static int seleted_programs_quant(PROG_INFO_T * pProgPara)
+static int program_selected_count()
 {
 	int i;
 	int nselected = 0;
 
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
-		PROG_INFO_T *pProg = pProgPara + i;
+		PROG_INFO_T *pProg = g_prog_info_table + i;
 		if (pProg->status != 1)
 			continue;
 		nselected++;
@@ -156,12 +156,12 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 	old_status = g_prog_info_table[prog_idx].status;
 	g_prog_info_table[prog_idx].status = 0;
 
-	if (seleted_programs_quant(g_prog_info_table) + 1 > defSelectedProgFpga) {
+	if (program_selected_count() + 1 > defSelectedProgFpga) {
 		trace_err("cann't select more programs!");
-	} else if (pids_isvalid_in_program(sel_prog) != enm_prog_pid_valid) {
+	} else if (valid_program_pids(sel_prog) != enm_prog_pid_valid) {
 		trace_err("selected program had invalid pid!");
-	} else if (valid_map_pids_in_one_channel(chan_idx_sel, g_prog_info_table) +
-		valid_map_pids_in_one_program(sel_prog) > FPGA_PID_MAP_TABLE_CHAN_PIDS) {
+	} else if (channel_mapped_pid_count(chan_idx_sel) +
+		program_mapped_pid_count(sel_prog) > FPGA_PID_MAP_TABLE_CHAN_PIDS) {
 		trace_err("this channel had exceed pid count to map!");
 	} else if (!check_selected_program_output_pid(prog_idx, g_prog_info_table)) {
 		trace_err("selected program pid had conflicted with other programs!");
