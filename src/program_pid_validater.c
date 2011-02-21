@@ -184,3 +184,33 @@ int seleted_programs_quant(PROG_INFO_T * pProgPara)
 	return nselected;
 }
 
+/*
+ * @sel_prog - which include new program prameter
+ */
+bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
+{
+	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
+
+	if (g_prog_info_table[prog_idx].status == 1 &&
+		memcmp(&sel_prog->info, &g_prog_info_table[prog_idx].info, sizeof(sel_prog->info)) == 0) {
+		trace_warn("selected program's parameter same, do nothing!");
+		return true;
+	}
+	if (seleted_programs_quant(g_prog_info_table) + 1 > defSelectedProgFpga) {
+		trace_err("cann't select more programs!");
+	} else if (pids_isvalid_in_program(sel_prog) != enm_prog_pid_valid) {
+		trace_err("selected program had invalid pid!");
+	} else if (valid_map_pids_in_one_channel(chan_idx_sel, g_prog_info_table) +
+		valid_map_pids_in_one_program(sel_prog) > FPGA_PID_MAP_TABLE_CHAN_PIDS) {
+		trace_err("this channel had exceed pid count to map!");
+	} else if (current_prog_pids_is_repeat(prog_idx, g_prog_info_table) != enm_prog_pid_valid) {
+		trace_err("selected program pid had conflicted with other programs!");
+	} else {
+		sel_prog->status = 1;
+		g_prog_info_table[prog_idx] = *sel_prog;
+		return true;
+	}
+
+	return false;
+}
+

@@ -7,6 +7,7 @@
 #include "xmux_config.h"
 #include "xmux_misc.h"
 #include "xmux_net.h"
+#include "front_panel.h"
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
 #include "front_panel_data_churning.h"
@@ -91,23 +92,16 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 		*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
 	} else {
 		uint8_t tmpbuf[5];
-		int isprogvalid = 0;
-		int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
-		PROG_INFO_T refProg;
-		PROG_INFO_T *pProg = &(g_prog_info_table[prog_idx]);
-		memcpy(&refProg, pProg, sizeof(PROG_INFO_T));
-		buf_2_prog_info(pProg, recv_msg_buf + sizeof(struct fp_cmd_header));
+		PROG_INFO_T new_prog;
+		buf_2_prog_info(&new_prog, recv_msg_buf + sizeof(struct fp_cmd_header));
 		tmpbuf[0] = 0xFF;
 		tmpbuf[1] = 0xFF;
-		if (pProg->status == 1) {
-			if (pids_isvalid_in_program(pProg) != enm_prog_pid_valid ||
-				current_prog_pids_is_repeat(prog_idx, &g_prog_info_table[0]) != enm_prog_pid_valid ||
-				valid_map_pids_in_one_channel(chan_idx_sel, &g_prog_info_table[0]) > FPGA_PID_MAP_TABLE_CHAN_PIDS ||
-				seleted_programs_quant(&g_prog_info_table[0]) > defSelectedProgFpga) {
-				memcpy(pProg, &refProg, sizeof(PROG_INFO_T));
-				trace_err("select program or pid error!");
+		if (new_prog.status == 1) {
+			if (!check_and_select_program(prog_idx, &new_prog)) {
 				tmpbuf[1] = 0xFE;
 			}
+		} else {
+			fp_deselect_program(prog_idx);
 		}
 
 		cmd_header->len = 2;
@@ -387,15 +381,9 @@ void fp_select_program(uint8_t prog_idx)
 	}
 
 	xmux_program_info_dump(&prog.info);
-	if (pids_isvalid_in_program(&prog) != enm_prog_pid_valid ||
-		current_prog_pids_is_repeat(prog_idx, &g_prog_info_table[0]) != enm_prog_pid_valid ||
-		valid_map_pids_in_one_channel(chan_idx_sel, &g_prog_info_table[0]) > FPGA_PID_MAP_TABLE_CHAN_PIDS ||
-		seleted_programs_quant(&g_prog_info_table[0]) > defSelectedProgFpga) {
-		trace_err("select program #%d failed!", prog_idx);
+	if (!check_and_select_program(prog_idx, &prog)) {
 		return;
 	}
-	prog.status = 1;
-	g_prog_info_table[prog_idx] = prog;
 	trace_info("select program #%d success", prog_idx);
 }
 
