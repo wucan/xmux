@@ -121,6 +121,20 @@ enum {
 	PID_TYPE_PAD = 0x84,
 };
 
+static inline bool es_is_video(int es_type)
+{
+	switch (es_type) {
+		case 0x01:
+		case 0x02:
+		case 0x1b:
+			return true;
+		default:
+			break;
+	}
+
+	return false;
+}
+
 #define DATA_PID_PAD_VALUE			0x000F
 #define PID_NO_PAD_VALUE			0x00FF
 static inline bool data_pid_validate(uint8_t type)

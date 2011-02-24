@@ -206,6 +206,11 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 					} else {
 						prog_info->info.data[j].in = es[j].i_pid;
 						prog_info->info.data[j].out = prog_info->info.pcr.out;
+						/* correct pcr type */
+						if (es_is_video(es[j].i_type))
+							prog_info->info.pcr.type = PID_TYPE_PCR_VIDEO;
+						else
+							prog_info->info.pcr.type = PID_TYPE_PCR_AUDIO;
 					}
 				}
 
