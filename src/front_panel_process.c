@@ -24,7 +24,8 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "fp_process"};
 PROG_INFO_T g_prog_info_table[CHANNEL_MAX_NUM * PROGRAM_MAX_NUM];
 CHN_NUM_T g_chan_num;
 
-static int fp_create_response_cmd(uint8_t *buf, struct fp_cmd_header *req_cmd_header, void *param, int size)
+int fp_create_response_cmd(uint8_t *buf,
+	struct fp_cmd_header *req_cmd_header, void *param, int size)
 {
 	req_cmd_header->len = size;
 	fp_cmd_header_2_buf(req_cmd_header, buf);
