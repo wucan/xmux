@@ -67,6 +67,7 @@ xmux_SOURCES = \
 	xmux_net.c \
 	xmux_misc.c \
 	xmux_tunner.c \
+	xmux_bcm3033.c \
 	$(SIM_SRC) \
 	$(NULL_FILE)
 
