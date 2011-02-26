@@ -10,6 +10,15 @@
 #define defSelectedProgFpga	0x20
 #define defMcuSyncFlag		0x74
 
+/*
+ * commands
+ */
+enum {
+	FP_CMD_OUT_RATE = 0x101,
+	FP_CMD_NET = 0x102,
+	FP_CMD_SYS = 0x103,
+};
+
 enum FP_SYS_CMD {
 	FP_SYS_CMD_ENTER_FP_MANAGEMENT_MODE = 1,
 	FP_SYS_CMD_LEAVE_FP_MANAGEMENT_MODE,

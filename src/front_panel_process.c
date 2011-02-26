@@ -115,7 +115,7 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 	return 1;
 }
 
-static int cmd_0x101_handler(struct fp_cmd_header *cmd_header, int is_read,
+static int cmd_out_rate_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 				uint16_t *p_resp_msg_len)
 {
@@ -133,7 +133,7 @@ static int cmd_0x101_handler(struct fp_cmd_header *cmd_header, int is_read,
 	return 1;
 }
 
-static int cmd_0x102_handler(struct fp_cmd_header *cmd_header, int is_read,
+static int cmd_net_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 				uint16_t *p_resp_msg_len)
 {
@@ -229,7 +229,7 @@ pid_map_gen_done:
 	 */
 	xmux_config_save_mux_program_info(&g_eeprom_param.mux_prog_info);
 }
-static int cmd_0x103_handler(struct fp_cmd_header *cmd_header, int is_read,
+static int cmd_sys_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 				uint16_t *p_resp_msg_len)
 {
@@ -329,16 +329,16 @@ int __parse_mcu_cmd(uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 	}
 
 	switch (cmd) {
-	case 0x101:
-		return cmd_0x101_handler(&cmd_header, is_read,
+	case FP_CMD_OUT_RATE:
+		return cmd_out_rate_handler(&cmd_header, is_read,
 			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
 		break;
-	case 0x102:
-		return cmd_0x102_handler(&cmd_header, is_read,
+	case FP_CMD_NET:
+		return cmd_net_handler(&cmd_header, is_read,
 			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
 		break;
-	case 0x103:
-		return cmd_0x103_handler(&cmd_header, is_read,
+	case FP_CMD_SYS:
+		return cmd_sys_handler(&cmd_header, is_read,
 			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
 		break;
 	default:
