@@ -82,14 +82,10 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 	}
 
 	if (is_read) {
-		PROG_INFO_T *pProg = &(g_prog_info_table[prog_idx]);
-		cmd_header->len = sizeof(PROG_INFO_T);
-		nlen = sizeof(struct fp_cmd_header) + cmd_header->len;
-		*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
-
-		fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
-		prog_info_2_buf(pProg, resp_msg_buf + sizeof(struct fp_cmd_header));
-		*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
+		PROG_INFO_T tmp_prog;
+		prog_info_2_buf(&g_prog_info_table[prog_idx], &tmp_prog);
+		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
+			&tmp_prog, sizeof(tmp_prog));
 	} else {
 		uint8_t tmpbuf[5];
 		PROG_INFO_T new_prog;
@@ -141,15 +137,9 @@ static int cmd_net_handler(struct fp_cmd_header *cmd_header, int is_read,
 	struct xmux_net_param xmux_net;
 
 	if (is_read) {
-		int nlen;
-		cmd_header->len = sizeof(NET_ETH0_T);
-		nlen = cmd_header->len + sizeof(struct fp_cmd_header);
-		*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
-		fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
 		xmux_net_2_fp_net(&g_eeprom_param.net, &neteth0);
-		memcpy(resp_msg_buf + sizeof(struct fp_cmd_header), &neteth0, cmd_header->len);
-
-		*(resp_msg_buf + nlen) = wu_csc(resp_msg_buf, nlen);
+		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
+			&neteth0, sizeof(neteth0));
 		return 1;
 	}
 
