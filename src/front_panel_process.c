@@ -87,10 +87,12 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 		prog_info_2_buf(&g_prog_info_table[prog_idx], &tmp_prog);
 		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
 			&tmp_prog, sizeof(tmp_prog));
+		xmux_program_info_dump(&g_prog_info_table[prog_idx]);
 	} else {
 		uint8_t tmpbuf[5];
 		PROG_INFO_T new_prog;
 		buf_2_prog_info(&new_prog, recv_msg_buf + sizeof(struct fp_cmd_header));
+		xmux_program_info_dump(&new_prog);
 		tmpbuf[0] = 0xFF;
 		tmpbuf[1] = 0xFF;
 		if (new_prog.status == 1) {
