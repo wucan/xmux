@@ -27,6 +27,7 @@ struct tunner_status {
 	uint32_t ber;
 } __attribute__ ((__packed__));
 
+int tunner_get_param(int id, struct tunner_param *param);
 int tunner_set_param(int id, struct tunner_param *param);
 int tunner_get_status(int id, struct tunner_status *status);
 
