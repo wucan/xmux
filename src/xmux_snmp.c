@@ -19,6 +19,8 @@
 #include "pid_map_table.h"
 #include "pid_trans_info.h"
 #include "xmux_snmp_intstr.h"
+#include "xmux_tunner.h"
+#include "xmux_bcm3033.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
@@ -27,6 +29,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 #define OID_CHAN_PMT_PROG_IDX		8
 #define OID_SDT_SEC_IDX				8
 #define OID_EIT_SEC_IDX				8
+#define OID_TUNNER_ID_IDX			6
 
 
 #define PID_TRANS_INFO_NUM		24
@@ -354,6 +357,82 @@ static int mux_program_info_set(struct wu_oid_object *obj,
 	return 0;
 }
 /*
+ * tunner param
+ */
+static int tunner_param_get(struct wu_oid_object *obj,
+		struct wu_snmp_value *v)
+{
+	struct tunner_param p;
+	int tunner_id = 0;
+
+	switch (obj->oid[OID_TUNNER_ID_IDX]) {
+		default:
+		case 19: tunner_id = 0; break;
+		case 21: tunner_id = 1; break;
+	}
+	tunner_get_param(tunner_id, &p);
+	v->size = sizeof(struct tunner_param);
+	v->data = &p;
+
+	return 0;
+}
+static int tunner_param_set(struct wu_oid_object *obj,
+		struct wu_snmp_value *v)
+{
+	int tunner_id = 0;
+
+	switch (obj->oid[OID_TUNNER_ID_IDX]) {
+		default:
+		case 19: tunner_id = 0; break;
+		case 21: tunner_id = 1; break;
+	}
+
+	tunner_set_param(tunner_id, v->data);
+
+	return 0;
+}
+/*
+ * tunner status
+ */
+static int tunner_status_get(struct wu_oid_object *obj,
+		struct wu_snmp_value *v)
+{
+	struct tunner_status s;
+	int tunner_id = 0;
+
+	switch (obj->oid[OID_TUNNER_ID_IDX]) {
+		default:
+		case 20: tunner_id = 0; break;
+		case 22: tunner_id = 1; break;
+	}
+	tunner_get_status(tunner_id, &s);
+	v->size = sizeof(struct tunner_status);
+	v->data = &s;
+
+	return 0;
+}
+/*
+ * bcm3033 param
+ */
+static int bcm3033_param_get(struct wu_oid_object *obj,
+		struct wu_snmp_value *v)
+{
+	struct bcm3033_param p;
+
+	bcm3033_get_param(&p);
+	v->size = sizeof(struct bcm3033_param);
+	v->data = &p;
+
+	return 0;
+}
+static int bcm3033_param_set(struct wu_oid_object *obj,
+		struct wu_snmp_value *v)
+{
+	bcm3033_set_param(v->data);
+
+	return 0;
+}
+/*
  * LOAD INFO
  */
 static int load_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
@@ -510,6 +589,37 @@ static struct wu_oid_object solo_oid_objs[] = {
 	 mux_program_info_get, mux_program_info_set,
 	 sizeof(struct xmux_mux_program_info),
 	},
+	// tunner 0 param
+	{"TUNNER_0_PARAM", {XMUX_ROOT_OID, 19}, 7,
+	 0, OID_STATUS_RWRITE,
+	 tunner_param_get, tunner_param_set,
+	 sizeof(struct tunner_param),
+	},
+	// tunner 0 status
+	{"TUNNER_0_STATUS", {XMUX_ROOT_OID, 20}, 7,
+	 0, OID_STATUS_READ,
+	 tunner_status_get, NULL,
+	 sizeof(struct tunner_status),
+	},
+	// tunner 1 param
+	{"TUNNER_1_PARAM", {XMUX_ROOT_OID, 21}, 7,
+	 0, OID_STATUS_RWRITE,
+	 tunner_param_get, tunner_param_set,
+	 sizeof(struct tunner_param),
+	},
+	// tunner 1 status
+	{"TUNNER_1_STATUS", {XMUX_ROOT_OID, 22}, 7,
+	 0, OID_STATUS_READ,
+	 tunner_status_get, NULL,
+	 sizeof(struct tunner_status),
+	},
+	// bcm3033 param
+	{"BCM3033_PARAM", {XMUX_ROOT_OID, 23}, 7,
+	 0, OID_STATUS_RWRITE,
+	 bcm3033_param_get, bcm3033_param_set,
+	 sizeof(struct bcm3033_param),
+	},
+
 	// LOAD INFO
 	{"LOAD_INFO", {XMUX_ROOT_OID, 100}, 7,
 	 0, OID_STATUS_RWRITE,
