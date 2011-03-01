@@ -41,6 +41,7 @@ int pid_map_table_push_pid_pair(struct pid_map_table_gen_context *ctx,
 		uint8_t chan_idx, uint16_t in_pid, uint16_t out_pid);
 bool pid_map_table_validate(struct xmux_pid_map_table *pid_map);
 void pid_map_table_dump(struct xmux_pid_map_table *pid_map);
+void pid_map_table_gen_and_apply_from_fp();
 
 
 #endif /* _PID_MAP_TABLE_H_ */

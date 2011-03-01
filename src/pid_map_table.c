@@ -3,6 +3,7 @@
 
 #include "wu/message.h"
 
+#include "xmux_config.h"
 #include "hfpga.h"
 #include "pid_map_table.h"
 #include "pid_map_rule.h"
@@ -144,5 +145,58 @@ void pid_map_table_dump(struct xmux_pid_map_table *pid_map)
 				chan_idx, pid_idx, in, in, out, out);
 		}
 	}
+}
+
+void pid_map_table_gen_and_apply_from_fp()
+{
+	struct pid_map_table_gen_context gen_ctx;
+	int chan_idx, prog_idx;
+	int j;
+	int howto = 1;
+	PROG_INFO_T *prog;
+
+	/* clear mux program info */
+	memset(&g_eeprom_param.mux_prog_info, 0, sizeof(struct xmux_mux_program_info));
+
+	pid_map_table_gen_start(&gen_ctx);
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		if (!g_chan_num.num[chan_idx])
+			continue;
+		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
+			prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
+			if (prog->status == 1) {
+				/* fill pid map table */
+				if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx,
+					prog->info.pmt.in, prog->info.pmt.out)) {
+					goto pid_map_gen_done;
+				}
+				if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx,
+					prog->info.pcr.in, prog->info.pcr.out)) {
+					goto pid_map_gen_done;
+				}
+				for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
+					uint16_t in_pid = prog->info.data[j].in;
+					uint16_t out_pid = prog->info.data[j].out;
+					if (prog->info.pcr.in != in_pid &&
+						prog_pid_val_isvalid(in_pid) &&
+						prog_pid_val_isvalid(out_pid)) {
+						if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx,
+							in_pid, out_pid)) {
+							goto pid_map_gen_done;
+						}
+					}
+				}
+				/* fill mux program info */
+				g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].chan_idx = chan_idx;
+				g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].prog_idx = prog_idx;
+				g_eeprom_param.mux_prog_info.nprogs++;
+			}
+		}
+	}
+
+pid_map_gen_done:
+	pid_map_table_gen_end(&gen_ctx, 0xFF);
+	xmux_config_save_pid_map_table(gen_ctx.fpga_pid_map.pid_map);
+	hfpga_write_pid_map(&gen_ctx.fpga_pid_map);
 }
 
