@@ -195,7 +195,7 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 /*
  * check selectecd program output pid is validate
  */
-bool check_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx, PROG_INFO_T * prog_table)
+void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx, PROG_INFO_T * prog_table)
 {
 	int i;
 	struct pid_ref_info *ref;
@@ -292,7 +292,5 @@ bool check_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx, 
 pub_pcr_done:
 		;;
 	}
-
-	return true;
 }
 
