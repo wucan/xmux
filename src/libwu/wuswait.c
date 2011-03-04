@@ -55,3 +55,14 @@ int wu_swait_wakeup(WuSWait *swait, void *data)
 	return 0;
 }
 
+int wu_swait_is_alive(WuSWait *swait)
+{
+	int alive = 0;
+
+	lock_lock(&swait->lock);
+	alive = swait->alive;
+	lock_unlock(&swait->lock);
+
+	return alive;
+}
+
