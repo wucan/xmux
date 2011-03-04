@@ -4,6 +4,7 @@
 #include "wu/wu_base_type.h"
 #include "wu/thread.h"
 #include "wu/message.h"
+#include "wu/wuswait.h"
 #include "xmux.h"
 #include "xmux_config.h"
 #include "front_panel.h"
@@ -20,6 +21,7 @@ extern int openport();
 static Thread *fp_thr;
 static bool fp_thread_quit;
 static int fd;
+static WuSWait fp_swait;
 
 int front_panel_open()
 {
@@ -28,6 +30,7 @@ int front_panel_open()
 		trace_err("failed to open port!");
 		return -1;
 	}
+	wu_swait_init(&fp_swait);
 	trace_info("success open front panel port");
 
 	return 0;
@@ -45,6 +48,7 @@ int front_panel_close()
 		close(fd);
 		fd = 0;
 	}
+	wu_swait_destroy(&fp_swait);
 	trace_info("closed"); 
 
 	return 0;
@@ -112,6 +116,48 @@ int front_panel_run()
 	fp_thr = thread_create(fp_thread, NULL);
 	if (!fp_thr) {
 		return -1;
+	}
+
+	return 0;
+}
+
+static int fp_expect_cmd = -1;
+struct fp_cmd * front_panel_send_cmd(struct fp_cmd *cmd, int expect_cmd)
+{
+	int rc;
+	struct fp_cmd *resp_cmd = NULL;
+
+	if (wu_swait_is_alive(&fp_swait)) {
+		trace_warn("busy! ignore this send cmd request!");
+		return NULL;
+	}
+	rc = write(fd, cmd, FP_CMD_SIZE(cmd));
+	if (rc < FP_CMD_SIZE(cmd)) {
+		trace_err("wirte cmd failed!");
+		return NULL;
+	}
+	fp_expect_cmd = expect_cmd;
+	resp_cmd = wu_swait_timedwait(&fp_swait, 2000000);
+	fp_expect_cmd = -1;
+
+	return resp_cmd;
+}
+
+/*
+ * @return: 1 the @cmd is response cmd
+ */
+int front_panel_check_recv_cmd(struct fp_cmd *recv_cmd)
+{
+	int cmd = SWAP_U16(recv_cmd->header.seq) & 0x7FFF;
+
+	if (cmd == fp_expect_cmd) {
+		static char buf[1024];
+		struct fp_cmd *resp_cmd = (struct fp_cmd *)buf;
+		fp_cmd_copy(resp_cmd, recv_cmd);
+		if (wu_swait_wakeup(&fp_swait, resp_cmd)) {
+			trace_err("recv respone cmd %d, but maybe had timeouted!", cmd);
+		}
+		return 1;
 	}
 
 	return 0;

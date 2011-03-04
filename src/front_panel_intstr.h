@@ -2,6 +2,7 @@
 #define _FRONT_PANEL_INTSTR_H_
 
 #include "xmux.h"
+#include "wu/wu_byte_stream.h"
 
 
 typedef struct					// output one program to mcu_panel
@@ -16,6 +17,15 @@ struct fp_cmd_header {
 	uint16_t seq;
 	uint16_t len;
 } __attribute__ ((__packed__));
+
+struct fp_cmd {
+	struct fp_cmd_header header;
+	uint8_t data[0];
+};
+
+#define FP_CMD_SIZE(cmd) \
+	(sizeof(cmd->header) + SWAP_U16(cmd->header.len) + FP_MSG_CRC_SIZE)
+
 
 typedef struct {
 	uint8_t nSvrIp[4];

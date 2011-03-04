@@ -64,6 +64,10 @@ bool fp_validate_cmd(uint8_t *buf, int size, int expect_param_size)
 
 	return true;
 }
+void fp_cmd_copy(struct fp_cmd *dst, struct fp_cmd *src)
+{
+	memcpy(dst, src, FP_CMD_SIZE(src));
+}
 
 static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
@@ -269,6 +273,11 @@ int __parse_mcu_cmd(uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 	cmd = cmd_header.seq & 0x7FFF;
 	trace_info("cmd %d(%#x), len %d, %s",
 		cmd, cmd, cmd_header.len, is_read ? "read" : "write");
+
+	if (front_panel_check_recv_cmd(recv_msg_buf)) {
+		return 0;
+	}
+
 	if (cmd < PROGRAM_MAX_NUM * CHANNEL_MAX_NUM) {
 		return cmd_program_info_handler(&cmd_header, is_read,
 			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
