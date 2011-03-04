@@ -32,6 +32,43 @@ static void add_pid_to_table(uint16_t pid, int type_bit, int prog_idx)
 	ref->prog_idx = prog_idx;
 }
 
+static void remove_pid_from_table(uint16_t pid)
+{
+	struct pid_ref_info *ref = &pid_ref_table[pid];
+
+	if (ref->ref_cnt <= 0) {
+		trace_err("%s Bug!", __func__);
+	}
+	ref->ref_cnt--;
+	if (ref->ref_cnt == 0) {
+		memset(ref, 0, sizeof(*ref));
+	}
+}
+
+static uint16_t ref_2_pid(struct pid_ref_info *ref)
+{
+	return ((uint32_t)ref - (uint32_t)pid_ref_table) / sizeof(ref[0]);
+}
+
+static struct pid_ref_info *get_pub_pcr_ref(uint8_t pcr_group_id)
+{
+	struct program_attribute *ref_attr;
+	struct pid_ref_info *ref;
+	int i;
+
+	for (i = 0; i < 0x1FFF; i++) {
+		ref = &pid_ref_table[i];
+		if (ref->ref_cnt && ref->type == PCR_BIT) {
+			ref_attr = &g_prog_attr_table[ref->prog_idx];
+			if (pcr_group_id == ref_attr->pcr_group_id) {
+				return ref;
+			}
+		}
+	}
+
+	return NULL;
+}
+
 static const const char * pid_ref_type_name(uint8_t type)
 {
 	if (type == PMT_BIT)
