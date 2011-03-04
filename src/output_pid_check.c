@@ -69,6 +69,27 @@ static struct pid_ref_info *get_pub_pcr_ref(uint8_t pcr_group_id)
 	return NULL;
 }
 
+static uint16_t next_start_pid = 0x20;
+static uint16_t pick_pid()
+{
+	uint16_t pid;
+	struct pid_ref_info *ref;
+
+	for (pid = next_start_pid; pid < 0x1FFE; pid++) {
+		ref = &pid_ref_table[pid];
+		if (!ref->ref_cnt) {
+			/*
+			 * FIXME: how about if pid had been conflict with current
+			 * selected program pid?
+			 */
+			next_start_pid = pid + 1;
+			break;
+		}
+	}
+
+	return pid;
+}
+
 static const const char * pid_ref_type_name(uint8_t type)
 {
 	if (type == PMT_BIT)
@@ -174,54 +195,84 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 /*
  * check selectecd program output pid is validate
  */
-bool check_selected_program_output_pid(int sel_prog_idx, PROG_INFO_T * prog_table)
+bool check_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx, PROG_INFO_T * prog_table)
 {
 	int i;
-	PROG_INFO_T *sel_prog = prog_table + sel_prog_idx;
 	struct pid_ref_info *ref;
 	int chan_idx = sel_prog_idx / PROGRAM_MAX_NUM;
 	struct program_attribute *attr = &g_prog_attr_table[sel_prog_idx];
 
 	build_pid_ref_table(prog_table);
+	next_start_pid = 0x20;
 
 	// check pmt
-	ref = &pid_ref_table[sel_prog->info.pmt.out];
-	if (ref->ref_cnt > 0) {
-		trace_err("pmt pid %#x had been used!", sel_prog->info.pmt.out);
-		return false;
+	if (pid_is_used(sel_prog->info.pmt.in)) {
+		sel_prog->info.pmt.out = pick_pid();
+	} else {
+		sel_prog->info.pmt.out = sel_prog->info.pmt.in;
 	}
+	add_pid_to_table(sel_prog->info.pmt.out, PMT_BIT, sel_prog_idx);
+	trace_info("pmt out pid = %#x", sel_prog->info.pmt.out);
 
 	// check data pid
 	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-		ref = &pid_ref_table[sel_prog->info.data[i].out];
-		if (ref->ref_cnt > 0) {
-			trace_err("data pid %#x had been used by other programs!",
-				sel_prog->info.data[i].out);
-			return false;
+		if (!prog_pid_val_isvalid(sel_prog->info.data[i].in)) {
+			continue;
+		}
+		if (pid_is_used(sel_prog->info.data[i].in)) {
+			sel_prog->info.data[i].out = pick_pid();
+		} else {
+			sel_prog->info.data[i].out = sel_prog->info.data[i].in;
+		}
+		add_pid_to_table(sel_prog->info.data[i].out, DATA_BIT, sel_prog_idx);
+
+		/*
+		 * COM PCR should had same output pid
+		 */
+		if (attr->pcr_type == COM_PCR &&
+			sel_prog->info.data[i].in == sel_prog->info.pcr.in) {
+			sel_prog->info.pcr.out = sel_prog->info.data[i].out;
+			add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
 		}
 	}
 
 	// check pcr
-	ref = &pid_ref_table[sel_prog->info.pcr.out];
-	if (attr->pcr_type == SOLO_PCR || attr->pcr_type == COM_PCR) {
-		if (ref->ref_cnt > 0) {
-			trace_err("%s pcr pid %#x had been used!",
-				pcr_type_name(g_prog_attr_table[sel_prog_idx].pcr_type),
-				sel_prog->info.pcr.out);
-			return false;
+	if (attr->pcr_type == SOLO_PCR) {
+		if (pid_is_used(sel_prog->info.pcr.in)) {
+			sel_prog->info.pcr.out = pick_pid();
+		} else {
+			sel_prog->info.pcr.out = sel_prog->info.pcr.in;
 		}
+		add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
+	} else if (attr->pcr_type == COM_PCR) {
+		// had alread add in DATA PID!
 	} else {
-		struct program_attribute *ref_attr;
 		// PUB PCR
+		struct program_attribute *ref_attr;
+		ref = &pid_ref_table[sel_prog->info.pcr.in];
 		if (ref->ref_cnt > 0) {
 			ref_attr = &g_prog_attr_table[ref->prog_idx];
-			if (ref->type != PCR_BIT || attr->pcr_group_id != ref_attr->pcr_group_id) {
-				trace_err("PUB pcr pid %#x had been used!",
-					sel_prog->info.pcr.out);
-				return false;
+			if (ref->type == PCR_BIT && attr->pcr_group_id == ref_attr->pcr_group_id) {
+					sel_prog->info.pcr.out = ref_2_pid(ref);
+					add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
+				goto pub_pcr_done;
 			}
+
+			trace_warn("PUB in pcr %#x had been used!", sel_prog->info.pcr.in);
+			trace_info("try use other PUB pcr programs pcr pid...");
+			ref = get_pub_pcr_ref(attr->pcr_group_id);
+			if (ref) {
+				sel_prog->info.pcr.out = ref_2_pid(ref);
+			} else {
+				sel_prog->info.pcr.out = pick_pid();
+			}
+			add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
+			goto pub_pcr_done;
 		}
 
+		trace_info("use PUB in pcr %#x...", sel_prog->info.pcr.in);
+		sel_prog->info.pcr.out = sel_prog->info.pcr.in;
+		add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
 		// ok, fix other programs pub pcr value
 		for (i = chan_idx * PROGRAM_MAX_NUM;
 			 i < chan_idx * PROGRAM_MAX_NUM + g_chan_num.num[chan_idx]; i++) {
@@ -234,9 +285,12 @@ bool check_selected_program_output_pid(int sel_prog_idx, PROG_INFO_T * prog_tabl
 			if (attr->pcr_group_id == ref_attr->pcr_group_id) {
 				trace_warn("fix program #%d output pcr pid(%#x -> %#x)!",
 					i, tmp_prog->info.pcr.out, sel_prog->info.pcr.out);
+				remove_pid_from_table(tmp_prog->info.pcr.out);
 				tmp_prog->info.pcr.out = sel_prog->info.pcr.out;
 			}
 		}
+pub_pcr_done:
+		;;
 	}
 
 	return true;

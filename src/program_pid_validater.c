@@ -163,7 +163,7 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 	} else if (channel_mapped_pid_count(chan_idx_sel) +
 		program_mapped_pid_count(sel_prog) > FPGA_PID_MAP_TABLE_CHAN_PIDS) {
 		trace_err("this channel had exceed pid count to map!");
-	} else if (!check_selected_program_output_pid(prog_idx, g_prog_info_table)) {
+	} else if (!check_selected_program_output_pid(sel_prog, prog_idx, g_prog_info_table)) {
 		trace_err("selected program pid had conflicted with other programs!");
 	} else {
 		sel_prog->status = 1;
