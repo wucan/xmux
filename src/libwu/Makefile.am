@@ -10,6 +10,7 @@ AM_CFLAGS =
 
 libwu_la_SOURCES = \
 	lock.c \
+	wuswait.c \
 	message.c \
 	bget.c \
 	mem.c \
