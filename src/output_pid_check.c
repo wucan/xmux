@@ -14,6 +14,24 @@ extern int prog_pid_val_isvalid(uint16_t prog_pid);
 
 struct pid_ref_info pid_ref_table[0x1FFF + 1];
 
+static bool pid_is_used(uint16_t pid)
+{
+	if (pid_ref_table[pid].ref_cnt > 0) {
+		return true;
+	}
+
+	return false;
+}
+
+static void add_pid_to_table(uint16_t pid, int type_bit, int prog_idx)
+{
+	struct pid_ref_info *ref = &pid_ref_table[pid];
+
+	ref->type |= type_bit;
+	ref->ref_cnt++;
+	ref->prog_idx = prog_idx;
+}
+
 static const const char * pid_ref_type_name(uint8_t type)
 {
 	if (type == PMT_BIT)
