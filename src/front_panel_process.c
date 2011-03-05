@@ -296,6 +296,14 @@ int __parse_mcu_cmd(uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 		return cmd_sys_handler(&cmd_header, is_read,
 			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
 		break;
+	case FP_CMD_TUNNER1_PARAM:
+	case FP_CMD_TUNNER1_STATUS:
+	case FP_CMD_TUNNER2_PARAM:
+	case FP_CMD_TUNNER2_STATUS:
+	case FP_CMD_BCM3033:
+		return xmux_4_channel_rf_cmds_handler(&cmd_header, is_read,
+			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
+		break;
 	default:
 		trace_warn("unsupport cmd %#x", cmd);
 		break;
