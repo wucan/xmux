@@ -130,6 +130,11 @@ static void xmux_eeprom_param_init_default(struct xmux_eeprom_param *p)
 void xmux_config_load_from_eeprom()
 {
 	eeprom_read(0, (uint8_t *)&g_eeprom_param, sizeof(g_eeprom_param));
+	/*
+	 * force to snmp management mode always in startup! else if we are starting
+	 * and in fp management mode, if the fp is malfunction, then out of control!
+	 */
+	g_eeprom_param.mng_mode = MANAGEMENT_MODE_SNMP;
 	/* checkint */
 	if (!xmux_eeprom_param_validate(&g_eeprom_param)) {
 		trace_err("invalidate xmux root param load from eeprom, fallback to default!");
