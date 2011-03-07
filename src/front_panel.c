@@ -60,6 +60,7 @@ static int fp_thread(void *data)
 	int rc;
 	fd_set rset;
 	struct timeval tv;
+	int readed_len = 0;
 
 	trace_info("front panel thread running ...");
 	while (!fp_thread_quit) {
@@ -76,9 +77,19 @@ static int fp_thread(void *data)
 			struct fp_cmd_header hdr;
 
 			// read header
-			nlen = read(fd, recv_buf, sizeof(hdr));
-			if (nlen != sizeof(hdr)) {
+			nlen = read(fd, recv_buf + readed_len, sizeof(hdr) - readed_len);
+			if (nlen < 0) {
+				trace_err("failed to read header, readed %d!", readed_len);
+				readed_len = 0;
 				continue;
+			} else {
+				readed_len += nlen;
+				if (readed_len == sizeof(struct fp_cmd_header)) {
+					// got
+					readed_len = 0;
+				} else {
+					continue;
+				}
 			}
 			if (recv_buf[0] != defMcuSyncFlag) {
 				trace_err("invalid sync byte %#x! flush buffer!", recv_buf[0]);
@@ -91,6 +102,8 @@ static int fp_thread(void *data)
 			}
 			buf_2_fp_cmd_header(&hdr, recv_buf);
 			if (hdr.len + sizeof(hdr) + FP_MSG_CRC_SIZE > FP_RECV_MSG_MAX_SIZE) {
+				trace_err("error! len %d too large!", hdr.len);
+				hex_dump("header", &hdr, sizeof(hdr));
 				continue;
 			}
 			// read body and crc
