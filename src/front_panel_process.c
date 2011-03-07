@@ -88,7 +88,9 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 
 	if (is_read) {
 		PROG_INFO_T tmp_prog;
-		prog_info_2_buf(&g_prog_info_table[prog_idx], &tmp_prog);
+		PROG_INFO_T prog = g_prog_info_table[prog_idx];
+		prepare_program_output_pid(prog_idx, &prog);
+		prog_info_2_buf(&prog, &tmp_prog);
 		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
 			&tmp_prog, sizeof(tmp_prog));
 		xmux_program_info_dump(&g_prog_info_table[prog_idx].info);

@@ -164,7 +164,7 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 		program_mapped_pid_count(sel_prog) > FPGA_PID_MAP_TABLE_CHAN_PIDS) {
 		trace_err("this channel had exceed pid count to map!");
 	} else {
-		fix_selected_program_output_pid(sel_prog, prog_idx, g_prog_info_table);
+		fix_selected_program_output_pid(sel_prog, prog_idx, g_prog_info_table, true);
 		sel_prog->status = 1;
 		g_prog_info_table[prog_idx] = *sel_prog;
 		return true;
@@ -174,5 +174,13 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 	g_prog_info_table[prog_idx].status = old_status;
 
 	return false;
+}
+
+void prepare_program_output_pid(int prog_idx, PROG_INFO_T *prog)
+{
+	if (prog->status == 1) {
+		return;
+	}
+	fix_selected_program_output_pid(prog, prog_idx, g_prog_info_table, false);
 }
 

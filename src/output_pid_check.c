@@ -195,7 +195,8 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 /*
  * check selectecd program output pid is validate
  */
-void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx, PROG_INFO_T * prog_table)
+void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
+		PROG_INFO_T * prog_table, bool do_fix_selected_programs)
 {
 	int i;
 	struct pid_ref_info *ref;
@@ -274,6 +275,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx, PR
 		sel_prog->info.pcr.out = sel_prog->info.pcr.in;
 		add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
 		// ok, fix other programs pub pcr value
+		if (do_fix_selected_programs)
 		for (i = chan_idx * PROGRAM_MAX_NUM;
 			 i < chan_idx * PROGRAM_MAX_NUM + g_chan_num.num[chan_idx]; i++) {
 			PROG_INFO_T *tmp_prog = &prog_table[i];
