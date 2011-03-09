@@ -32,7 +32,7 @@
 /*
  * front panel
  */
-#define FP_RECV_MSG_MAX_SIZE			120
+#define FP_RECV_MSG_MAX_SIZE			1200
 #define FP_MSG_CRC_SIZE					1
 
 /*
