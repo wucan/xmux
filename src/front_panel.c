@@ -54,6 +54,36 @@ int front_panel_close()
 	return 0;
 }
 
+static int read_bytes(char *buf, int expect_size)
+{
+	int rc;
+	fd_set rset;
+	struct timeval tv;
+	int readed_len = 0;
+
+	while (1) {
+		FD_ZERO(&rset);
+		FD_SET(fd, &rset);
+		tv.tv_sec = 1;
+		tv.tv_usec = 0;
+
+		rc = select(fd + 1, &rset, NULL, NULL, &tv);
+		if (rc <= 0) {
+			return readed_len;
+		} else if (FD_ISSET(fd, &rset)) {
+			rc = read(fd, buf + readed_len, expect_size - readed_len);
+			if (rc > 0) {
+				readed_len += rc;
+				if (readed_len == expect_size) {
+					return expect_size;
+				}
+			}
+		}
+	}
+
+	return expect_size;
+}
+
 static uint8_t recv_buf[FP_RECV_MSG_MAX_SIZE + 10];
 static int fp_thread(void *data)
 {
@@ -71,6 +101,7 @@ static int fp_thread(void *data)
 
 		rc = select(fd + 1, &rset, NULL, NULL, &tv);
 		if (rc <= 0) {
+			readed_len = 0;
 			continue;
 		} else if (FD_ISSET(fd, &rset)) {
 			int nlen = 0;
@@ -107,7 +138,7 @@ static int fp_thread(void *data)
 				continue;
 			}
 			// read body and crc
-			nlen = read(fd, recv_buf + sizeof(hdr), hdr.len + FP_MSG_CRC_SIZE);
+			nlen = read_bytes(recv_buf + sizeof(hdr), hdr.len + FP_MSG_CRC_SIZE);
 			if (nlen == hdr.len + FP_MSG_CRC_SIZE) {
 				// ok, parse the msg
 				parse_mcu_cmd(fd, recv_buf);
