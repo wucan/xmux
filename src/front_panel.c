@@ -123,12 +123,13 @@ static int fp_thread(void *data)
 				}
 			}
 			if (recv_buf[0] != defMcuSyncFlag) {
-				trace_err("invalid sync byte %#x! flush buffer!", recv_buf[0]);
+				trace_err("invalid sync byte %#x! flush buffer..", recv_buf[0]);
 				hex_dump("invalid header", recv_buf, sizeof(hdr));
 				nlen = read(fd, recv_buf, FP_RECV_MSG_MAX_SIZE);
-				trace_err("discard %d len data!", nlen);
-				if (nlen > 0)
-					hex_dump("flush buffer", recv_buf, MIN(nlen, 16));
+				if (nlen > 0) {
+					trace_err("discard %d bytes data...", nlen);
+					hex_dump("discard data", recv_buf, MIN(nlen, 16));
+				}
 				continue;
 			}
 			buf_2_fp_cmd_header(&hdr, recv_buf);
