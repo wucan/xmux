@@ -114,6 +114,7 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 	PROG_INFO_T *prog;
 	struct pid_ref_info *ref;
 	struct program_attribute *attr;
+	int nprogs_sel = 0;
 
 	memset(pid_ref_table, 0, sizeof(pid_ref_table));
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
@@ -121,7 +122,7 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 		attr = &g_prog_attr_table[i];
 		if (prog->status != 1)
 			continue;
-
+		nprogs_sel++;
 		/*
 		 * PMT pid should be unique
 		 */
@@ -179,7 +180,8 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 		ref->prog_idx = i;
 	}
 
-	trace_info("pid ref table:");
+	trace_info("current %d programs selected, and pid ref table is:",
+		nprogs_sel);
 	for (i = 0; i < 0x1FFF; i++) {
 		ref = &pid_ref_table[i];
 		if (ref->type == 0)
