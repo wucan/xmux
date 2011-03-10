@@ -18,6 +18,9 @@ struct pid_ref_info {
 #define PCR_BIT			(1 << 1)
 #define DATA_BIT		(1 << 2)
 
+bool build_pid_ref_table(PROG_INFO_T *prog_table);
+void dump_pid_ref_table(const char *context);
+
 extern struct pid_ref_info pid_ref_table[];
 
 

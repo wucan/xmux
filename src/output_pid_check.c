@@ -109,7 +109,7 @@ static const const char * pid_ref_type_name(uint8_t type)
 /*
  * build output pid ref table
  */
-static bool build_pid_ref_table(PROG_INFO_T *prog_table)
+bool build_pid_ref_table(PROG_INFO_T *prog_table)
 {
 	int i, j;
 	uint16_t out_pid;
@@ -181,7 +181,7 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 	return true;
 }
 
-static void dump_pid_ref_table(const char *context)
+void dump_pid_ref_table(const char *context)
 {
 	int i;
 	struct pid_ref_info *ref;
