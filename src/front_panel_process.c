@@ -75,6 +75,7 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 {
 	int nlen;
 	uint16_t prog_idx = cmd_header->seq & 0x7FFF;
+	uint8_t chan_idx = prog_idx / PROGRAM_MAX_NUM;
 
 	trace_info("%s program #%d info ...", is_read ? "read" : "write", prog_idx);
 	if (is_read && cmd_header->len > 0) {
@@ -83,6 +84,10 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 	}
 	if (is_read == 0 && cmd_header->len == 0) {
 		trace_err("write encounter len 0!");
+		return -1;
+	}
+	if (prog_idx % PROGRAM_MAX_NUM >=  g_chan_num.num[chan_idx]) {
+		trace_err("select program #%d not presented!", prog_idx);
 		return -1;
 	}
 
