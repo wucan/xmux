@@ -167,6 +167,8 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 		fix_selected_program_output_pid(sel_prog, prog_idx, g_prog_info_table, true);
 		sel_prog->status = 1;
 		g_prog_info_table[prog_idx] = *sel_prog;
+		trace_info("program #%d success selected", prog_idx);
+		xmux_program_info_dump(&sel_prog->info);
 		return true;
 	}
 

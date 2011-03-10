@@ -366,8 +366,10 @@ void fp_deselect_program(uint8_t prog_idx)
 		return;
 	}
 	if (!prog->status) {
+		trace_warn("program #%d had not select yet!", prog_idx);
 		return;
 	}
 	prog->status = 0;
+	trace_info("deselect program #%d success", prog_idx);
 }
 
