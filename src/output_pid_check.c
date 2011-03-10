@@ -134,9 +134,7 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 				prog->info.pmt.out);
 			return false;
 		}
-		ref->ref_cnt++;
-		ref->type = PMT_BIT;
-		ref->prog_idx = i;
+		add_pid_to_table(prog->info.pmt, PMT_BIT, i);
 
 		/*
 		 * DATA pid should be unique before put PCR
@@ -149,9 +147,7 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 					trace_err("data pid %#x had been used!", out_pid);
 					return false;
 				}
-				ref->type |= DATA_BIT;
-				ref->ref_cnt++;
-				ref->prog_idx = i;
+				add_pid_to_table(prog->info.data[j], DATA_BIT, i);
 			}
 		}
 
@@ -177,9 +173,7 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 				return false;
 			}
 		}
-		ref->ref_cnt++;
-		ref->type |= PCR_BIT;
-		ref->prog_idx = i;
+		add_pid_to_table(prog->info.pcr, PCR_BIT, i);
 	}
 
 	pid_ref_table_nprogs = nprogs_sel;
@@ -198,8 +192,8 @@ static void dump_pid_ref_table(const char *context)
 		ref = &pid_ref_table[i];
 		if (ref->type == 0)
 			continue;
-		trace_info("pid %#x, type %s, ref_cnt %d, prog_idx %d",
-			i, pid_ref_type_name(ref->type),
+		trace_info("pid %#x(<= %#x), type %s, ref_cnt %d, prog_idx %d",
+			i, ref->in_pid, pid_ref_type_name(ref->type),
 			ref->ref_cnt, ref->prog_idx);
 	}
 }
