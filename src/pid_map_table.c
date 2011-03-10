@@ -160,9 +160,7 @@ void pid_map_table_gen_and_apply_from_fp()
 
 	pid_map_table_gen_start(&gen_ctx);
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		if (!g_chan_num.num[chan_idx])
-			continue;
-		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
+		for (prog_idx = 0; prog_idx < g_chan_num.num[chan_idx]; prog_idx++) {
 			prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 			if (prog->status == 1) {
 				/* fill pid map table */
