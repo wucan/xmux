@@ -299,7 +299,7 @@ struct xmux_param_management_info {
 };
 extern struct xmux_param_management_info g_param_mng_info;
 
-void xmux_program_info_dump(struct xmux_program_info *prog);
+void xmux_program_info_dump(struct xmux_program_info *prog, const char *which);
 
 
 #endif /* _XMUX_H_ */
