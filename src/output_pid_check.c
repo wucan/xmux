@@ -12,6 +12,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "output_pid_check"};
 
 extern int prog_pid_val_isvalid(uint16_t prog_pid);
 
+static int pid_ref_table_nprogs;
 struct pid_ref_info pid_ref_table[0x1FFF + 1];
 
 static bool pid_is_used(uint16_t pid)
@@ -180,8 +181,18 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 		ref->prog_idx = i;
 	}
 
-	trace_info("current %d programs selected, and pid ref table is:",
-		nprogs_sel);
+	pid_ref_table_nprogs = nprogs_sel;
+
+	return true;
+}
+
+static void dump_pid_ref_table(const char *context)
+{
+	int i;
+	struct pid_ref_info *ref;
+
+	trace_info("%s %d programs selected, and pid ref table is:",
+		context, pid_ref_table_nprogs);
 	for (i = 0; i < 0x1FFF; i++) {
 		ref = &pid_ref_table[i];
 		if (ref->type == 0)
@@ -190,8 +201,6 @@ static bool build_pid_ref_table(PROG_INFO_T *prog_table)
 			i, pid_ref_type_name(ref->type),
 			ref->ref_cnt, ref->prog_idx);
 	}
-
-	return true;
 }
 
 /*
@@ -206,6 +215,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 	struct program_attribute *attr = &g_prog_attr_table[sel_prog_idx];
 
 	build_pid_ref_table(prog_table);
+	dump_pid_ref_table("current");
 	next_start_pid = 0x20;
 
 	// check pmt
@@ -296,5 +306,8 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 pub_pcr_done:
 		;;
 	}
+
+	pid_ref_table_nprogs++;
+	dump_pid_ref_table("after fix and select");
 }
 
