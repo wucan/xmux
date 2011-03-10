@@ -13,6 +13,9 @@
 static uint8_t req_buf[1024], resp_buf[1024];
 static uint16_t resp_len;
 
+static GtkComboBox *chan_combo_box;
+static GtkComboBox *prog_combo_box;
+
 static gboolean window_delete_event(GtkWidget *widget,
 		GdkEvent *event, gpointer data)
 {
@@ -136,10 +139,27 @@ static void prog_0_btn_press(GtkWidget *widget,
 	cnt++;
 }
 
+static void get_program_info_btn_press(GtkWidget *widget,
+		GdkEventButton *event, gpointer *user_data)
+{
+	gint chan, prog, prog_idx;
+
+	// build program index
+	chan = gtk_combo_box_get_active(chan_combo_box);
+	prog = gtk_combo_box_get_active(prog_combo_box);
+	prog_idx = chan * 32 + prog;
+
+	fp_build_cmd(req_buf, true, prog_idx, NULL, 0);
+	hex_dump("req", req_buf, 6);
+	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
+	hex_dump("resp", resp_buf, resp_len);
+}
+
 static void build_control_ui(GtkWidget *vbox)
 {
 	GtkWidget *btn, *radio1, *radio2;
 	GtkWidget *hbox;
+	int i;
 
 	hbox = gtk_hbox_new(TRUE, 2);
 	/* FP_SYS_CMD_ENTER_FP_MANAGEMENT_MODE */
@@ -181,6 +201,36 @@ static void build_control_ui(GtkWidget *vbox)
 	btn = gtk_button_new_with_label("Prog 0");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 		GTK_SIGNAL_FUNC(prog_0_btn_press), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * next row hbox
+	 */
+	hbox = gtk_hbox_new(TRUE, 2);
+	/* channel */
+	chan_combo_box = gtk_combo_box_new_text();
+	for (i = 0; i < 8; i++) {
+		char s[10];
+		sprintf(s, "%d", i);
+		gtk_combo_box_append_text(chan_combo_box, s);
+	}
+	gtk_combo_box_set_active(chan_combo_box, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), chan_combo_box, FALSE, FALSE, 0);
+	/* program */
+	prog_combo_box = gtk_combo_box_new_text();
+	for (i = 0; i < 32; i++) {
+		char s[10];
+		sprintf(s, "%d", i);
+		gtk_combo_box_append_text(prog_combo_box, s);
+	}
+	gtk_combo_box_set_active(prog_combo_box, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), prog_combo_box, FALSE, FALSE, 0);
+	/* get speciy program info */
+	btn = gtk_button_new_with_label("Get Program Info");
+	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
+		GTK_SIGNAL_FUNC(get_program_info_btn_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
