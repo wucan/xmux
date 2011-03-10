@@ -24,13 +24,14 @@ static bool pid_is_used(uint16_t pid)
 	return false;
 }
 
-static void add_pid_to_table(uint16_t pid, int type_bit, int prog_idx)
+static void add_pid_to_table(struct pid_trans_entry pid_ent, int type_bit, int prog_idx)
 {
-	struct pid_ref_info *ref = &pid_ref_table[pid];
+	struct pid_ref_info *ref = &pid_ref_table[pid_ent.out];
 
 	ref->type |= type_bit;
 	ref->ref_cnt++;
 	ref->prog_idx = prog_idx;
+	ref->in_pid = pid_ent.in;
 }
 
 static void remove_pid_from_table(uint16_t pid)
@@ -224,7 +225,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 	} else {
 		sel_prog->info.pmt.out = sel_prog->info.pmt.in;
 	}
-	add_pid_to_table(sel_prog->info.pmt.out, PMT_BIT, sel_prog_idx);
+	add_pid_to_table(sel_prog->info.pmt, PMT_BIT, sel_prog_idx);
 	trace_info("pmt out pid = %#x", sel_prog->info.pmt.out);
 
 	// check data pid
@@ -237,7 +238,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 		} else {
 			sel_prog->info.data[i].out = sel_prog->info.data[i].in;
 		}
-		add_pid_to_table(sel_prog->info.data[i].out, DATA_BIT, sel_prog_idx);
+		add_pid_to_table(sel_prog->info.data[i], DATA_BIT, sel_prog_idx);
 
 		/*
 		 * COM PCR should had same output pid
@@ -245,7 +246,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 		if (attr->pcr_type == COM_PCR &&
 			sel_prog->info.data[i].in == sel_prog->info.pcr.in) {
 			sel_prog->info.pcr.out = sel_prog->info.data[i].out;
-			add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
+			add_pid_to_table(sel_prog->info.pcr, PCR_BIT, sel_prog_idx);
 		}
 	}
 
@@ -256,7 +257,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 		} else {
 			sel_prog->info.pcr.out = sel_prog->info.pcr.in;
 		}
-		add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
+		add_pid_to_table(sel_prog->info.pcr, PCR_BIT, sel_prog_idx);
 	} else if (attr->pcr_type == COM_PCR) {
 		// had alread add in DATA PID!
 	} else {
@@ -267,7 +268,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 			ref_attr = &g_prog_attr_table[ref->prog_idx];
 			if (ref->type == PCR_BIT && attr->pcr_group_id == ref_attr->pcr_group_id) {
 					sel_prog->info.pcr.out = ref_2_pid(ref);
-					add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
+					add_pid_to_table(sel_prog->info.pcr, PCR_BIT, sel_prog_idx);
 				goto pub_pcr_done;
 			}
 
@@ -279,13 +280,13 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 			} else {
 				sel_prog->info.pcr.out = pick_pid();
 			}
-			add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
+			add_pid_to_table(sel_prog->info.pcr, PCR_BIT, sel_prog_idx);
 			goto pub_pcr_done;
 		}
 
 		trace_info("use PUB in pcr %#x...", sel_prog->info.pcr.in);
 		sel_prog->info.pcr.out = sel_prog->info.pcr.in;
-		add_pid_to_table(sel_prog->info.pcr.out, PCR_BIT, sel_prog_idx);
+		add_pid_to_table(sel_prog->info.pcr, PCR_BIT, sel_prog_idx);
 		// ok, fix other programs pub pcr value
 		if (do_fix_selected_programs)
 		for (i = chan_idx * PROGRAM_MAX_NUM;

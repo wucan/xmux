@@ -11,6 +11,7 @@ struct pid_ref_info {
 	uint8_t type;
 	uint8_t ref_cnt;
 	uint8_t prog_idx;
+	uint16_t in_pid;
 };
 // type bits
 #define PMT_BIT			(1 << 0)
