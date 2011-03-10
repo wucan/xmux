@@ -139,10 +139,12 @@ static void prog_0_btn_press(GtkWidget *widget,
 	cnt++;
 }
 
+static PROG_INFO_T cur_prog;
 static void get_program_info_btn_press(GtkWidget *widget,
 		GdkEventButton *event, gpointer *user_data)
 {
 	gint chan, prog, prog_idx;
+	struct fp_cmd *cmd;
 
 	// build program index
 	chan = gtk_combo_box_get_active(chan_combo_box);
@@ -151,6 +153,25 @@ static void get_program_info_btn_press(GtkWidget *widget,
 
 	fp_build_cmd(req_buf, true, prog_idx, NULL, 0);
 	hex_dump("req", req_buf, 6);
+	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
+	hex_dump("resp", resp_buf, resp_len);
+
+	// cache program info
+	memcpy(&cur_prog, resp_buf + sizeof(struct fp_cmd_header), sizeof(cur_prog));
+}
+
+static void select_program_btn_press(GtkWidget *widget,
+		GdkEventButton *event, gpointer *user_data)
+{
+	gint chan, prog, prog_idx;
+
+	chan = gtk_combo_box_get_active(chan_combo_box);
+	prog = gtk_combo_box_get_active(prog_combo_box);
+	prog_idx = chan * 32 + prog;
+
+	cur_prog.status = 1;
+	fp_build_cmd(req_buf, false, prog_idx, &cur_prog, sizeof(cur_prog));
+	hex_dump("req", req_buf, 16);
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 	hex_dump("resp", resp_buf, resp_len);
 }
@@ -231,6 +252,11 @@ static void build_control_ui(GtkWidget *vbox)
 	btn = gtk_button_new_with_label("Get Program Info");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 		GTK_SIGNAL_FUNC(get_program_info_btn_press), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
+	/* select current program */
+	btn = gtk_button_new_with_label("Select Program");
+	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
+		GTK_SIGNAL_FUNC(select_program_btn_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
