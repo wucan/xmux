@@ -9,6 +9,7 @@
 #include "pid_map_rule.h"
 #include "front_panel_intstr.h"
 #include "front_panel_data_churning.h"
+#include "output_pid_check.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "pid_map_table"};
@@ -57,8 +58,7 @@ int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data)
 void pid_map_table_gen_start(struct pid_map_table_gen_context *ctx)
 {
 	fpga_pid_map_table_clear(&ctx->fpga_pid_map);
-	ctx->cur_chan_idx = 0;
-	ctx->cur_chan_map_pid_cnt = 0;
+	memset(ctx->chan_map_pid_cnt, 0, sizeof(ctx->chan_map_pid_cnt));
 }
 
 void pid_map_table_gen_end(struct pid_map_table_gen_context *ctx, uint8_t chan_bitmap)
@@ -69,20 +69,15 @@ void pid_map_table_gen_end(struct pid_map_table_gen_context *ctx, uint8_t chan_b
 int pid_map_table_push_pid_pair(struct pid_map_table_gen_context *ctx,
 		uint8_t chan_idx, uint16_t in_pid, uint16_t out_pid)
 {
-	if (ctx->cur_chan_map_pid_cnt >= FPGA_PID_MAP_TABLE_CHAN_PIDS)
+	if (ctx->chan_map_pid_cnt[chan_idx] >= FPGA_PID_MAP_TABLE_CHAN_PIDS)
 		return -1;
 
-	if (chan_idx != ctx->cur_chan_idx) {
-		ctx->cur_chan_idx = chan_idx;
-		ctx->cur_chan_map_pid_cnt = 0;
-	}
-
 	pid_map_table_set_in_pid((struct xmux_pid_map_table *)ctx->fpga_pid_map.pid_map, chan_idx,
-		ctx->cur_chan_map_pid_cnt, in_pid);
+		ctx->chan_map_pid_cnt[chan_idx], in_pid);
 	pid_map_table_set_out_pid((struct xmux_pid_map_table *)ctx->fpga_pid_map.pid_map, chan_idx,
-		ctx->cur_chan_map_pid_cnt, out_pid);
+		ctx->chan_map_pid_cnt[chan_idx], out_pid);
 
-	ctx->cur_chan_map_pid_cnt++;
+	ctx->chan_map_pid_cnt[chan_idx]++;
 
 	return 0;
 }
@@ -152,44 +147,31 @@ void pid_map_table_gen_and_apply_from_fp()
 	struct pid_map_table_gen_context gen_ctx;
 	int chan_idx, prog_idx;
 	int j;
-	int howto = 1;
-	PROG_INFO_T *prog;
+	struct pid_ref_info *ref;
 
 	/* clear mux program info */
 	memset(&g_eeprom_param.mux_prog_info, 0, sizeof(struct xmux_mux_program_info));
 
 	pid_map_table_gen_start(&gen_ctx);
-	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		for (prog_idx = 0; prog_idx < g_chan_num.num[chan_idx]; prog_idx++) {
-			prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
-			if (prog->status == 1) {
-				/* fill pid map table */
-				if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx,
-					prog->info.pmt.in, prog->info.pmt.out)) {
-					goto pid_map_gen_done;
-				}
-				if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx,
-					prog->info.pcr.in, prog->info.pcr.out)) {
-					goto pid_map_gen_done;
-				}
-				for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++) {
-					uint16_t in_pid = prog->info.data[j].in;
-					uint16_t out_pid = prog->info.data[j].out;
-					if (prog->info.pcr.in != in_pid &&
-						prog_pid_val_isvalid(in_pid) &&
-						prog_pid_val_isvalid(out_pid)) {
-						if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx,
-							in_pid, out_pid)) {
-							goto pid_map_gen_done;
-						}
-					}
-				}
-				/* fill mux program info */
-				g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].chan_idx = chan_idx;
-				g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].prog_idx = prog_idx;
-				g_eeprom_param.mux_prog_info.nprogs++;
-			}
+
+	/*
+	 * gather pid map from pid ref table
+	 */
+	build_pid_ref_table(g_prog_info_table);
+	for (j = 0; j < 0x1FFF; j++) {
+		ref = &pid_ref_table[j];
+		if (ref->type == 0)
+			continue;
+		chan_idx = ref->prog_idx / PROGRAM_MAX_NUM;
+		prog_idx = ref->prog_idx % PROGRAM_MAX_NUM;
+		if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx, ref->in_pid, j)) {
+			trace_err("channel #%d pid exceed! discard start from pid %#x", j);
+			break;
 		}
+		/* fill mux program info */
+		g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].chan_idx = chan_idx;
+		g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].prog_idx = prog_idx;
+		g_eeprom_param.mux_prog_info.nprogs++;
 	}
 
 pid_map_gen_done:

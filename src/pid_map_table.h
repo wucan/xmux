@@ -31,8 +31,7 @@ int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data);
 struct pid_map_table_gen_context {
 	ACCESS_HFPGA_PID_MAP fpga_pid_map;
 
-	uint8_t cur_chan_idx;
-	uint8_t cur_chan_map_pid_cnt;
+	uint8_t chan_map_pid_cnt[CHANNEL_MAX_NUM];
 };
 
 void pid_map_table_gen_start(struct pid_map_table_gen_context *ctx);
