@@ -193,40 +193,9 @@ void pat_gen_context_pack(struct pat_gen_context *ctx)
 		ctx->tpid_data[i].i_pid = ctx->programs[i].pmt_pid;
 	}
 }
-static uint16_t pick_free_prog_num(struct pat_gen_context *ctx)
-{
-	uint16_t i, j;
-
-	for (i = 1; i <= 0xFFFF; i++) {
-		for (j = 0; j < ctx->nprogs; j++) {
-			if (ctx->programs[j].prog_num == i) {
-				break;
-			}
-		}
-		if (j == ctx->nprogs) {
-			return i;
-		}
-	}
-
-	return 0;
-}
 void pat_gen_context_add_program(struct pat_gen_context *ctx,
 		uint16_t prog_num, uint16_t pmt_pid)
 {
-	int i;
-
-	/*
-	 * fix program number
-	 */
-	for (i = 0; i < ctx->nprogs; i++) {
-		if (prog_num == ctx->programs[i].prog_num) {
-			uint16_t new_prog_num = pick_free_prog_num(ctx);
-			trace_warn("fix program number from %d => %d", prog_num, new_prog_num);
-			prog_num = new_prog_num;
-			break;
-		}
-	}
-
 	ctx->programs[ctx->nprogs].prog_num = prog_num;
 	ctx->programs[ctx->nprogs].pmt_pid = pmt_pid;
 	ctx->nprogs++;
@@ -419,6 +388,8 @@ static void write_hook_psi(void *data, int len)
 int psi_gen_and_apply_from_fp()
 {
 	uint8_t *packpara[8192];
+
+	build_program_number_table();
 
 	dvbSI_Start(&hfpga_dev);
 

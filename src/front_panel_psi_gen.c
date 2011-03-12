@@ -9,6 +9,61 @@
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp-psi-gen"};
 
+
+static uint16_t prog_num_table[PROGRAM_MAX_NUM];
+static int prog_num_cnt;
+static uint16_t pick_free_prog_num()
+{
+	uint16_t i, j;
+
+	for (i = 1; i <= 0xFFFF; i++) {
+		for (j = 0; j < prog_num_cnt; j++) {
+			if (prog_num_table[j] == i) {
+				break;
+			}
+		}
+		if (j == prog_num_cnt) {
+			return i;
+		}
+	}
+
+	return 0xFFFF;
+}
+static void fix_and_push_program_number(int index, uint16_t prog_num)
+{
+	int i;
+
+	/*
+	 * fix program number
+	 */
+	for (i = 0; i < index; i++) {
+		if (prog_num == prog_num_table[i]) {
+			uint16_t new_prog_num = pick_free_prog_num();
+			trace_warn("fix program number from %d => %d",
+				prog_num, new_prog_num);
+			prog_num = new_prog_num;
+			break;
+		}
+	}
+
+	prog_num_table[index] = prog_num;
+}
+void build_program_number_table()
+{
+	int i;
+
+	prog_num_cnt = 0;
+	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
+		PROG_INFO_T *prog = &g_prog_info_table[i];
+		if (prog->status == 1) {
+			fix_and_push_program_number(prog_num_cnt, prog->info.prog_num);
+			prog_num_cnt++;
+		}
+		if (prog_num_cnt >= PROGRAM_MAX_NUM)
+			break;
+	}
+}
+
 int gen_nit_from_fp()
 {
 	struct nit_gen_context nit_gen_ctx;
@@ -54,7 +109,7 @@ int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 		pProg = (PROG_INFO_T *) pProgpara + ncount;
 		if (pProg->status == 1) {
 			pProg->info.prog_name[1][pProg->info.prog_name[1][0]] = 0;
-			sdt_gen_context_add_service(&gen_ctx, &pProg->info.prog_name[1][1], nProgSel + 1, defProviderDsw);
+			sdt_gen_context_add_service(&gen_ctx, &pProg->info.prog_name[1][1], prog_num_table[nProgSel], defProviderDsw);
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
 				break;
@@ -83,7 +138,7 @@ int gen_pat_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		pProg = (PROG_INFO_T *) pProgpara + i;
 		if (pProg->status == 1) {
-			pat_gen_context_add_program(&pat_gen_ctx, pProg->info.prog_num, pProg->info.pmt.out);
+			pat_gen_context_add_program(&pat_gen_ctx, prog_num_table[nProgSel], pProg->info.pmt.out);
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
 				break;
@@ -110,7 +165,7 @@ int gen_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 			struct pmt_gen_context pmt_gen_ctx;
 			pmt_gen_context_init(&pmt_gen_ctx);
 			pmt_gen_context_add_program_info(&pmt_gen_ctx,
-				nProgSel + 1, pProg->info.pmt.out, pProg->info.pcr.out);
+				prog_num_table[nProgSel], pProg->info.pmt.out, pProg->info.pcr.out);
 			for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++)	// Video Audio
 			{
 				uint16_t out_pid = pProg->info.data[j].out;
