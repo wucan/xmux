@@ -185,6 +185,12 @@ void pat_gen_context_init(struct pat_gen_context *ctx)
 }
 void pat_gen_context_pack(struct pat_gen_context *ctx)
 {
+	int i = 0;
+
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
+		ctx->tpid_data[i].i_pg_num = ctx->programs[i].prog_num;
+		ctx->tpid_data[i].i_pid = ctx->programs[i].pmt_pid;
+	}
 }
 void pat_gen_context_add_program(struct pat_gen_context *ctx,
 		uint16_t prog_num, uint16_t pmt_pid)
@@ -372,6 +378,10 @@ void cat_gen_context_free(struct cat_gen_context *ctx)
 static int psi_type;
 static void write_hook_psi(void *data, int len)
 {
+	char buf[16];
+
+	sprintf(buf, "PSI-%d", psi_type);
+	hex_dump("psi", data, len);
 	fill_output_psi_data(psi_type, data, len);
 }
 int psi_gen_and_apply_from_fp()
