@@ -77,21 +77,20 @@ int gen_pat_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	struct pat_gen_context pat_gen_ctx;
 
 	trace_info("generate PAT ...");
-
 	// Begin Set Values
 	pat_gen_context_init(&pat_gen_ctx);
 	nProgSel = 0;
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		pProg = (PROG_INFO_T *) pProgpara + i;
 		if (pProg->status == 1) {
-			pat_gen_context_add_program(&pat_gen_ctx, nProgSel + 1, pProg->info.pmt.out);
+			pat_gen_context_add_program(&pat_gen_ctx, pProg->info.prog_num, pProg->info.pmt.out);
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
 				break;
 		}
 	}
 	pat_gen_context_pack(&pat_gen_ctx);
-	trace_info("generate PAT ...");
+	trace_info("dvbsi generate and download PAT ...");
 	dvbSI_Gen_PAT(&pat_gen_ctx.tpat, pat_gen_ctx.tpid_data, pat_gen_ctx.nprogs);
 
 	return 0;
