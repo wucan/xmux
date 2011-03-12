@@ -162,6 +162,8 @@ void pid_map_table_gen_and_apply_from_fp()
 		ref = &pid_ref_table[j];
 		if (ref->type == 0)
 			continue;
+		if (ref->type & PMT_BIT)
+			continue;
 		chan_idx = ref->prog_idx / PROGRAM_MAX_NUM;
 		prog_idx = ref->prog_idx % PROGRAM_MAX_NUM;
 		if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx, ref->in_pid, j)) {
