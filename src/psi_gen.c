@@ -197,7 +197,7 @@ static uint16_t pick_free_prog_num(struct pat_gen_context *ctx)
 {
 	uint16_t i, j;
 
-	for (i = 0; i <= 0xFFFF; i++) {
+	for (i = 1; i <= 0xFFFF; i++) {
 		for (j = 0; j < ctx->nprogs; j++) {
 			if (ctx->programs[j].prog_num == i) {
 				break;
