@@ -69,6 +69,7 @@ void fp_cmd_copy(struct fp_cmd *dst, struct fp_cmd *src)
 	memcpy(dst, src, FP_CMD_SIZE(src));
 }
 
+static PROG_INFO_T old_prog;
 static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 				uint16_t *p_resp_msg_len)
@@ -95,6 +96,7 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 		PROG_INFO_T tmp_prog;
 		PROG_INFO_T prog = g_prog_info_table[prog_idx];
 		prepare_program_output_pid(prog_idx, &prog);
+		old_prog = prog;
 		xmux_program_info_dump(&prog.info, "read");
 		prog_info_2_buf(&prog, &tmp_prog);
 		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
@@ -107,7 +109,7 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 		tmpbuf[0] = 0xFF;
 		tmpbuf[1] = 0xFF;
 		if (new_prog.status == 1) {
-			if (!check_and_select_program(prog_idx, &new_prog)) {
+			if (!check_and_select_program(prog_idx, &new_prog, &old_prog)) {
 				tmpbuf[1] = 0xFE;
 			}
 		} else {
@@ -351,7 +353,7 @@ void fp_select_program(uint8_t prog_idx)
 	}
 
 	xmux_program_info_dump(&prog.info, "select");
-	if (!check_and_select_program(prog_idx, &prog)) {
+	if (!check_and_select_program(prog_idx, &prog, NULL)) {
 		return;
 	}
 	trace_info("select program #%d success", prog_idx);

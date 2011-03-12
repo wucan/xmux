@@ -20,6 +20,9 @@ struct pid_ref_info {
 
 bool build_pid_ref_table(PROG_INFO_T *prog_table);
 void dump_pid_ref_table(const char *context);
+bool check_user_output_pid(PROG_INFO_T *old_prog,
+		PROG_INFO_T *sel_prog, int sel_prog_idx,
+		PROG_INFO_T * prog_table);
 
 extern struct pid_ref_info pid_ref_table[];
 

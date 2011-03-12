@@ -141,7 +141,8 @@ static int program_selected_count()
 /*
  * @sel_prog - which include new program prameter
  */
-bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
+bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog,
+	PROG_INFO_T *old_prog)
 {
 	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
 	uint8_t old_status;
@@ -164,7 +165,16 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 		program_mapped_pid_count(sel_prog) > FPGA_PID_MAP_TABLE_CHAN_PIDS) {
 		trace_err("this channel had exceed pid count to map!");
 	} else {
-		fix_selected_program_output_pid(sel_prog, prog_idx, g_prog_info_table, true);
+		if (old_prog) {
+			if (!check_user_output_pid(old_prog, sel_prog, prog_idx,
+				g_prog_info_table)) {
+				trace_err("check user set program output pid failed!");
+				goto failed_out;
+			}
+		} else {
+			fix_selected_program_output_pid(sel_prog, prog_idx,
+				g_prog_info_table, true);
+		}
 		sel_prog->status = 1;
 		g_prog_info_table[prog_idx] = *sel_prog;
 		trace_info("program #%d success selected", prog_idx);
@@ -172,6 +182,7 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog)
 		return true;
 	}
 
+failed_out:
 	// restore old status
 	g_prog_info_table[prog_idx].status = old_status;
 
