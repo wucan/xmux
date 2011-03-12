@@ -240,7 +240,8 @@ int hfpga_get_ts_status(int chan_idx, uint16_t *ts_status_para)
 	 * only support one channel in our !uclinux test!
 	 */
 	*ts_status_para = 0;
-	if (chan_idx != 0) {
+	// channel 0, 3, 7 had stream
+	if (chan_idx != 0 && chan_idx != 3 && chan_idx != 7) {
 		return 0;
 	}
 	*ts_status_para = (1 << 0);
