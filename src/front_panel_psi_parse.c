@@ -374,6 +374,7 @@ int fp_psi_parse()
 		total_progs += progs;
 	}
 	trace_info("there are total %d programs", total_progs);
+	hex_dump("g_chan_num", &g_chan_num, sizeof(g_chan_num));
 
 	fp_build_program_attr_table();
 
