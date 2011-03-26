@@ -402,8 +402,11 @@ int psi_gen_and_apply_from_fp()
 	gen_pat_from_fp(packpara, g_prog_info_table);
 	psi_type = PSI_TYPE_PMT;
 	gen_pmt_from_fp(packpara, g_prog_info_table);
+#if 0
+	/* fp should not generate CAT! */
 	psi_type = PSI_TYPE_CAT;
 	gen_cat_from_fp();
+#endif
 	psi_type = PSI_TYPE_SDT;
 	gen_sdt_from_fp(packpara, g_prog_info_table);
 	psi_type = PSI_TYPE_NIT;
