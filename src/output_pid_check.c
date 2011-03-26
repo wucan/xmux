@@ -72,12 +72,33 @@ static struct pid_ref_info *get_pub_pcr_ref(uint8_t pcr_group_id)
 }
 
 static uint16_t next_start_pid = 0x20;
-static uint16_t pick_pid()
+static uint16_t pick_pid(struct xmux_program_info *prog)
 {
 	uint16_t pid;
 	struct pid_ref_info *ref;
+	int i;
 
 	for (pid = next_start_pid; pid < NULL_PID; pid++) {
+		/*
+		 * check pid had been in program's in pid, we should not use it
+		 */
+		if (pid == prog->pmt.in || pid == prog->pcr.in) {
+			trace_warn("pid %#x in program's %s, try next...",
+				pid, pid == prog->pmt.in ? "pmt" : "pcr");
+			continue;
+		}
+		for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
+			if (!prog_pid_val_isvalid(prog->data[i].in))
+				continue;
+			if (prog->data[i].in == pid) {
+				trace_warn("pid %#x in program's data pid, try next...",
+					pid);
+				break;
+			}
+		}
+		if (i != PROGRAM_DATA_PID_MAX_NUM)
+			continue;
+
 		ref = &pid_ref_table[pid];
 		if (!ref->ref_cnt) {
 			/*
@@ -88,6 +109,8 @@ static uint16_t pick_pid()
 			break;
 		}
 	}
+
+	trace_info("pick pid %#x", pid);
 
 	return pid;
 }
@@ -320,7 +343,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 
 	// check pmt
 	if (pid_is_used(sel_prog->info.pmt.in)) {
-		sel_prog->info.pmt.out = pick_pid();
+		sel_prog->info.pmt.out = pick_pid(&sel_prog->info);
 	} else {
 		sel_prog->info.pmt.out = sel_prog->info.pmt.in;
 	}
@@ -334,7 +357,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 			continue;
 		}
 		if (pid_is_used(sel_prog->info.data[i].in)) {
-			sel_prog->info.data[i].out = pick_pid();
+			sel_prog->info.data[i].out = pick_pid(&sel_prog->info);
 		} else {
 			sel_prog->info.data[i].out = sel_prog->info.data[i].in;
 		}
@@ -357,7 +380,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 	// check pcr
 	if (attr->pcr_type == SOLO_PCR) {
 		if (pid_is_used(sel_prog->info.pcr.in)) {
-			sel_prog->info.pcr.out = pick_pid();
+			sel_prog->info.pcr.out = pick_pid(&sel_prog->info);
 		} else {
 			sel_prog->info.pcr.out = sel_prog->info.pcr.in;
 		}
@@ -375,7 +398,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 		} else {
 			ref = &pid_ref_table[sel_prog->info.pcr.in];
 			if (ref->ref_cnt > 0) {
-				sel_prog->info.pcr.out = pick_pid();
+				sel_prog->info.pcr.out = pick_pid(&sel_prog->info);
 				trace_info("pick pub pcr #%d", sel_prog->info.pcr.out);
 			} else {
 				sel_prog->info.pcr.out = sel_prog->info.pcr.in;
