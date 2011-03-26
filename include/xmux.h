@@ -138,7 +138,6 @@ static inline bool es_is_video(int es_type)
 }
 
 #define DATA_PID_PAD_VALUE			0x000F
-#define PID_NO_PAD_VALUE			0x00FF
 static inline bool data_pid_validate(uint8_t type)
 {
 	if (type == PID_TYPE_PAD) {
