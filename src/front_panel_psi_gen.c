@@ -102,14 +102,15 @@ int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	int ncount;
 	int nProgSel = 0;
 	PROG_INFO_T *pProg;
+	char name[PROGRAM_NAME_SIZE] = {0};
 
 	trace_info("generate SDT ...");
 	sdt_gen_context_init(&gen_ctx);
 	for (ncount = 0; ncount < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; ncount++) {
 		pProg = (PROG_INFO_T *) pProgpara + ncount;
 		if (pProg->status == 1) {
-			pProg->info.prog_name[1][pProg->info.prog_name[1][0]] = 0;
-			sdt_gen_context_add_service(&gen_ctx, &pProg->info.prog_name[1][1], prog_num_table[nProgSel], defProviderDsw);
+			memcpy(name, &pProg->info.prog_name[1][1], pProg->info.prog_name[1][0]);
+			sdt_gen_context_add_service(&gen_ctx, name, prog_num_table[nProgSel], defProviderDsw);
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
 				break;
