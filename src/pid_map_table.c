@@ -143,7 +143,7 @@ void pid_map_table_gen_and_apply_from_fp()
 	 * gather pid map from pid ref table
 	 */
 	build_pid_ref_table(g_prog_info_table);
-	for (j = 0; j < 0x1FFF; j++) {
+	for (j = 0; j < NULL_PID; j++) {
 		ref = &pid_ref_table[j];
 		if (ref->type == 0)
 			continue;

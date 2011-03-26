@@ -23,6 +23,8 @@
 #define EIT_PID				0x12
 #define TDT_PID				0x12
 
+#define NULL_PID			0x1FFF
+
 struct mpeg_ts_header {
 	uint32_t sync_byte                        : 8;    /* should be 0x47 */
 	uint32_t pid_hi                           : 5;

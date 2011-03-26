@@ -106,7 +106,7 @@ void outputChaPidMap(ACCESS_HFPGA_PID_MAP *p_pid_map, unsigned char chno)
 }
 
 
-// args: chno(0-7), in_pid(0-0x1FFF), out_pid, count, out_width
+// args: chno(0-7), in_pid(0-NULL_PID), out_pid, count, out_width
 // test_hfpga 
 int main(int argc, char *argv[])
 {

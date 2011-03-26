@@ -14,7 +14,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "fake_hfpga"};
 static int ts_fd;
 static int ts_out_fd;
 static unsigned short filter_pid;
-static unsigned short pid_table[0x1FFF + 1];
+static unsigned short pid_table[NULL_PID + 1];
 
 int fake_hfpga_open(const char *name, int flags)
 {

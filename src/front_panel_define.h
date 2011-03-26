@@ -6,7 +6,7 @@
 #define defProviderDsw		"souka"
 #define defMcuBufMax		4096
 #define defProgPidMin		0x0020
-#define defProgPidMax		0x1FFE
+#define defProgPidMax		(NULL_PID - 1)
 #define defSelectedProgFpga	0x20
 #define defMcuSyncFlag		0x74
 

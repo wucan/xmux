@@ -13,7 +13,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "output_pid_check"};
 extern int prog_pid_val_isvalid(uint16_t prog_pid);
 
 static int pid_ref_table_nprogs;
-struct pid_ref_info pid_ref_table[0x1FFF + 1];
+struct pid_ref_info pid_ref_table[NULL_PID + 1];
 
 static bool pid_is_used(uint16_t pid)
 {
@@ -58,7 +58,7 @@ static struct pid_ref_info *get_pub_pcr_ref(uint8_t pcr_group_id)
 	struct pid_ref_info *ref;
 	int i;
 
-	for (i = 0; i < 0x1FFF; i++) {
+	for (i = 0; i < NULL_PID; i++) {
 		ref = &pid_ref_table[i];
 		if (ref->ref_cnt && ref->type == PCR_BIT) {
 			ref_attr = &g_prog_attr_table[ref->prog_idx];
@@ -77,7 +77,7 @@ static uint16_t pick_pid()
 	uint16_t pid;
 	struct pid_ref_info *ref;
 
-	for (pid = next_start_pid; pid < 0x1FFE; pid++) {
+	for (pid = next_start_pid; pid < NULL_PID; pid++) {
 		ref = &pid_ref_table[pid];
 		if (!ref->ref_cnt) {
 			/*
@@ -188,7 +188,7 @@ void dump_pid_ref_table(const char *context)
 
 	trace_info("%s %d programs selected, and pid ref table is:",
 		context, pid_ref_table_nprogs);
-	for (i = 0; i < 0x1FFF; i++) {
+	for (i = 0; i < NULL_PID; i++) {
 		ref = &pid_ref_table[i];
 		if (ref->type == 0)
 			continue;
