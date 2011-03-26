@@ -2,7 +2,7 @@
 #define _FRONT_PANEL_DEFINE_H_
 
 
-#define defPidIdler			0x0F
+#define defPidIdler		DATA_PID_PAD_VALUE
 #define defProviderDsw		"souka"
 #define defMcuBufMax		4096
 #define defProgPidMin		0x0020

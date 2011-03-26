@@ -34,7 +34,7 @@ static int valid_program_pids(PROG_INFO_T * pProg)
 	for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
 		uint16_t out_pid = pProg->info.data[i].out;
 
-		if (out_pid != 0x000F && out_pid != 0x0000 &&
+		if (out_pid != DATA_PID_PAD_VALUE && out_pid != 0x0000 &&
 			(!prog_pid_val_isvalid(out_pid))) {
 			trace_warn("data pid %d invalid!", out_pid);
 			return enm_prog_pid_val_err;

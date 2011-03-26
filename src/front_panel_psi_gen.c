@@ -169,7 +169,7 @@ int gen_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 			for (j = 0; j < PROGRAM_DATA_PID_MAX_NUM; j++)	// Video Audio
 			{
 				uint16_t out_pid = pProg->info.data[j].out;
-				if (out_pid != 0x00 && out_pid != 0x0F) {
+				if (out_pid != 0x00 && out_pid != DATA_PID_PAD_VALUE) {
 					pmt_gen_context_add_es(&pmt_gen_ctx,
 						out_pid, pProg->info.data[j].type);
 				}
