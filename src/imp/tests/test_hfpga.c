@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 	}
 	
 	chno = atoi(argv[1]);
-	pid_map.cha = 0xFF&(1 << chno);
+	pid_map.cha = CHANNEL_ALL_BITMAP&(1 << chno);
 	i_pid = atoi(argv[2]);
 	o_pid = atoi(argv[3]);
 	for(i = 0; i < 32; i++)

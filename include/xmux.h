@@ -28,6 +28,8 @@
 #define PROGRAM_PID_MAX_NUM				(2 + PROGRAM_DATA_PID_MAX_NUM)
 #define CHANNEL_PID_MAX_NUM				(PROGRAM_MAX_NUM * PROGRAM_PID_MAX_NUM)
 
+// 8 => 0xFF
+#define CHANNEL_ALL_BITMAP	((1 << CHANNEL_MAX_NUM) - 1)
 
 /*
  * front panel

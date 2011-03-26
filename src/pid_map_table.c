@@ -31,7 +31,7 @@ void pid_map_table_clear(struct xmux_pid_map_table *pid_map)
 void fpga_pid_map_table_clear(ACCESS_HFPGA_PID_MAP *pid_map)
 {
 	pid_map_table_clear((struct xmux_pid_map_table *)&pid_map->pid_map);
-	pid_map->cha = 0xFF;
+	pid_map->cha = CHANNEL_ALL_BITMAP;
 }
 
 void pid_map_table_reset()
@@ -47,7 +47,7 @@ int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data)
 	if (size != sizeof(tmp_pid_map.pid_map))
 		return -1;
 
-	tmp_pid_map.cha = 0xFF;
+	tmp_pid_map.cha = CHANNEL_ALL_BITMAP;
 	memcpy((unsigned char *)&tmp_pid_map.pid_map, pid_map_data, sizeof(tmp_pid_map.pid_map));
 
 	hfpga_write_pid_map(&tmp_pid_map);
@@ -162,7 +162,7 @@ void pid_map_table_gen_and_apply_from_fp()
 	}
 
 pid_map_gen_done:
-	pid_map_table_gen_end(&gen_ctx, 0xFF);
+	pid_map_table_gen_end(&gen_ctx, CHANNEL_ALL_BITMAP);
 	xmux_config_save_pid_map_table(gen_ctx.fpga_pid_map.pid_map);
 	hfpga_write_pid_map(&gen_ctx.fpga_pid_map);
 }

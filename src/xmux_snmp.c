@@ -477,7 +477,7 @@ static int heart_device_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 		uint16_t ts_status = 0;
 		hfpga_get_ts_status(0, &ts_status);
 		sg_mib_heartDevice.mode = management_mode;
-		sg_mib_heartDevice.lock_state = ts_status & 0xFF;
+		sg_mib_heartDevice.lock_state = ts_status & CHANNEL_ALL_BITMAP;
 	} else {
 		sg_mib_heartDevice.mode = 0;
 		sg_mib_heartDevice.lock_state = 0;
