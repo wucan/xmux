@@ -42,13 +42,7 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 	/*
 	 * management mode
 	 */
-	management_mode = p->mng_mode;
-	if (management_mode != MANAGEMENT_MODE_SNMP &&
-		management_mode != MANAGEMENT_MODE_FP) {
-		trace_err("management mode invalidate! force to SNMP!");
-		management_mode = MANAGEMENT_MODE_SNMP;
-		xmux_config_save_management_mode();
-	}
+	management_mode = MANAGEMENT_MODE_SNMP;
 
 	/*
 	 * pid trans info
@@ -161,7 +155,8 @@ void xmux_config_save_packet_format(uint8_t fmt)
 void xmux_config_save_management_mode()
 {
 	g_eeprom_param.mng_mode = management_mode;
-	eeprom_write(EEPROM_OFF_MNG_MODE, &g_eeprom_param.mng_mode, 1);
+	/* don't save again */
+	//eeprom_write(EEPROM_OFF_MNG_MODE, &g_eeprom_param.mng_mode, 1);
 }
 
 void xmux_config_save_pid_trans_info_channel(uint8_t chan_idx,

@@ -32,15 +32,10 @@ int main(int argc, char **argv)
 	xmux_net_restore();
 
 	/*
-	 * set login status idle and more data when start up in snmp mode
+	 * prepare the correct data for fp
 	 */
-	trace_info("startup management mode: %s",
-		management_mode_str(management_mode));
-	if (management_mode == MANAGEMENT_MODE_SNMP) {
-		leave_fp_management_mode();
-	} else {
-		enter_fp_management_mode();
-	}
+	enter_fp_management_mode();
+	leave_fp_management_mode();
 
 	/*
 	 * restore all system to work again!
