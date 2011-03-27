@@ -420,6 +420,11 @@ int psi_gen_and_apply_from_fp()
 
 	xmux_config_save_output_psi_data();
 
+	/*
+	 * the above dvbSI codes had not gave our desire result, use this
+	 */
+	psi_apply_from_output_psi();
+
 	return 0;
 }
 
