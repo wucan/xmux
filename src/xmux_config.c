@@ -202,6 +202,8 @@ void xmux_config_save_pid_trans_info_all()
 
 void xmux_config_save_output_psi_data()
 {
+	trace_info("save output psi data...");
+	output_psi_data_dump(&g_eeprom_param.output_psi_area.output_psi);
 	eeprom_write(EEPROM_OFF_OUTPUT_PSI, &g_eeprom_param.output_psi_area,
 		sizeof(g_eeprom_param.output_psi_area));
 }
