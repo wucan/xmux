@@ -108,7 +108,7 @@ void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
 		prog_name_len = MIN(prog->prog_name[0][0], PROGRAM_NAME_SIZE - 1);
 		memcpy(prog_name, &prog->prog_name[0][1], prog_name_len);
 		prog_name[prog_name_len] = 0;
-		trace_info("program #%d, %s, num %d, pmt(%d => %d), pcr(%d => %d), %s",
+		trace_info("program #%d, %s, num %d, pmt(%#x => %#x), pcr(%#x => %#x), %s",
 			prog_idx, prog_name, prog->prog_num,
 			prog->pmt.in, prog->pmt.out, prog->pcr.in, prog->pcr.out,
 			PROGRAM_SELECTED(data->status, prog_idx) ? "selected": "discard");
@@ -118,12 +118,12 @@ void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
 			if (data_pid_in == DATA_PID_PAD_VALUE)
 				continue;
 			if (!data_pid_validate(prog->data[pid_idx].type)) {
-				trace_err("  #%d, data pid %d(%#x) invalidate!(type %d)",
-					pid_idx, data_pid_in, data_pid_in,
+				trace_err("  #%d, data pid %#x invalidate!(type %d)",
+					pid_idx, data_pid_in,
 					prog->data[pid_idx].type);
 				continue;
 			}
-			trace_info("  #%d, pid(%d => %d, type %d)",
+			trace_info("  #%d, pid(%#x => %#x, type %d)",
 				pid_idx,
 				data_pid_in, prog->data[pid_idx].out, prog->data[pid_idx].type);
 		}
