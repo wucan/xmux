@@ -194,6 +194,26 @@ struct fp_cmd * front_panel_send_cmd(struct fp_cmd *cmd, int expect_cmd)
 int front_panel_check_recv_cmd(struct fp_cmd *recv_cmd)
 {
 	int cmd = SWAP_U16(recv_cmd->header.seq) & 0x7FFF;
+	int is_read = SWAP_U16(recv_cmd->header.seq) & 0x8000;
+	bool check_enter_fp = true;
+
+	/*
+	 * check force enter to fp management mode
+	 */
+	if (cmd == FP_CMD_SYS) {
+		uint16_t sys_cmd = READ_U16_BE(recv_cmd->data);
+		if (sys_cmd == FP_SYS_CMD_READ_TS_STATUS ||
+			sys_cmd == FP_SYS_CMD_ENTER_FP_MANAGEMENT_MODE ||
+			sys_cmd == FP_SYS_CMD_LEAVE_FP_MANAGEMENT_MODE) {
+			check_enter_fp = false;
+		}
+	} else if (cmd == FP_CMD_OUT_RATE && is_read) {
+		check_enter_fp = false;
+	}
+	if (check_enter_fp && (management_mode != MANAGEMENT_MODE_FP)) {
+		trace_warn("recv cmd in none fp mode! force switch!");
+		enter_fp_management_mode();
+	}
 
 	if (cmd == fp_expect_cmd) {
 		static char buf[1024];
