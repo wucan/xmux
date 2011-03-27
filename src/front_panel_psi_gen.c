@@ -118,7 +118,7 @@ int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	}
 	sdt_gen_context_pack(&gen_ctx);
 	dvbSI_Gen_SDT(&gen_ctx.sdt_data, gen_ctx.sdt_serv_data, gen_ctx.serv_num);
-	sdt_gen_context_pack(&gen_ctx);
+	sdt_gen_context_free(&gen_ctx);
 
 	return 0;
 }
