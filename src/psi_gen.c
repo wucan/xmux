@@ -151,7 +151,7 @@ void sdt_gen_context_pack(struct sdt_gen_context *ctx)
 			p_descr[j].p_data[0] = 0x01; // serivece type: DTV
 			p_descr[j].p_data[1] = ctx->serv_info[i].provider_len;
 			memcpy(p_descr[j].p_data + 2, ctx->serv_info[i].provider, ctx->serv_info[i].provider_len);
-			p_descr[j].p_data[6] = ctx->serv_info[i].name_len;
+			p_descr[j].p_data[2 + ctx->serv_info[i].provider_len] = ctx->serv_info[i].name_len;
 			memcpy(p_descr[j].p_data + 3 + ctx->serv_info[i].provider_len, ctx->serv_info[i].name, ctx->serv_info[i].name_len);
 		}
 	}
