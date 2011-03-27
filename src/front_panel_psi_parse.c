@@ -152,7 +152,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 
 	trace_info("decode PMT ...");
 	//FIXME: PMT table parse!!!
-	//sg_si_param.tbl_type = EUV_TBL_PMT;
+	sg_si_param.tbl_type = EUV_TBL_PMT;
 	for (i = 0; i < pid_num; i++) {
 		if (pid_data[i].i_pg_num != 0x00) {
 			prog_info = chan_prog_info + prog_cnt;
@@ -163,7 +163,8 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 					DSW_PID_PMT, pid_data[i].i_pid, NULL, 0);
 			prog_info->info.prog_num = pid_data[i].i_pg_num;
 
-			trace_info("decode PMT %#x ...", pid_data[i].i_pid);
+			trace_info("decode program_number %d, PMT %#x ...",
+				pid_data[i].i_pg_num, pid_data[i].i_pid);
 			pmt.i_pg_num = pid_data[i].i_pg_num;
 			pmt.i_pmt_pid = pid_data[i].i_pid;
 			psi_parse_timer_start(5);
