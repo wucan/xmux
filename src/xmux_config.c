@@ -196,7 +196,7 @@ void xmux_config_save_pid_trans_info_all()
 	}
 
 	eeprom_write(EEPROM_OFF_PID_TRANS_INFO,
-		&g_eeprom_param.pid_trans_info_area.bytes,
+		&g_eeprom_param.pid_trans_info_area,
 		sizeof(g_eeprom_param.pid_trans_info_area.pid_trans_info));
 }
 

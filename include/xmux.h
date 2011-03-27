@@ -255,15 +255,12 @@ struct xmux_mux_program_info {
 #define EEPROM_PAGE_ALIGN	 __attribute__ ((aligned(EEPROM_PAGE_SIZE)))
 struct xmux_eeprom_param {
 	union {
-		uint8_t bytes[25904];
 		struct pid_trans_info_snmp_data pid_trans_info[CHANNEL_MAX_NUM];
 	} pid_trans_info_area EEPROM_PAGE_ALIGN;
 	union {
-		uint8_t bytes[1024];
 		struct xmux_pid_map_table pid_map_table;
 	} pid_map_table_area EEPROM_PAGE_ALIGN;
 	union {
-		uint8_t bytes[1024 * 8];
 		struct xmux_output_psi_data output_psi;
 	} output_psi_area EEPROM_PAGE_ALIGN;
 	struct xmux_system_param sys EEPROM_PAGE_ALIGN;

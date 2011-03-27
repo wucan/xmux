@@ -96,14 +96,14 @@ void leave_fp_management_mode()
 		g_param_mng_info.snmp_pid_trans_info_version) {
 		g_param_mng_info.snmp_pid_trans_info_version =
 			g_param_mng_info.eeprom_pid_trans_info_version;
-		memcpy(&sg_mib_pid_trans_info, g_eeprom_param.pid_trans_info_area.bytes,
+		memcpy(&sg_mib_pid_trans_info, &g_eeprom_param.pid_trans_info_area,
 			sizeof(g_eeprom_param.pid_trans_info_area.pid_trans_info));
 	}
 	if (g_param_mng_info.eeprom_pid_map_table_version !=
 		g_param_mng_info.snmp_pid_map_table_version) {
 		g_param_mng_info.snmp_pid_map_table_version =
 			g_param_mng_info.eeprom_pid_map_table_version;
-		memcpy(&sg_mib_trans.table, g_eeprom_param.pid_map_table_area.bytes,
+		memcpy(&sg_mib_trans.table, &g_eeprom_param.pid_map_table_area,
 			sizeof(g_eeprom_param.pid_map_table_area.pid_map_table));
 	}
 
