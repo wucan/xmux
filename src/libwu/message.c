@@ -148,9 +148,11 @@ void hex_dump(const char *name, unsigned char *buf, int size)
 	if (size <= 0)
 		return;
 
-	printf("%s: 0x", name);
+	printf("%s(buf %p, size %d): 0x\n", name, buf, size);
 	for (i = 0; i < size; i++) {
-		printf("%02x", *buf);
+		printf("%02x ", *buf);
+		if ((i + 1) % 16 == 0)
+			putchar('\n');
 		buf++;
 	}
 	printf("\n");
