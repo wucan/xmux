@@ -249,4 +249,42 @@ static void eeprom_rw_test()
 		}
 	}
 }
+#if 0
+static struct xmux_eeprom_param tmp_eeprom_param;
+#define NBYTES	sizeof(struct xmux_eeprom_param)
+static void eeprom_rw_test_1()
+{
+	int i, cnt = 0;
+	uint8_t *wbuf = &g_eeprom_param;
+	uint8_t *rbuf = &tmp_eeprom_param;
+
+	while (1) {
+		// write something
+		for (i = 0; i < 1024; i++)
+			wbuf[i] = i;
+		memset(wbuf, cnt, NBYTES);
+		cnt++;
+		eeprom_write(0, wbuf, NBYTES);
+		// read back
+		memset(rbuf, 0xFF, NBYTES);
+		eeprom_read(0, rbuf, NBYTES);
+		// check
+		for (i = 0; i < NBYTES; i++) {
+			if (rbuf[i] != wbuf[i]) {
+				trace_err("check failed begin at %#x!", i);
+				hex_dump("write", &wbuf[i], NBYTES - i);
+				hex_dump("read", &rbuf[i], NBYTES - i);
+				break;
+			}
+		}
+		if (i == NBYTES) {
+			trace_info("check passed");
+		}
+
+		sleep(2);
+		//break;
+	}
+	exit(0);
+}
+#endif
 
