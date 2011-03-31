@@ -16,8 +16,6 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_config"};
 
 struct xmux_eeprom_param g_eeprom_param;
 
-static void eeprom_rw_test();
-
 int xmux_config_init()
 {
 	int rc = eeprom_open();
@@ -231,6 +229,7 @@ void xmux_config_save_mux_program_info(struct xmux_mux_program_info *info)
 	eeprom_write(EEPROM_OFF_MUX_PROG_INFO, info, sizeof(*info));
 }
 
+#if 0
 static void eeprom_rw_test()
 {
 	uint8_t data[1024], read_data[1024];
@@ -249,7 +248,6 @@ static void eeprom_rw_test()
 		}
 	}
 }
-#if 0
 static struct xmux_eeprom_param tmp_eeprom_param;
 #define NBYTES	sizeof(struct xmux_eeprom_param)
 static void eeprom_rw_test_1()
