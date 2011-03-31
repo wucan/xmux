@@ -257,12 +257,6 @@ struct xmux_eeprom_param {
 	union {
 		struct pid_trans_info_snmp_data pid_trans_info[CHANNEL_MAX_NUM];
 	} pid_trans_info_area EEPROM_PAGE_ALIGN;
-
-	/*
-	 * pad block!!!! else the pid_map_table_area is messed!
-	 */
-	uint8_t pad_bytes[EEPROM_PAGE_SIZE * 1];
-
 	union {
 		struct xmux_pid_map_table pid_map_table;
 	} pid_map_table_area EEPROM_PAGE_ALIGN;
