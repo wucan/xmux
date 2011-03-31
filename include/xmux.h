@@ -261,7 +261,7 @@ struct xmux_eeprom_param {
 		struct xmux_pid_map_table pid_map_table;
 	} pid_map_table_area EEPROM_PAGE_ALIGN;
 	union {
-		uint8_t bytes[1024 * 8];
+		uint8_t bytes[OUTPUT_PSI_AREA_SIZE];
 		struct xmux_output_psi_data output_psi;
 	} output_psi_area EEPROM_PAGE_ALIGN;
 	struct xmux_system_param sys EEPROM_PAGE_ALIGN;
