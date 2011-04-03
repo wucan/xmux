@@ -223,6 +223,7 @@ void xmux_config_save_net_param(struct xmux_net_param *net)
 	net->csc = wu_csc(net, sizeof(*net) - 1);
 	g_eeprom_param.net = *net;
 	eeprom_write(EEPROM_OFF_NET, net, sizeof(*net));
+	hex_dump("save net", &g_eeprom_param.net, sizeof(*net));
 }
 
 void xmux_config_save_mux_program_info(struct xmux_mux_program_info *info)

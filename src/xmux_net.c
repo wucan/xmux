@@ -15,6 +15,7 @@ bool xmux_net_param_validate(struct xmux_net_param *net)
 	uint8_t *p;
 	int i;
 
+	hex_dump("validate net", net, sizeof(*net));
 	csc = wu_csc(net, offsetof(struct xmux_net_param, csc));
 	if (net->csc != csc) {
 		trace_err("csc invalidate!");
