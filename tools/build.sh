@@ -15,5 +15,8 @@ cp pcmcia /tftpboot
 arm-elf-gcc -Wl,-elf2flt -o r16 r16.c
 cp r16 /tftpboot
 
+arm-elf-gcc -Wl,-elf2flt -o r8 r8.c
+cp r8 /tftpboot
+
 arm-elf-gcc -Wl,-elf2flt -o pcmcia-setup pcmcia-setup.c
 cp pcmcia-setup /tftpboot
