@@ -1,0 +1,50 @@
+attr mem(buf 0x1afbcb4, size 336): 0x
+1d 04 00 db 08 ff 1c 03 00 08 ff 15 16 05 00 53 
+4d 49 54 00 44 56 42 20 43 41 20 4d 6f 64 75 6c 
+65 00 ff 20 04 ff ff 01 00 1a 15 01 0f 20 02 01 
+c0 0e 41 02 44 56 42 5f 43 49 5f 56 31 2e 30 30 
+1b 11 c9 41 19 37 55 4e 5e 1d 56 aa 60 20 03 03 
+50 ff ff 1b 25 cf 04 09 37 55 4d 5d 1d 56 22 c0 
+09 44 56 42 5f 48 4f 53 54 00 c1 0e 44 56 42 5f 
+43 49 5f 4d 4f 44 55 4c 45 00 14 00 ff 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+90 e4 96 77 0e b2 52 5f 6b 0c 11 34 dc 68 9c 7f 
+d6 fa 14 56 62 2a c1 8e 45 5b 20 89 82 fe c2 a0 
+32 72 01 23 71 70 99 0b 3e 5b 18 21 cd ff 41 27 
+30 8c 42 c6 51 aa 0d 19 ad 10 26 39 cb 1b 75 a1 
+0a 4b d0 48 a3 73 b5 58 1b 34 0e 82 a1 3e 33 9b 
+29 d8 dc 56 a8 15 ba de 8b 11 b0 c4 b9 f7 4d ec 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+Invalid multibyte format string.CISTPL_DEVICE_OA
+Invalid multibyte format string.CISTPL_DEVICE_OC
+dvbcidemo card Manufacturer:SMIT !
+dvbcidemo card Product:DVB CA Module !
+CISTPL_CONFIG
+DVB_CI_V1.00CISTPL_CFTABLE_ENTRY
+IrqDesc
+(default) 
+Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.
+Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.
+8CISTPL_CFTABLE_ENTRY
+DVB_HOSTDVB_CI_MODULE(default) Invalid multibyte format string.
+Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string. 
+Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string.Invalid multibyte format string. 
+8
+
+[ManufacturerName :]SMIT
+[ProductName      :]DVB CA Module
+[ManufacturerId   :]65535
+[CardID           :]256
+[ProductInfo1     :]
+[ProductInfo2     :]
+[Info.ConfigOffset is :] 0x220
+[Info.Config[i].bConfigIndex is :] 0xF
+# Minicom2.4Minicom2.4
+Minicom2.4Minicom2.4: not found
+# 
