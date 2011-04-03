@@ -14,7 +14,8 @@ libimp_la_SOURCES = \
 	eeprom.c \
 	rs232.c \
 	hfpga.c \
-	fake_hfpga.c
+	fake_hfpga.c \
+	ci.c
 
 libimp_la_LIBADD =
 
