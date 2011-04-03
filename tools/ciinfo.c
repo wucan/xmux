@@ -4,6 +4,9 @@
 #include <memory.h>
 #include <pthread.h>
 
+#include "kernel_type.h"
+#include "pci.h"
+
 
 void hex_dump(const char *name, unsigned char *buf, int size);
 
@@ -394,6 +397,10 @@ int main(int argc, char **argv)
 	uint8_t attr_mem[0x150];
 	int i = 0, j = 0;
 
+	if (!sPCCARDCON.ACT) {
+		printf("Card is't active! do nothing!\n");
+		exit(1);
+	}
 	while (1) {
 		attr_mem[j] = ci_r16(i);
 		i += 2;

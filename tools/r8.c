@@ -3,6 +3,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "kernel_type.h"
+#include "pci.h"
+
 
 #define BASE		0x0
 
@@ -24,6 +27,10 @@ int main(int argc, char **argv)
 	if (argc == 3)
 		dst_bytes = strtoul(argv[2], NULL, 10);
 
+	if (!sPCCARDCON.ACT) {
+		printf("Card is't active! do nothing!\n");
+		exit(1);
+	}
 	printf("dump %d bytes @%#x:\n");
 	reg = BASE + off;
 	while (nbytes < dst_bytes) {
