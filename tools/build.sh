@@ -20,3 +20,7 @@ cp r8 /tftpboot
 
 arm-elf-gcc -Wl,-elf2flt -o pcmcia-setup pcmcia-setup.c
 cp pcmcia-setup /tftpboot
+
+arm-elf-gcc -Wl,-elf2flt -o ciinfo ciinfo.c
+cp ciinfo /tftpboot
+
