@@ -248,7 +248,7 @@ static void build_control_ui(GtkWidget *vbox)
 	hbox = gtk_hbox_new(TRUE, 2);
 	/* channel */
 	chan_combo_box = gtk_combo_box_new_text();
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < CHANNEL_MAX_NUM; i++) {
 		char s[10];
 		sprintf(s, "%d", i);
 		gtk_combo_box_append_text(chan_combo_box, s);

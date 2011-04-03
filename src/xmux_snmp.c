@@ -644,7 +644,7 @@ static void register_channel_pmt_oids(struct wu_oid_object *obj)
 	int i;
 
 	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
-		obj->oid[8] = i + 1;
+		obj->oid[OID_CHAN_PMT_PROG_IDX] = i + 1;
 		wu_snmp_agent_register(obj);
 	}
 }
@@ -653,7 +653,7 @@ static void register_channel_sdt_oids(struct wu_oid_object *obj)
 	int i;
 
 	for (i = 0; i < SDT_SECTION_NUM; i++) {
-		obj->oid[8] = i + 1;
+		obj->oid[OID_SDT_SEC_IDX] = i + 1;
 		wu_snmp_agent_register(obj);
 	}
 }
@@ -662,7 +662,7 @@ static void register_channel_eit_oids(struct wu_oid_object *obj)
 	int i;
 
 	for (i = 0; i < EIT_SECTION_NUM; i++) {
-		obj->oid[8] = i + 1;
+		obj->oid[OID_EIT_SEC_IDX] = i + 1;
 		wu_snmp_agent_register(obj);
 	}
 }
