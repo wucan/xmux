@@ -151,7 +151,6 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	}
 
 	trace_info("decode PMT ...");
-	//FIXME: PMT table parse!!!
 	sg_si_param.tbl_type = EUV_TBL_PMT;
 	for (i = 0; i < pid_num; i++) {
 		if (pid_data[i].i_pg_num != 0x00) {

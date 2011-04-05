@@ -253,7 +253,6 @@ static int net_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 }
 /*
  * USER
- * FIXME: check size!
  */
 static int user_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
