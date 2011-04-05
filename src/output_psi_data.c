@@ -7,6 +7,8 @@
 #include "output_psi_data.h"
 #include "gen_dvb_si.h"
 #include "hfpga.h"
+#include "section.h"
+#include "xmux_ci.h"
 
 
 extern uv_dvb_io hfpga_dev;
@@ -89,6 +91,7 @@ int psi_apply_from_output_psi()
 	struct xmux_output_psi_data *psi_data = &g_eeprom_param.output_psi_area.output_psi;
 	struct output_psi_data_entry *ent;
 	uint8_t psi_type, howto = 0;
+	int i;
 
 	trace_info("apply psi to fpga...");
 	dvbSI_Start(&hfpga_dev);
@@ -106,6 +109,22 @@ int psi_apply_from_output_psi()
 	}
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
 	dvbSI_Stop(&hfpga_dev);
+
+	/*
+	 * download pmt section to ci card
+	 */
+	ent = &psi_data->psi_ents[PSI_TYPE_PMT];
+	for (i = 0; i < ent->nr_ts_pkts; i++) {
+		uint8_t sec[184];
+		int sec_len;
+		uint8_t *ts = (uint8_t *)&psi_data->ts_pkts[ent->offset + i];
+		sec_len = ts_to_section(ts, sec);
+		if (sec_len > 0) {
+			trace_info("download pmt(pid=%#x) section, len %d",
+				GET_PID(ts), sec_len);
+			xmux_ci_download_pmt_section(sec, sec_len);
+		}
+	}
 
 	return 0;
 }
