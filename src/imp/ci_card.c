@@ -18,11 +18,11 @@ bool ci_card_actived()
 bool ci_io_write_u8(int off, uint8_t v)
 {
 	if (!ci_card_actived())
-		return -1;
+		return false;
 
 	*(volatile uint8_t *)(CI_IO_BASE + off) = v;
 
-	return false;
+	return true;
 }
 
 uint8_t ci_io_read_u8(int off)
