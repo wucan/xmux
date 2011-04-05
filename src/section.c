@@ -103,3 +103,22 @@ int section_to_ts(uint8_t *sec_data, int sec_len, uint8_t *ts_buf,
 	return tslen;
 }
 
+/*
+ * extract section from ts, only for one ts packet section
+ */
+int ts_to_section(uint8_t *ts, uint8_t *sec)
+{
+	uint16_t sec_len;
+
+	if (ts[0] != 0x47)
+		return -1;
+	sec_len = (ts[7] & 0x0F) | ts[8];
+	if (sec_len > (TS_PACKET_BYTES - 8)) {
+		return -1;
+	}
+
+	memcpy(sec, ts + 8, sec_len + 3);
+
+	return sec_len;
+}
+
