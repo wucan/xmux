@@ -4,6 +4,7 @@
 #include "pci.h"
 
 
+#define CI_MEM_BASE			0xC4000000
 #define CI_IO_BASE			0xC8000000
 
 
@@ -31,5 +32,23 @@ uint8_t ci_io_read_u8(int off)
 		return 0;
 
 	return *(volatile uint8_t *)(CI_IO_BASE + off);
+}
+
+bool ci_mem_write_u16(int off, uint16_t v)
+{
+	if (!ci_card_actived())
+		return false;
+
+	*(volatile uint16_t *)(CI_MEM_BASE + off) = v;
+
+	return true;
+}
+
+uint16_t ci_mem_read_u16(int off)
+{
+	if (!ci_card_actived())
+		return 0;
+
+	return *(volatile uint16_t *)(CI_MEM_BASE + off);
 }
 
