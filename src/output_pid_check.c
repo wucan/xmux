@@ -101,10 +101,6 @@ static uint16_t pick_pid(struct xmux_program_info *prog)
 
 		ref = &pid_ref_table[pid];
 		if (!ref->ref_cnt) {
-			/*
-			 * FIXME: how about if pid had been conflict with current
-			 * selected program pid?
-			 */
 			next_start_pid = pid + 1;
 			break;
 		}
