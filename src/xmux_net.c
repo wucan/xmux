@@ -35,6 +35,11 @@ bool xmux_net_param_validate(struct xmux_net_param *net)
 		hex_dump("mac", net->mac, sizeof(net->mac));
 		return false;
 	}
+	/* check all 000000000 */
+	if (net->ip == 0x00000000) {
+		trace_err("ip invalidate!");
+		return false;
+	}
 
 	return true;
 }
