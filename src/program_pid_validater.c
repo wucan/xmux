@@ -115,7 +115,7 @@ static int channel_mapped_pid_count(int nselchn)
 	for (prog_cnt = 0; prog_cnt < PROGRAM_MAX_NUM; prog_cnt++) {
 		PROG_INFO_T *pProg =
 			g_prog_info_table + nselchn * PROGRAM_MAX_NUM + prog_cnt;
-		if (pProg->status == 1) {
+		if (FP_PROG_SELECTED(pProg)) {
 			npidcountchn += program_mapped_pid_count(pProg);
 		}
 	}
@@ -130,7 +130,7 @@ static int program_selected_count()
 
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		PROG_INFO_T *pProg = g_prog_info_table + i;
-		if (pProg->status != 1)
+		if (!FP_PROG_SELECTED(pProg))
 			continue;
 		nselected++;
 	}
@@ -147,15 +147,15 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog,
 	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
 	uint8_t old_status;
 
-	if (g_prog_info_table[prog_idx].status == 1 &&
+	if (FP_PROG_SELECTED(&g_prog_info_table[prog_idx]) &&
 		memcmp(&sel_prog->info, &g_prog_info_table[prog_idx].info, sizeof(sel_prog->info)) == 0) {
 		trace_warn("selected program's parameter same, do nothing!");
 		return true;
 	}
 
 	// backup old status
-	old_status = g_prog_info_table[prog_idx].status;
-	g_prog_info_table[prog_idx].status = 0;
+	old_status = FP_PROG_SELECTED(&g_prog_info_table[prog_idx]);
+	FP_DESELECT_PROG(&g_prog_info_table[prog_idx]);
 
 	if (program_selected_count() + 1 > defSelectedProgFpga) {
 		trace_err("cann't select more programs!");
@@ -175,7 +175,7 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog,
 			fix_selected_program_output_pid(sel_prog, prog_idx,
 				g_prog_info_table, true);
 		}
-		sel_prog->status = 1;
+		FP_SELECT_PROG(sel_prog);
 		g_prog_info_table[prog_idx] = *sel_prog;
 		trace_info("program #%d success selected", prog_idx);
 		xmux_program_info_dump(&sel_prog->info, "fix selected");
@@ -184,14 +184,17 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog,
 
 failed_out:
 	// restore old status
-	g_prog_info_table[prog_idx].status = old_status;
+	if (old_status)
+		FP_SELECT_PROG(&g_prog_info_table[prog_idx]);
+	else
+		FP_DESELECT_PROG(&g_prog_info_table[prog_idx]);
 
 	return false;
 }
 
 void prepare_program_output_pid(int prog_idx, PROG_INFO_T *prog)
 {
-	if (prog->status == 1) {
+	if (FP_PROG_SELECTED(prog)) {
 		return;
 	}
 	fix_selected_program_output_pid(prog, prog_idx, g_prog_info_table, false);

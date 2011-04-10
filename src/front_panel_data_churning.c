@@ -107,7 +107,10 @@ void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
 		xmux_prog = &pid_trans_info->programs[prog_idx];
 		prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 
-		prog->status = PROGRAM_SELECTED(pid_trans_info->status, prog_idx) ? 1: 0;
+		if (PROGRAM_SELECTED(pid_trans_info->status, prog_idx))
+			FP_SELECT_PROG(prog);
+		else
+			FP_DESELECT_PROG(prog);
 		memcpy(&prog->info, xmux_prog, sizeof(struct xmux_program_info));
 	}
 }
@@ -144,7 +147,7 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 		xmux_prog = &pid_trans_info->programs[prog_idx];
 		prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 
-		if (prog->status) {
+		if (FP_PROG_SELECTED(prog)) {
 			SELECT_PROGRAM(pid_trans_info, prog_idx);
 		} else {
 			DESELECT_PROGRAM(pid_trans_info, prog_idx);

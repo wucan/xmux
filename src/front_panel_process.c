@@ -108,7 +108,7 @@ static int cmd_program_info_handler(struct fp_cmd_header *cmd_header, int is_rea
 		xmux_program_info_dump(&new_prog.info, "write");
 		tmpbuf[0] = 0xFF;
 		tmpbuf[1] = 0xFF;
-		if (new_prog.status == 1) {
+		if (FP_PROG_SELECTED(&new_prog)) {
 			if (!check_and_select_program(prog_idx, &new_prog, &old_prog)) {
 				tmpbuf[1] = 0xFE;
 			}
@@ -348,7 +348,7 @@ void fp_select_program(uint8_t prog_idx)
 	if ((prog_idx % PROGRAM_MAX_NUM) >= g_chan_num.num[chan_idx_sel]) {
 		return;
 	}
-	if (prog.status == 1) {
+	if (FP_PROG_SELECTED(&prog)) {
 		return;
 	}
 
@@ -367,11 +367,11 @@ void fp_deselect_program(uint8_t prog_idx)
 	if ((prog_idx % PROGRAM_MAX_NUM) >= g_chan_num.num[chan_idx_sel]) {
 		return;
 	}
-	if (!prog->status) {
+	if (!FP_PROG_SELECTED(prog)) {
 		trace_warn("program #%d had not select yet!", prog_idx);
 		return;
 	}
-	prog->status = 0;
+	FP_DESELECT_PROG(prog);
 	trace_info("deselect program #%d success", prog_idx);
 }
 

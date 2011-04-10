@@ -5,12 +5,17 @@
 #include "wu/wu_byte_stream.h"
 
 
+#define FP_STATUS_SELECTED			(1 << 0)
+
 typedef struct					// output one program to mcu_panel
 {
 	uint8_t status;
 
 	struct xmux_program_info info;
 } __attribute__ ((__packed__)) PROG_INFO_T;
+#define FP_PROG_SELECTED(p)		((p)->status & FP_STATUS_SELECTED)
+#define FP_SELECT_PROG(p)		((p)->status |= FP_STATUS_SELECTED)
+#define FP_DESELECT_PROG(p)		((p)->status &= ~FP_STATUS_SELECTED)
 
 struct fp_cmd_header {
 	uint8_t sync;

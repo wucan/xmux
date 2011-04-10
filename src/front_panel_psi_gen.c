@@ -55,7 +55,7 @@ void build_program_number_table()
 	prog_num_cnt = 0;
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		PROG_INFO_T *prog = &g_prog_info_table[i];
-		if (prog->status == 1) {
+		if (FP_PROG_SELECTED(prog)) {
 			fix_and_push_program_number(prog_num_cnt, prog->info.prog_num);
 			prog_num_cnt++;
 		}
@@ -108,7 +108,7 @@ int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	sdt_gen_context_init(&gen_ctx);
 	for (ncount = 0; ncount < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; ncount++) {
 		pProg = (PROG_INFO_T *) pProgpara + ncount;
-		if (pProg->status == 1) {
+		if (FP_PROG_SELECTED(pProg)) {
 			memcpy(name, &pProg->info.prog_name[1][1], pProg->info.prog_name[1][0]);
 			sdt_gen_context_add_service(&gen_ctx, name, prog_num_table[nProgSel], defProviderDsw);
 			nProgSel++;
@@ -138,7 +138,7 @@ int gen_pat_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	nProgSel = 0;
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		pProg = (PROG_INFO_T *) pProgpara + i;
-		if (pProg->status == 1) {
+		if (FP_PROG_SELECTED(pProg)) {
 			pat_gen_context_add_program(&pat_gen_ctx, prog_num_table[nProgSel], pProg->info.pmt.out);
 			nProgSel++;
 			if (nProgSel >= PROGRAM_MAX_NUM)
@@ -162,7 +162,7 @@ int gen_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		int j;
 		pProg = (PROG_INFO_T *) pProgpara + i;
-		if (pProg->status == 1) {
+		if (FP_PROG_SELECTED(pProg)) {
 			struct pmt_gen_context pmt_gen_ctx;
 			pmt_gen_context_init(&pmt_gen_ctx);
 			pmt_gen_context_add_program_info(&pmt_gen_ctx,

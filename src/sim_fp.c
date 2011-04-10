@@ -169,7 +169,7 @@ static void select_program_btn_press(GtkWidget *widget,
 	prog = gtk_combo_box_get_active(prog_combo_box);
 	prog_idx = chan * 32 + prog;
 
-	cur_prog.status = 1;
+	FP_SELECT_PROG(&cur_prog);
 	fp_build_cmd(req_buf, false, prog_idx, &cur_prog, sizeof(cur_prog));
 	hex_dump("req", req_buf, 16);
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
@@ -185,7 +185,7 @@ static void deselect_program_btn_press(GtkWidget *widget,
 	prog = gtk_combo_box_get_active(prog_combo_box);
 	prog_idx = chan * 32 + prog;
 
-	cur_prog.status = 0;
+	FP_DESELECT_PROG(&cur_prog);
 	fp_build_cmd(req_buf, false, prog_idx, &cur_prog, sizeof(cur_prog));
 	hex_dump("req", req_buf, 16);
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);

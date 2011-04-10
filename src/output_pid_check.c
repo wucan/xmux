@@ -141,7 +141,7 @@ bool build_pid_ref_table(PROG_INFO_T *prog_table)
 	for (i = 0; i < CHANNEL_MAX_NUM * PROGRAM_MAX_NUM; i++) {
 		prog = &prog_table[i];
 		attr = &g_prog_attr_table[i];
-		if (prog->status != 1)
+		if (!FP_PROG_SELECTED(prog))
 			continue;
 		nprogs_sel++;
 		/*
@@ -302,7 +302,7 @@ bool check_user_output_pid(PROG_INFO_T *old_prog,
 				PROG_INFO_T *tmp_prog = &prog_table[i];
 				if (sel_prog_idx == i)
 					continue;
-				if (tmp_prog->status != 1)
+				if (!FP_PROG_SELECTED(tmp_prog))
 					continue;
 				ref_attr = &g_prog_attr_table[i];
 				if (attr->pcr_group_id == ref_attr->pcr_group_id) {
@@ -412,7 +412,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 			PROG_INFO_T *tmp_prog = &prog_table[i];
 			if (sel_prog_idx == i)
 				continue;
-			if (tmp_prog->status != 1)
+			if (!FP_PROG_SELECTED(tmp_prog))
 				continue;
 			ref_attr = &g_prog_attr_table[i];
 			if (attr->pcr_group_id == ref_attr->pcr_group_id) {
