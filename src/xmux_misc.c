@@ -65,6 +65,8 @@ bool xmux_user_param_validate(struct xmux_user_param *user)
 	csc = wu_csc(user, offsetof(struct xmux_user_param, csc));
 	if (user->csc != csc)
 		return false;
+	if (user->user_len <= 0 || user->user_len > 16)
+		return false;
 
 	return true;
 }
@@ -75,7 +77,7 @@ void xmux_user_param_init_default(struct xmux_user_param *user)
 	user->password_len = snprintf(user->password, 16, "%s", "admin");
 	user->csc = wu_csc(user, offsetof(struct xmux_user_param, csc));
 
-	eeprom_write(EEPROM_OFF_USER, user, sizeof(user));
+	eeprom_write(EEPROM_OFF_USER, user, sizeof(*user));
 }
 
 void xmux_user_param_dump(struct xmux_user_param *user)
