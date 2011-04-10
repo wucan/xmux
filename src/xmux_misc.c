@@ -71,8 +71,8 @@ bool xmux_user_param_validate(struct xmux_user_param *user)
 
 void xmux_user_param_init_default(struct xmux_user_param *user)
 {
-	user->user_len = snprintf(user->user, 16, "%s", XMUX_VENDOR);
-	user->password_len = snprintf(user->password, 16, "%s", XMUX_VENDOR);
+	user->user_len = snprintf(user->user, 16, "%s", "admin");
+	user->password_len = snprintf(user->password, 16, "%s", "admin");
 	user->csc = wu_csc(user, offsetof(struct xmux_user_param, csc));
 }
 
