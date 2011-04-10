@@ -74,6 +74,8 @@ void xmux_user_param_init_default(struct xmux_user_param *user)
 	user->user_len = snprintf(user->user, 16, "%s", "admin");
 	user->password_len = snprintf(user->password, 16, "%s", "admin");
 	user->csc = wu_csc(user, offsetof(struct xmux_user_param, csc));
+
+	eeprom_write(EEPROM_OFF_USER, user, sizeof(user));
 }
 
 void xmux_user_param_dump(struct xmux_user_param *user)

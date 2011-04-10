@@ -105,7 +105,6 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 	} else {
 		trace_err("user param invalidate!");
 		xmux_user_param_init_default(&p->user);
-		eeprom_write(EEPROM_OFF_USER, &p->user, sizeof(p->user));
 	}
 
 	return true;
