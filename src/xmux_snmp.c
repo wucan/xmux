@@ -452,13 +452,13 @@ static int load_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 		return -1;
 	}
 	if (user->user_len != g_eeprom_param.user.user_len ||
-		!memcmp(user->user, g_eeprom_param.user.user, user->user_len)) {
+		memcmp(user->user, g_eeprom_param.user.user, user->user_len)) {
 		trace_err("user error!");
 		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_USER_NAME_INVALID;
 		return -1;
 	}
 	if (user->password_len != g_eeprom_param.user.password_len ||
-		!memcmp(user->password, g_eeprom_param.user.password, user->password_len)) {
+		memcmp(user->password, g_eeprom_param.user.password, user->password_len)) {
 		trace_err("password error!");
 		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_PASSWORD_INVALID;
 		return -1;
