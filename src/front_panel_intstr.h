@@ -6,6 +6,7 @@
 
 
 #define FP_STATUS_SELECTED			(1 << 0)
+#define FP_STATUS_SCRAMBLED			(1 << 1)
 
 typedef struct					// output one program to mcu_panel
 {

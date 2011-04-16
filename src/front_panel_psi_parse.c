@@ -9,6 +9,7 @@
 #include "front_panel_define.h"
 #include "pid_map_rule.h"
 #include "psi_parse.h"
+#include "ca.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp_psi_parse"};
@@ -172,6 +173,19 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			if (rc) {
 				trace_err("pmt parse #%d failed! rc %d\n", i, rc);
 				goto channel_analyse_done;
+			}
+
+			/*
+			 * pmt descriptors
+			 * if we found CA_Descriptor, then it's scrambled!
+			 */
+			for (j = 0; j < pmt.i_descr_num; j++) {
+				trace_info("PMT desc #%d, tag %#x, len %d, data:",
+					j, pmt.p_descr[j].i_tag, pmt.p_descr[j].i_length);
+				if (pmt.p_descr[j].i_tag == CA_DR_TAG) {
+					trace_info("found CA_Descriptor!");
+					prog_info->status |= FP_STATUS_SCRAMBLED;
+				}
 			}
 
 			/*
