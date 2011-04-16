@@ -398,10 +398,13 @@ int psi_gen_and_apply_from_fp()
 
 	begin_fill_output_psi_data();
 	fpga_set_write_hook(write_hook_psi);
+#if CHANNEL_MAX_NUM != 1
 	psi_type = PSI_TYPE_PAT;
 	gen_pat_from_fp(packpara, g_prog_info_table);
+#endif
 	psi_type = PSI_TYPE_PMT;
 	gen_pmt_from_fp(packpara, g_prog_info_table);
+#if CHANNEL_MAX_NUM != 1
 #if 0
 	/* fp should not generate CAT! */
 	psi_type = PSI_TYPE_CAT;
@@ -412,6 +415,7 @@ int psi_gen_and_apply_from_fp()
 	psi_type = PSI_TYPE_NIT;
 	gen_nit_from_fp();
 	fpga_set_write_hook(NULL);
+#endif
 
 	trace_info("start gen si");
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
