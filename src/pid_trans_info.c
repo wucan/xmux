@@ -98,7 +98,7 @@ void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
 	trace_info("pid trans info:");
 	trace_info("len %02d, chan %d, update flag %d, nprogs %d, status %#x",
 		data->data_len, data->update_flag_and_chan_num & 0x07,
-		data->update_flag_and_chan_num >> 7, data->nprogs, data->status);
+		data->update_flag_and_chan_num >> 7, data->nprogs, data->sel_status);
 
 	/*
 	 * program info
@@ -111,7 +111,7 @@ void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
 		trace_info("program #%d, %s, num %d, pmt(%#x => %#x), pcr(%#x => %#x), %s",
 			prog_idx, prog_name, prog->prog_num,
 			prog->pmt.in, prog->pmt.out, prog->pcr.in, prog->pcr.out,
-			PROGRAM_SELECTED(data->status, prog_idx) ? "selected": "discard");
+			PROGRAM_SELECTED(data->sel_status, prog_idx) ? "selected": "discard");
 		trace_info("data pid:");
 		for (pid_idx = 0; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
 			uint16_t data_pid_in = prog->data[pid_idx].in;

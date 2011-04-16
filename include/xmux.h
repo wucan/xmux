@@ -101,16 +101,16 @@ struct pid_trans_info_snmp_data {
 
 	uint8_t update_flag_and_chan_num;
 	uint8_t nprogs;
-	uint32_t status;
+	uint32_t sel_status;
 	struct xmux_program_info_with_csc programs[PROGRAM_MAX_NUM];
 } __attribute__((packed));
 #define PID_TRANS_INFO_SIZE			sizeof(struct pid_trans_info_snmp_data)
 
 #define PROGRAM_SELECTED(status, prog_id)		(status & (1 << prog_id))
 #define SELECT_PROGRAM(info, prog_idx) \
-	(info->status |= (1 << prog_idx))
+	(info->sel_status |= (1 << prog_idx))
 #define DESELECT_PROGRAM(info, prog_idx) \
-	(info->status &= ~(1 << prog_idx))
+	(info->sel_status &= ~(1 << prog_idx))
 
 /*
  * FIXME: xmux define pid type for pcr, pmt, pcr_audio, pcr=video, pid=pad

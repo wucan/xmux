@@ -107,7 +107,7 @@ void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
 		xmux_prog = &pid_trans_info->programs[prog_idx];
 		prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
 
-		if (PROGRAM_SELECTED(pid_trans_info->status, prog_idx))
+		if (PROGRAM_SELECTED(pid_trans_info->sel_status, prog_idx))
 			FP_SELECT_PROG(prog);
 		else
 			FP_DESELECT_PROG(prog);
