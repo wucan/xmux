@@ -149,7 +149,12 @@ void pid_map_table_gen_and_apply_from_fp()
 		ref = &pid_ref_table[j];
 		if (ref->type == 0)
 			continue;
+#if CHANNEL_MAX_NUM == 1
+		/* FIXME: should we set the output pid to NULL_PID? */
+		if (!(ref->type & PMT_BIT))
+#else
 		if (ref->type & PMT_BIT)
+#endif
 			continue;
 		chan_idx = ref->prog_idx / PROGRAM_MAX_NUM;
 		prog_idx = ref->prog_idx % PROGRAM_MAX_NUM;
