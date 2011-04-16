@@ -102,6 +102,9 @@ struct pid_trans_info_snmp_data {
 	uint8_t update_flag_and_chan_num;
 	uint8_t nprogs;
 	uint32_t sel_status;
+#if CHANNEL_MAX_NUM == 1
+	uint32_t scramble_status;
+#endif
 	struct xmux_program_info_with_csc programs[PROGRAM_MAX_NUM];
 } __attribute__((packed));
 #define PID_TRANS_INFO_SIZE			sizeof(struct pid_trans_info_snmp_data)
