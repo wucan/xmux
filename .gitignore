@@ -7,3 +7,4 @@ Makefile
 .libs
 .deps
 src/xmux
+*.svn
