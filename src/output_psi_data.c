@@ -5,7 +5,7 @@
 #include "xmux.h"
 #include "xmux_config.h"
 #include "output_psi_data.h"
-#include "gen_dvb_si.h"
+#include "gen_dvb_si_api.h"
 #include "hfpga.h"
 #include "section.h"
 

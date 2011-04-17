@@ -9,7 +9,7 @@
 #include "psi_parse.h"
 
 #include "hfpga.h"
-#include "gen_dvb_si.h"
+#include "gen_dvb_si_api.h"
 
 
 extern uv_dvb_io hfpga_dev;

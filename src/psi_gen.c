@@ -11,7 +11,7 @@
 #include "psi_parse.h"
 #include "psi_gen.h"
 #include "section.h"
-#include "gen_dvb_si.h"
+#include "gen_dvb_si_api.h"
 #include "front_panel_intstr.h"
 #include "hfpga.h"
 #include "output_psi_data.h"

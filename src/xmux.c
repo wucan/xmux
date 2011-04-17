@@ -1,7 +1,7 @@
 #include <fcntl.h>
 
 #include "hfpga.h"
-#include "gen_dvb_si.h"
+#include "gen_dvb_si_api.h"
 #ifndef _UCLINUX_
 #include "fake_hfpga.h"
 #endif

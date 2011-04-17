@@ -3,7 +3,7 @@
 
 #include "xmux.h"
 
-#include "gen_dvb_si.h"
+#include "gen_dvb_si_api.h"
 
 
 #define UV_DESCR_LEN    		33

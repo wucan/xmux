@@ -14,7 +14,7 @@
 #include "psi_worker.h"
 #include "psi_parse.h"
 #include "psi_gen.h"
-#include "gen_dvb_si.h"
+#include "gen_dvb_si_api.h"
 #include "hfpga.h"
 #include "pid_map_table.h"
 #include "pid_trans_info.h"

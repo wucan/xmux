@@ -3,7 +3,7 @@
 #include "wu/message.h"
 
 #include "fpga_api.h"
-#include "gen_dvb_si.h"
+#include "gen_dvb_si_api.h"
 
 #include "front_panel_intstr.h"
 #include "front_panel_define.h"
