@@ -187,6 +187,13 @@ static void _apply_pid_map_table_and_psi()
 	 * save mux program info
 	 */
 	xmux_config_save_mux_program_info(&g_eeprom_param.mux_prog_info);
+
+#if CHANNEL_MAX_NUM == 1
+	/*
+	 * save raw input pmt section for descramble use
+	 */
+	xmux_config_save_input_pmt_section();
+#endif
 }
 static int cmd_sys_handler(struct fp_cmd_header *cmd_header, int is_read,
 				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,

@@ -75,6 +75,11 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 		output_psi_data_clear(&p->output_psi_area.output_psi);
 	}
 
+#if CHANNEL_MAX_NUM == 1
+	memcpy(g_input_pmt_sec, g_eeprom_param.input_pmt_sec,
+		sizeof(g_input_pmt_sec));
+#endif
+
 	/*
 	 * sys
 	 */
@@ -216,6 +221,16 @@ void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t)
 	g_eeprom_param.pid_map_table_area.pid_map_table = *t;
 	eeprom_write(EEPROM_OFF_PID_MAP_TABLE, t, sizeof(*t));
 }
+
+#if CHANNEL_MAX_NUM == 1
+void xmux_config_save_input_pmt_section()
+{
+	memcpy(g_eeprom_param.input_pmt_sec, g_input_pmt_sec,
+		sizeof(g_input_pmt_sec));
+	eeprom_write(EEPROM_OFF_INPUT_PMT_SEC, g_eeprom_param.input_pmt_sec,
+		sizeof(g_input_pmt_sec));
+}
+#endif
 
 void xmux_config_save_net_param(struct xmux_net_param *net)
 {

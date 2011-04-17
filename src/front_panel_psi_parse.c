@@ -14,6 +14,10 @@
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp_psi_parse"};
 
+#if CHANNEL_MAX_NUM == 1
+uint8_t g_input_pmt_sec[PROGRAM_MAX_NUM][INPUT_PMT_SEC_MAX_LEN];
+#endif
+
 extern uv_dvb_io hfpga_dev;
 
 #define UV_DESCR_LEN    (32)
@@ -152,6 +156,9 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	}
 
 	trace_info("decode PMT ...");
+#if CHANNEL_MAX_NUM == 1
+	sg_si_param.type = EUV_BOTH;
+#endif
 	sg_si_param.tbl_type = EUV_TBL_PMT;
 	for (i = 0; i < pid_num; i++) {
 		if (pid_data[i].i_pg_num != 0x00) {
@@ -167,6 +174,11 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 				pid_data[i].i_pg_num, pid_data[i].i_pid);
 			pmt.i_pg_num = pid_data[i].i_pg_num;
 			pmt.i_pmt_pid = pid_data[i].i_pid;
+#if CHANNEL_MAX_NUM == 1
+			memset(g_input_pmt_sec[prog_cnt - 1], 0, 2);
+			sg_si_param.cur_cnt = 0;
+			sg_si_param.sec[0] = g_input_pmt_sec[prog_cnt - 1];
+#endif
 			psi_parse_timer_start(5);
 			rc = dvbSI_Dec_PMT(&pmt, es, &es_num);
 			psi_parse_timer_stop();
@@ -240,6 +252,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	*p_chan_prog_cnt = prog_cnt;
 
 	trace_info("decode SDT ...");
+	sg_si_param.type = EUV_DEFAULT;
 	sg_si_param.tbl_type = EUV_TBL_SDT;
 	psi_parse_timer_start(20);
 	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
@@ -377,6 +390,11 @@ int fp_psi_parse()
 {
 	int progs, total_progs = 0;
 	uint8_t chan_idx;
+
+#if CHANNEL_MAX_NUM == 1
+	uv_cha_si_stat All_Channel_Psi_Status_tmp;
+	sg_si_param.cur_stat = &All_Channel_Psi_Status_tmp;
+#endif
 
 	/* clear fp psi_parse state data */
 	memset(&g_chan_num, 0, sizeof(g_chan_num));

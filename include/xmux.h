@@ -243,6 +243,10 @@ struct xmux_mux_program_info {
 	} programs[PROGRAM_MAX_NUM];
 } __attribute__ ((__packed__));
 
+#if CHANNEL_MAX_NUM == 1
+#define INPUT_PMT_SEC_MAX_LEN		(188 * 2)
+#endif
+
 /*
  * EEPROM parameter layout:
  *   struct xmux_program_map_table prog_map_table;
@@ -267,6 +271,9 @@ struct xmux_eeprom_param {
 		uint8_t bytes[OUTPUT_PSI_AREA_SIZE];
 		struct xmux_output_psi_data output_psi;
 	} output_psi_area EEPROM_PAGE_ALIGN;
+#if CHANNEL_MAX_NUM == 1
+	uint8_t input_pmt_sec[PROGRAM_MAX_NUM][INPUT_PMT_SEC_MAX_LEN] EEPROM_PAGE_ALIGN;
+#endif
 	struct xmux_system_param sys EEPROM_PAGE_ALIGN;
 	struct xmux_net_param net EEPROM_PAGE_ALIGN;
 	struct xmux_user_param user EEPROM_PAGE_ALIGN;
@@ -281,6 +288,9 @@ struct xmux_eeprom_param {
 #define EEPROM_OFF_PID_TRANS_INFO			0
 #define EEPROM_OFF_PID_MAP_TABLE			(offsetof(struct xmux_eeprom_param, pid_map_table_area))
 #define EEPROM_OFF_OUTPUT_PSI				(offsetof(struct xmux_eeprom_param, output_psi_area))
+#if CHANNEL_MAX_NUM == 1
+#define EEPROM_OFF_INPUT_PMT_SEC			(offsetof(struct xmux_eeprom_param, input_pmt_sec))
+#endif
 #define EEPROM_OFF_SYS						(offsetof(struct xmux_eeprom_param, sys))
 #define EEPROM_OFF_NET						(offsetof(struct xmux_eeprom_param, net))
 #define EEPROM_OFF_USER						(offsetof(struct xmux_eeprom_param, user))
@@ -302,6 +312,10 @@ struct xmux_param_management_info {
 extern struct xmux_param_management_info g_param_mng_info;
 
 void xmux_program_info_dump(struct xmux_program_info *prog, const char *which);
+
+#if CHANNEL_MAX_NUM == 1
+extern uint8_t g_input_pmt_sec[PROGRAM_MAX_NUM][INPUT_PMT_SEC_MAX_LEN];
+#endif
 
 
 #endif /* _XMUX_H_ */

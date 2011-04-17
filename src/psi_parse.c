@@ -173,6 +173,9 @@ static int parse_pmt()
 			pmt.i_pmt_pid, len);
 		if (len > 0) {
 			memcpy(sg_mib_pmt[sg_si_param.cha][cnt], sg_mib_curpmt, len + 2);
+#if CHANNEL_MAX_NUM == 1
+			memcpy(g_input_pmt_sec[cnt], sg_mib_curpmt, len + 2);
+#endif
 			pmt_state |= 1 << cnt;
 		}
 		cnt++;
