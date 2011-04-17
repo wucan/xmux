@@ -21,6 +21,7 @@
 #include "xmux_snmp_intstr.h"
 #include "xmux_tunner.h"
 #include "xmux_bcm3033.h"
+#include "xmux_ci.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
@@ -333,6 +334,14 @@ static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	memcpy(&sg_mib_apply_psi, v->data, v->size);
 	psi_gen_output_psi_from_sections();
 	psi_apply_from_output_psi();
+
+#if CHANNEL_MAX_NUM == 1
+	/*
+	 * save raw input pmt section for descramble use
+	 */
+	xmux_config_save_input_pmt_section();
+	xmux_ci_apply();
+#endif
 
 	return 0;
 }

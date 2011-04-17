@@ -193,6 +193,7 @@ static void _apply_pid_map_table_and_psi()
 	 * save raw input pmt section for descramble use
 	 */
 	xmux_config_save_input_pmt_section();
+	xmux_ci_apply();
 #endif
 }
 static int cmd_sys_handler(struct fp_cmd_header *cmd_header, int is_read,
