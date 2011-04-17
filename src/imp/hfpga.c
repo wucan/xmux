@@ -216,6 +216,7 @@ int hfpga_write_sys_packet_length(uint16_t pkt_len)
 	int rc;
 	int hdev;
 
+	trace_info("output packet length %d", pkt_len);
 	hdev = open(UV_HFPGA_DEV_PATH, O_RDWR);
 	if (-1 == hdev) {
 		trace_err("failed to open HFPGA dev, path %s!", UV_HFPGA_DEV_PATH);

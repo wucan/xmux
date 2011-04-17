@@ -141,6 +141,7 @@ static int cmd_out_rate_handler(struct fp_cmd_header *cmd_header, int is_read,
 
 	buf_2_out_rate(&tmp_out_rate, recv_msg_buf + sizeof(struct fp_cmd_header));
 	set_output_bitrate(tmp_out_rate.rate);
+	set_packet_format(tmp_out_rate.len);
 
 	return 1;
 }
