@@ -135,6 +135,7 @@ static int cmd_out_rate_handler(struct fp_cmd_header *cmd_header, int is_read,
 
 	if (is_read) {
 		tmp_out_rate.rate = SWAP_U32(g_eeprom_param.sys.output_bitrate);
+		tmp_out_rate.len = g_eeprom_param.sys.format;
 		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header, &tmp_out_rate, sizeof(tmp_out_rate));
 		return 1;
 	}
