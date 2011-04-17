@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 
-#define SWAP_U16(v)		(((v & 0x00FF) << 8) | (v >> 8))
+#define SWAP_U16(v)		((((v) & 0x00FF) << 8) | ((v) >> 8))
 #define SWAP_U32(v)		((SWAP_U16(v & 0xFFFF) << 16) | SWAP_U16(v >> 16))
 
 #define PACK_U16(h,l)			(((uint16_t)h) << 8 | l)
