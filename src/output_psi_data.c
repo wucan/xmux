@@ -104,7 +104,7 @@ int psi_apply_from_output_psi()
 			for (i = 0; i < ent->nr_ts_pkts; i++) {
 				hex_dump("ts", &psi_data->ts_pkts[ent->offset] + i, 48);
 			}
-			hfpga_dev.write(&psi_data->ts_pkts[ent->offset], 188 * ent->nr_ts_pkts, howto);
+			hfpga_dev.write(&psi_data->ts_pkts[ent->offset], 188 * ent->nr_ts_pkts, &howto);
 		}
 	}
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
