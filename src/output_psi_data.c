@@ -85,12 +85,29 @@ void fill_output_psi_data(int psi_type, uint8_t *ts_buf, int ts_len)
 	pkt_offset += ts_len / TS_PACKET_BYTES;
 }
 
+struct psisi_write_info {
+	uint8_t *pkts_buf;
+	uint32_t size;
+};
+
 int psi_apply_from_output_psi()
 {
 	struct xmux_output_psi_data *psi_data = &g_eeprom_param.output_psi_area.output_psi;
 	struct output_psi_data_entry *ent;
 	uint8_t psi_type, howto = 0;
 	int i;
+	struct psisi_write_info write_info[PSISI_MAX_NUM] = {0};
+
+	/*
+	 * create packet temp buffer
+	 */
+	for (i = 0; i < PSISI_MAX_NUM; i++) {
+		write_info[i].pkts_buf = malloc(TS_PACKET_BYTES * 50);
+		if (!write_info[i].pkts_buf) {
+			trace_err("can't allocate pkts_buf!");
+			return -1;
+		}
+	}
 
 	trace_info("apply psi to fpga...");
 	dvbSI_Start(&hfpga_dev);
@@ -104,9 +121,22 @@ int psi_apply_from_output_psi()
 			for (i = 0; i < ent->nr_ts_pkts; i++) {
 				hex_dump("ts", &psi_data->ts_pkts[ent->offset] + i, 48);
 			}
-			hfpga_dev.write(&psi_data->ts_pkts[ent->offset], 188 * ent->nr_ts_pkts, &howto);
+
+			memcpy(write_info[howto].pkts_buf + write_info[howto].size,
+				&psi_data->ts_pkts[ent->offset], 188 * ent->nr_ts_pkts);
+			write_info[howto].size += 188 * ent->nr_ts_pkts;
 		}
 	}
+
+	/*
+	 * write to fpga
+	 */
+	for (i = 0; i < PSISI_MAX_NUM; i++) {
+		howto = i;
+		hfpga_dev.write(write_info[i].pkts_buf, write_info[i].size, &howto);
+		free(write_info[i].pkts_buf);
+	}
+
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
 	dvbSI_Stop(&hfpga_dev);
 

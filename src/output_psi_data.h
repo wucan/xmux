@@ -18,14 +18,22 @@ enum {
 	PSI_TYPE_SDT,
 	PSI_TYPE_NIT,
 };
+
+enum {
+	PSISI_40MS = 0,
+	PSISI_2SEC,
+
+	PSISI_MAX_NUM
+};
+
 static inline int psi_type_2_howto(type)
 {
 	if (type == PSI_TYPE_NIT)
-		return 0;
+		return PSISI_40MS;
 	if (type >= PSI_TYPE_PAT && type <= PSI_TYPE_CAT)
-		return 0;
+		return PSISI_40MS;
 
-	return 1;
+	return PSISI_2SEC;
 }
 
 bool output_psi_data_validate(struct xmux_output_psi_data *psi);
