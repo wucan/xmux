@@ -18,7 +18,7 @@ enum {
 	PSI_TYPE_SDT,
 	PSI_TYPE_NIT,
 };
-static inline psi_type_2_howto(type)
+static inline int psi_type_2_howto(type)
 {
 	if (type >= PSI_TYPE_PAT && type <= PSI_TYPE_CAT)
 		return 0;
