@@ -20,6 +20,8 @@ enum {
 };
 static inline int psi_type_2_howto(type)
 {
+	if (type == PSI_TYPE_NIT)
+		return 0;
 	if (type >= PSI_TYPE_PAT && type <= PSI_TYPE_CAT)
 		return 0;
 
