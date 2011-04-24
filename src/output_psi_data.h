@@ -22,6 +22,7 @@ enum {
 enum {
 	PSISI_40MS = 0,
 	PSISI_2SEC,
+	PSISI_NIT,
 
 	PSISI_MAX_NUM
 };
@@ -29,7 +30,7 @@ enum {
 static inline int psi_type_2_howto(type)
 {
 	if (type == PSI_TYPE_NIT)
-		return PSISI_40MS;
+		return PSISI_NIT;
 	if (type >= PSI_TYPE_PAT && type <= PSI_TYPE_CAT)
 		return PSISI_40MS;
 
