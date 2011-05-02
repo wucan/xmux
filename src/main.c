@@ -62,6 +62,7 @@ int main(int argc, char **argv)
 #endif
 
 	while (1) {
+		xmux_snmp_check_connection();
 		sleep(1);
 	}
 

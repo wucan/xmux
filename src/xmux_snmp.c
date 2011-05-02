@@ -493,6 +493,8 @@ static int heart_device_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	v->size = HEART_DEVICE_SIZE;
 	v->data = &sg_mib_heartDevice;
 
+	xmux_snmp_update_heart_device_time();
+
 	return 0;
 }
 static int heart_device_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
@@ -730,5 +732,19 @@ int xmux_snmp_register_all_oids()
 	register_solo_oids();
 
 	return 0;
+}
+
+static time_t heart_device_time;
+void xmux_snmp_update_heart_device_time()
+{
+	heart_device_time = time(NULL);
+}
+void xmux_snmp_check_connection()
+{
+	if ((sg_mib_heartDevice.flag == SNMP_LOGIN_STATUS_SUCCESS) &&
+		(time(NULL) - heart_device_time > 15)) {
+		trace_warn("timeout of heart beat!");
+		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_IDLE;
+	}
 }
 

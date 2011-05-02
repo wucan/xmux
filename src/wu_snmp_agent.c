@@ -154,6 +154,7 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 				!oid_is(obj, load_oid, 7)) {
 				return SNMP_ERR_GENERR;
 			}
+			xmux_snmp_update_heart_device_time();
 			v.data = requests->requestvb->val.string;
 			v.size = requests->requestvb->val_len;
 			printf("snmp: %s set, data %d bytes\n", oid_str(obj), v.size);
