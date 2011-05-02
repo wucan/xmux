@@ -96,7 +96,7 @@ ERR_RETURN:
 }
 
 // read data of length len
-static int _hfpga_readn(unsigned char *p_buf, unsigned int len, void *p_param,int nbgn)
+static int _hfpga_readn(unsigned char *p_buf, unsigned int len, void *p_param,int nbgn, int *read_len)
 {
 	int i, retval = 0;
 	unsigned char chno;
@@ -154,6 +154,7 @@ static int _hfpga_readn(unsigned char *p_buf, unsigned int len, void *p_param,in
 	}
 
 SUCCESS_RETURN:
+	*read_len = str_data.len;
 	return 1; 
 
 ERR_RETURN:	
@@ -165,33 +166,40 @@ int hfpga_readn(unsigned char *p_buf, unsigned int len, void *p_param,int nbgn)
 	uv_io_param *param = (uv_io_param *)p_param;
 	uint8_t ts_buf[188 * READAHEAD_TS_PKT_NUM];
 	static int left_pkt = 0;
+	static int left_pkt_tot = 0;
+	int read_len = 0;
 
 	/*
 	 * caching only for SDT
 	 */
 	if (param->pid != 0x11)
-		return _hfpga_readn(p_buf, len, p_param, nbgn);
+		return _hfpga_readn(p_buf, len, p_param, nbgn, &read_len);
 
 	/*
 	 * caching the ts in the begin
 	 */
 	if (nbgn) {
 		printf("caching for %d pkts begin ...\n", READAHEAD_TS_PKT_NUM);
-		if (!_hfpga_readn(ts_buf, 188 * READAHEAD_TS_PKT_NUM, p_param, nbgn)) {
+		if (!_hfpga_readn(ts_buf, 188 * READAHEAD_TS_PKT_NUM, p_param, nbgn, &read_len)) {
 			return 0;
 		}
-		left_pkt = READAHEAD_TS_PKT_NUM;
+		left_pkt = read_len / 188;
+		left_pkt_tot = left_pkt;
+		printf("begin cached %d packets\n", left_pkt);
 	}
 	if (left_pkt <= 0) {
 		printf("caching for %d pkts again ...\n", READAHEAD_TS_PKT_NUM);
-		if (!_hfpga_readn(ts_buf, 188 * READAHEAD_TS_PKT_NUM, p_param, 0)) {
+		if (!_hfpga_readn(ts_buf, 188 * READAHEAD_TS_PKT_NUM, p_param, 0, &read_len)) {
 			return 0;
 		}
-		left_pkt = READAHEAD_TS_PKT_NUM;
+		left_pkt = read_len / 188;
+		left_pkt_tot = left_pkt;
+		printf("cached %d packets\n", left_pkt);
 	}
 	if (left_pkt > 0) {
-		memcpy(p_buf, ts_buf + (READAHEAD_TS_PKT_NUM - left_pkt) * 188, 188);
+		memcpy(p_buf, ts_buf + (left_pkt_tot - left_pkt) * 188, 188);
 		left_pkt--;
+		hex_dump("sdt pkt", p_buf, 40);
 		return 1;
 	}
 
