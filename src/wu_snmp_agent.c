@@ -86,7 +86,7 @@ static const char *oid_str(struct wu_oid_object *obj)
 static bool oid_is(struct wu_oid_object *obj, wu_oid_t *oid, int oid_len)
 {
 	if (oid_len != obj->oid_len ||
-		memcmp(oid, obj->oid, oid_len)) {
+		memcmp(oid, obj->oid, sizeof(wu_oid_t) * oid_len)) {
 		return false;
 	}
 
