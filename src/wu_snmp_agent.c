@@ -9,6 +9,7 @@
 #include "wu_snmp_agent.h"
 
 #include "xmux.h"
+#include "xmux_snmp.h"
 
 
 static Thread *agent_thr;
@@ -82,6 +83,15 @@ static const char *oid_str(struct wu_oid_object *obj)
 
 	return buf;
 }
+static bool oid_is(struct wu_oid_object *obj, wu_oid_t *oid, int oid_len)
+{
+	if (oid_len != obj->oid_len ||
+		memcmp(oid, obj->oid, oid_len)) {
+		return false;
+	}
+
+	return true;
+}
 #ifdef _UCLINUX_
 static int netsnmp_check_vb_type_and_max_size(netsnmp_variable_list *var,
                                int type, size_t max_size)
@@ -107,6 +117,7 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 	int rc;
 	struct wu_snmp_value v;
 	struct wu_oid_object *obj = (struct wu_oid_object *)handler->myvoid;
+	static wu_oid_t load_oid[] = {XMUX_ROOT_OID, 100};
 
 	switch (reqinfo->mode) {
 		case MODE_GET:
@@ -139,8 +150,10 @@ static int netsnmp_oid_handler(netsnmp_mib_handler *handler,
 			   below won't be called. */
 			break;
 		case MODE_SET_ACTION:
-			if (management_mode == MANAGEMENT_MODE_FP)
+			if ((sg_mib_heartDevice.flag != SNMP_LOGIN_STATUS_SUCCESS) &&
+				!oid_is(obj, load_oid, 7)) {
 				return SNMP_ERR_GENERR;
+			}
 			v.data = requests->requestvb->val.string;
 			v.size = requests->requestvb->val_len;
 			printf("snmp: %s set, data %d bytes\n", oid_str(obj), v.size);
