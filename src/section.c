@@ -24,12 +24,12 @@ int section_to_ts_length(int sec_len)
  * Return output ts len
  */
 int section_to_ts(uint8_t *sec_data, int sec_len, uint8_t *ts_buf,
-					 uint16_t pid, int *p_cc)
+					 uint16_t pid, uint8_t *p_cc)
 {
 	struct mpeg_ts_header ts_head;
 	unsigned int itotal_leave = sec_len;
 	int pkt_cnt = 0;
-	int cc = *p_cc;
+	uint8_t cc = *p_cc;
 	int tslen = 0;
 
 	while (itotal_leave > 0) {
