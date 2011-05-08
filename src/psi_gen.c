@@ -50,15 +50,14 @@ int psi_gen_output_psi_from_sections()
 	{
 	int sel_nprogs = 0;
 	int bit = 0;
-	uint8_t pid_cc[0x1FFF] = {0};
 
+	cc = 0;
 	for (bit = 0; bit < PROGRAM_MAX_NUM; bit++) {
 		if (sg_mib_apply_psi.pmt_flag & (1 << bit)) {
 			sec_len = sg_mib_xxx_len(sg_mib_pmt[CHANNEL_MAX_NUM][bit]);
 			ts_len = section_to_ts_length(sec_len);
 			ts_len = section_to_ts(sg_mib_pmt[CHANNEL_MAX_NUM][bit] + 2,
-				sec_len, ts_buf, sg_mib_apply_psi.pmt_pid_table[bit],
-				&pid_cc[sg_mib_apply_psi.pmt_pid_table[bit]]);
+				sec_len, ts_buf, sg_mib_apply_psi.pmt_pid_table[bit], &cc);
 			fill_output_psi_data(PSI_TYPE_PMT, ts_buf, ts_len);
 			trace_info("pmt ts len %d of oid #%d", ts_len, bit);
 			sel_nprogs++;
