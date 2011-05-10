@@ -32,7 +32,7 @@ void wu_snmp_agent_fini()
 	}
 }
 
-static int agent_thread(void *data)
+static void wu_snmp_agent_loop(void *data)
 {
 	init_snmp("xmux");
 	/* If we're going to be a SNMP master agent...  */
@@ -44,6 +44,10 @@ static int agent_thread(void *data)
 		int rc = agent_check_and_process(1); /* 0 == don't block */
 	}
 	snmp_shutdown("xmux");
+}
+static int agent_thread(void *data)
+{
+	wu_snmp_agent_loop(data);
 
 	return 0;
 }
