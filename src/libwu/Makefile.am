@@ -19,7 +19,8 @@ libwu_la_SOURCES = \
 	wufs.c \
 	thread.c \
 	message_queue.c \
-	dict.c
+	dict.c \
+	wu_udp.c
 
 libwu_la_LIBADD = -lpthread -lm
 
