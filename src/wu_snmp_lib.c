@@ -85,8 +85,17 @@ struct wu_snmp_request {
 	uint16_t size;
 };
 
+struct wu_snmp_var_bind {
+	uint8_t error;
+
+	struct wu_snmp_atom name;
+	struct wu_snmp_atom value;
+};
+
 struct wu_snmp_client {
 	struct wu_snmp_request request;
+
+	struct wu_snmp_var_bind variable_bindings[16];
 };
 
 struct wu_snmp_pdu *build_pdu(void *data)
@@ -179,7 +188,7 @@ int pop_atom(uint8_t **pdata, uint16_t *psize, struct wu_snmp_atom *atom)
 	return 0;
 }
 int pop_var_bind(uint8_t **pdata, uint16_t *psize,
-	struct wu_snmp_atom *name, struct wu_snmp_atom *value)
+	struct wu_snmp_var_bind *vb)
 {
 	uint8_t *data;
 	uint16_t size;
@@ -192,10 +201,10 @@ int pop_var_bind(uint8_t **pdata, uint16_t *psize,
 	data = var.data.string;
 	size = var.len;
 	hex_dump("var bind", data, size);
-	rc = pop_atom(&data, &size, name);
+	rc = pop_atom(&data, &size, &vb->name);
 	if (rc < 0)
 		return -1;
-	rc = pop_atom(&data, &size, value);
+	rc = pop_atom(&data, &size, &vb->value);
 	if (rc < 0)
 		return -1;
 
@@ -204,21 +213,22 @@ int pop_var_bind(uint8_t **pdata, uint16_t *psize,
 static void get_request_handler(struct wu_snmp_client *client,
 	struct wu_snmp_pdu *pdu)
 {
-	struct wu_snmp_atom name, value;
+	struct wu_snmp_var_bind vb;
 	uint8_t *data = pdu->variable_bindings.data.string;
 	uint16_t size = pdu->variable_bindings.len;
 	int rc;
 	int idx = 0;
 
 	trace_info("get-request: size %#x", size);
-	rc = pop_var_bind(&data, &size, &name, &value);
+	rc = pop_var_bind(&data, &size, &vb);
 	while (rc == 0) {
-		hex_dump("var name", name.data.string, name.len);
-		if (value.len > 0) {
-			hex_dump("var value", value.data.string, value.len);
+		hex_dump("var name", vb.name.data.string, vb.name.len);
+		if (vb.value.len > 0) {
+			hex_dump("var value", vb.value.data.string, vb.value.len);
 		}
 
-		rc = pop_var_bind(&data, &size, &name, &value);
+		client->variable_bindings[idx++] = vb;
+		rc = pop_var_bind(&data, &size, &vb);
 	}
 }
 static void get_response_handler(struct wu_snmp_client *client,
