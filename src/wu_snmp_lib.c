@@ -157,7 +157,7 @@ static void atom_set_data(struct wu_snmp_atom *atom,
 			break;
 	}
 	atom->len = len;
-	trace_info("atom tag %#x, len %#x", atom->tag, atom->len);
+	trace_dbg("atom tag %#x, len %#x", atom->tag, atom->len);
 }
 static int extract_fix_atoms(uint8_t **pdata, uint16_t *psize,
 	struct wu_snmp_atom *atoms, int atom_cnt)
@@ -329,9 +329,9 @@ static void get_request_handler(struct wu_snmp_client *client,
 	trace_info("get-request: size %#x", size);
 	rc = pop_var_bind(&data, &size, &vb);
 	while (rc == 0) {
-		hex_dump("var name", vb.name.data.string, vb.name.len);
+		//hex_dump("var name", vb.name.data.string, vb.name.len);
 		if (vb.value.len > 0) {
-			hex_dump("var value", vb.value.data.string, vb.value.len);
+			//hex_dump("var value", vb.value.data.string, vb.value.len);
 		}
 		// process var
 		get_request_process_var_bind(client, &vb);
@@ -365,8 +365,8 @@ static void get_request_handler(struct wu_snmp_client *client,
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].name);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].value);
 			com_atom_end(&vb_catom);
-			hex_dump("no erro vb_catom",
-				vb_catom.atom.data.string, vb_catom.atom.len + 2);
+			//hex_dump("no error vb_catom",
+			//	vb_catom.atom.data.string, vb_catom.atom.len + 2);
 		}
 	}
 	com_atom_end(&header);
