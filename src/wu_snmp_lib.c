@@ -31,6 +31,8 @@ enum {
 	TagGetRequest = 0xa0,
 	TagGetResponse = 0xa2,
 	TagResponse = 0xa3, // FIXME
+
+	TagNoSuchObject = 0x80,
 };
 
 union snmp_value {
@@ -43,8 +45,22 @@ struct wu_snmp_atom {
 	uint16_t len;
 	union snmp_value data;
 };
+struct wu_snmp_com_atom {
+	struct wu_snmp_atom atom;
+
+	uint16_t max_size;
+
+	struct wu_snmp_com_atom *parent_catom;
+	struct wu_snmp_com_atom *son_catom;
+};
 
 struct wu_snmp_pdu {
+	struct wu_snmp_atom header;
+	struct wu_snmp_atom version;
+	struct wu_snmp_atom com;
+
+	struct wu_snmp_atom method;
+
 	struct wu_snmp_atom request_id;
 	struct wu_snmp_atom error_status;
 	struct wu_snmp_atom error_index;
@@ -78,6 +94,9 @@ enum snmp_error_status {
 	authorizationError = 16,
 	notWritable = 17,
 	inconsistentName = 18,
+
+	/* private error */
+	noSuchObject = 100,
 };
 
 struct wu_snmp_request {
@@ -92,10 +111,18 @@ struct wu_snmp_var_bind {
 	struct wu_snmp_atom value;
 };
 
+#define RESP_DATA_MAX_SIZE		2048
 struct wu_snmp_client {
 	struct wu_snmp_request request;
 
+	uint8_t error_status[16];
+	uint8_t error_index[16];
+	uint8_t errors;
+
 	struct wu_snmp_var_bind variable_bindings[16];
+
+	uint8_t resp_data[RESP_DATA_MAX_SIZE];
+	uint16_t resp_size;
 };
 
 struct wu_snmp_pdu *build_pdu(void *data)
@@ -108,6 +135,7 @@ static void atom_set_data(struct wu_snmp_atom *atom,
 	switch (atom->tag) {
 		case TagInt:
 			memcpy(&atom->data.int_v, data, len);
+			atom->data.string = data;
 			break;
 		case TagString:
 			atom->data.string = data;
@@ -210,6 +238,84 @@ int pop_var_bind(uint8_t **pdata, uint16_t *psize,
 
 	return 0;
 }
+static void com_atom_init(struct wu_snmp_com_atom *catom, uint8_t tag,
+	uint8_t *data, uint16_t size)
+{
+	catom->atom.tag = tag;
+	catom->atom.len = 0;
+	catom->atom.data.string = data;
+	catom->atom.data.string[0] = tag;
+	catom->atom.data.string[1] = 0;
+
+	catom->max_size = size;
+	catom->parent_catom = NULL;
+	catom->son_catom = NULL;
+}
+static void com_atom_end(struct wu_snmp_com_atom *catom)
+{
+	if (catom->son_catom) {
+		catom->atom.len += 2 + catom->son_catom->atom.len;
+		catom->atom.data.string[1] = catom->atom.len;
+		catom->son_catom = NULL;
+	}
+	if (catom->parent_catom) {
+		catom->parent_catom->atom.len += 2 + catom->atom.len;
+		catom->parent_catom->atom.data.string[1] = catom->parent_catom->atom.len;
+		catom->parent_catom->son_catom = NULL;
+		catom->parent_catom = NULL;
+	}
+}
+static void com_atom_add_atom(struct wu_snmp_com_atom *catom,
+	struct wu_snmp_atom *atom)
+{
+	catom->atom.data.string[2 + catom->atom.len] = atom->tag;
+	catom->atom.data.string[2 + catom->atom.len + 1] = atom->len;
+	catom->atom.len += 2;
+	memcpy(catom->atom.data.string + 2 + catom->atom.len,
+		atom->data.string, atom->len);
+	catom->atom.len += atom->len;
+	catom->atom.data.string[1] = catom->atom.len;
+}
+static void com_atom_add_atom_data(struct wu_snmp_com_atom *catom,
+	uint8_t tag, uint8_t *data, uint16_t size)
+{
+	catom->atom.data.string[2 + catom->atom.len] = tag;
+	catom->atom.data.string[2 + catom->atom.len + 1] = size;
+	catom->atom.len += 2;
+	if (size > 0) {
+		memcpy(catom->atom.data.string + 2 + catom->atom.len, data, size);
+		catom->atom.len += size;
+	}
+	catom->atom.data.string[1] = catom->atom.len;
+}
+static void com_atom_add_com_atom(struct wu_snmp_com_atom *catom,
+	struct wu_snmp_com_atom *son_catom, uint8_t tag)
+{
+	if (catom->son_catom)
+		catom->atom.len += 2 + catom->son_catom->atom.len;
+
+	com_atom_init(son_catom, tag,
+		catom->atom.data.string + 2 + catom->atom.len,
+		catom->max_size - (2 + catom->atom.len));
+
+	catom->son_catom = son_catom;
+	son_catom->parent_catom = catom;
+}
+static void get_request_process_var_bind(struct wu_snmp_client *clien,
+	struct wu_snmp_var_bind *vb)
+{
+	vb->error = noError;
+
+	if (vb->error == noError) {
+		static uint8_t d = 0xab;
+		vb->value.tag = TagInt;
+		vb->value.len = 1;
+		vb->value.data.string = &d;
+	} else if (vb->error == noSuchObject) {
+		vb->value.tag = TagNoSuchObject;
+		vb->value.len = 0;
+	}
+}
 static void get_request_handler(struct wu_snmp_client *client,
 	struct wu_snmp_pdu *pdu)
 {
@@ -217,7 +323,8 @@ static void get_request_handler(struct wu_snmp_client *client,
 	uint8_t *data = pdu->variable_bindings.data.string;
 	uint16_t size = pdu->variable_bindings.len;
 	int rc;
-	int idx = 0;
+	int idx = 0, i;
+	struct wu_snmp_com_atom header, method;
 
 	trace_info("get-request: size %#x", size);
 	rc = pop_var_bind(&data, &size, &vb);
@@ -226,44 +333,81 @@ static void get_request_handler(struct wu_snmp_client *client,
 		if (vb.value.len > 0) {
 			hex_dump("var value", vb.value.data.string, vb.value.len);
 		}
+		// process var
+		get_request_process_var_bind(client, &vb);
 
 		client->variable_bindings[idx++] = vb;
 		rc = pop_var_bind(&data, &size, &vb);
 	}
+
+	/*
+	 * build get-response pdu
+	 */
+	com_atom_init(&header, TagVar, client->resp_data, RESP_DATA_MAX_SIZE);
+	com_atom_add_atom(&header, &pdu->version);
+	com_atom_add_atom(&header, &pdu->com);
+	com_atom_add_com_atom(&header, &method, TagGetResponse);
+	com_atom_add_atom(&method, &pdu->request_id);
+
+	/* FIXME */
+	com_atom_add_atom_data(&method, TagInt,
+		client->error_status, 1);
+	//client->errors * sizeof(cleint->error_status[0]));
+	com_atom_add_atom_data(&method, TagInt,
+		client->error_index, 1);
+	//client->errors * sizeof(cleint->error_index[0]));
+
+	/* add variable-bindings */
+	for (i = 0; i < idx; i++) {
+		struct wu_snmp_com_atom vb_catom;
+		if (!client->variable_bindings[i].error) {
+			com_atom_add_com_atom(&method, &vb_catom, TagVar);
+			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].name);
+			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].value);
+			com_atom_end(&vb_catom);
+			hex_dump("no erro vb_catom",
+				vb_catom.atom.data.string, vb_catom.atom.len + 2);
+		}
+	}
+	com_atom_end(&header);
+
+	hex_dump("get-response", header.atom.data.string, header.atom.len + 2);
 }
+
 static void get_response_handler(struct wu_snmp_client *client,
 	struct wu_snmp_pdu *pdu)
 {
 }
 void process_client_request(struct wu_snmp_client *client)
 {
-	struct wu_snmp_atom header = {TagVar};
-	struct wu_snmp_atom version = {TagInt};
-	struct wu_snmp_atom com = {TagString};
 	char com_str[128] = {0};
-	struct wu_snmp_atom method;
+	uint8_t *data = client->request.data;
+	uint16_t size = client->request.size;
+
 	struct wu_snmp_pdu pdu = {
+		.header = {TagVar},
+		.version = {TagInt},
+		.com = {TagString},
+
 		.request_id = {TagInt},
 		.error_status = {TagInt},
 		.error_index = {TagInt},
-		.variable_bindings = {TagVar}
+		.variable_bindings = {TagVar},
 	};
-	uint8_t *data = client->request.data;
-	uint16_t size = client->request.size;
-	
-	// snmp header
-	extract_fix_atoms(&data, &size, &header, 1);
-	data = header.data.string;
-	size = header.len;
-	extract_fix_atoms(&data, &size, &version, 1);
-	extract_fix_atoms(&data, &size, &com, 1);
-	pop_atom(&data, &size, &method);
-	memcpy(com_str, com.data.string, com.len);
-	trace_info("reqeust snmp: version %#x, com %s, method %#x",
-		version.data.int_v, com_str, method.tag);
 
-	data = method.data.string;
-	size = method.len;
+	// snmp header
+	extract_fix_atoms(&data, &size, &pdu.header, 1);
+	data = pdu.header.data.string;
+	size = pdu.header.len;
+	extract_fix_atoms(&data, &size, &pdu.version, 1);
+	extract_fix_atoms(&data, &size, &pdu.com, 1);
+	pop_atom(&data, &size, &pdu.method);
+	memcpy(com_str, pdu.com.data.string, pdu.com.len);
+	trace_info("reqeust snmp: version %#x, com %s, method %#x",
+		pdu.version.data.int_v, com_str, pdu.method.tag);
+
+	data = pdu.method.data.string;
+	size = pdu.method.len;
 	// pdu
 	extract_fix_atoms(&data, &size, &pdu.request_id, 4);
 	trace_info("request-id %#x, error_status %#x, error_index %#x,"
@@ -272,7 +416,7 @@ void process_client_request(struct wu_snmp_client *client)
 		pdu.error_index.data.int_v, pdu.variable_bindings.len);
 
 	// variable list
-	switch (method.tag) {
+	switch (pdu.method.tag) {
 		case TagGetRequest:
 			hex_dump("variable_bindings", pdu.variable_bindings.data.string,
 				pdu.variable_bindings.len);
