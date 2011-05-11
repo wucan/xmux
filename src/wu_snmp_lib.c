@@ -372,6 +372,7 @@ static void get_request_handler(struct wu_snmp_client *client,
 	com_atom_end(&header);
 
 	hex_dump("get-response", header.atom.data.string, header.atom.len + 2);
+	client->resp_size = header.atom.len + 2;
 }
 
 static void get_response_handler(struct wu_snmp_client *client,
@@ -466,10 +467,15 @@ void wu_snmp_agent_loop(void *data)
 			len = recvfrom(agent_sock, buf, UDP_PKG_SIZE, 0,
 				(struct sockaddr *)&addr, (socklen_t *)&addr_len);
 			if (len > 0) {
+				trace_info("client address %s, port %d",
+					inet_ntoa(addr.sin_addr), addr.sin_port);
 				hex_dump("snmp request data", buf, len);
 				client.request.data = buf;
 				client.request.size = len;
 				process_client_request(&client);
+				len = sendto(agent_sock, client.resp_data, client.resp_size, 0,
+					(struct sockaddr *)&addr, (socklen_t)addr_len);
+				trace_info("resp size %d, len %d", client.resp_size, len);
 			}
 		} else if (rc == 0) {
 			// timeout
