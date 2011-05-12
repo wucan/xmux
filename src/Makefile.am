@@ -61,6 +61,7 @@ xmux_SOURCES = \
 	output_pid_check.c \
 	xmux_snmp.c \
 	wu_snmp_agent.c \
+	wu_snmp_lib.c \
 	netsnmp.c \
 	xmux.c \
 	up_sys.c \

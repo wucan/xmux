@@ -509,7 +509,7 @@ void process_client_request(struct wu_snmp_client *client)
 
 static struct udp_context *udp_ctx;
 static int agent_sock;
-int wu_snmp_agent_init(const char name)
+int wu_agent_init(const char name)
 {
 	udp_ctx = udp_open("127.0.0.1", 161);
 	if (!udp_ctx)
@@ -518,10 +518,10 @@ int wu_snmp_agent_init(const char name)
 
 	return 0;
 }
-static int agent_quit;
 #define UDP_PKG_SIZE		2048
-void wu_snmp_agent_loop(void *data)
+void wu_agent_loop(void *data)
 {
+	bool agent_quit = (bool)data;
 	unsigned char buf[UDP_PKG_SIZE];
 	int len, rc;
 	struct timeval to;
@@ -561,5 +561,10 @@ void wu_snmp_agent_loop(void *data)
 	}
 
 	trace_info("agent quit");
+}
+
+int wu_agent_register(struct wu_oid_object *reg_obj)
+{
+	return 0;
 }
 

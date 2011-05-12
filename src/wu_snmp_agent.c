@@ -16,6 +16,10 @@ extern int netsnmp_agent_init();
 extern void netsnmp_agent_loop(void *data);
 extern int netsnmp_agent_register(struct wu_oid_object *reg_obj);
 
+extern int wu_agent_init();
+extern void wu_agent_loop(void *data);
+extern int wu_agent_register(struct wu_oid_object *reg_obj);
+
 int wu_snmp_agent_init()
 {
 	netsnmp_agent_init();
@@ -35,7 +39,7 @@ void wu_snmp_agent_fini()
 
 static int agent_thread(void *data)
 {
-	netsnmp_agent_loop(data);
+	netsnmp_agent_loop(agent_thread_quit);
 
 	return 0;
 }
