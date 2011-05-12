@@ -12,6 +12,7 @@
 #include "wu/wu_base_type.h"
 #include "wu/message.h"
 #include "wu/wu_udp.h"
+#include "mem.h"
 
 
 static msgobj mo = {
@@ -34,6 +35,7 @@ struct udp_context * udp_open(char *ip, short port)
 	int dw;
 	int ret = 0;
 	struct udp_context *ctx;
+	int sock;
 
 	ctx = (struct udp_context *)mem_mallocz(sizeof(*ctx));
 	ctx->port = port;
@@ -47,7 +49,7 @@ struct udp_context * udp_open(char *ip, short port)
 	ctx->m_imr.imr_multiaddr.s_addr = inet_addr((char *)ip);
 	ctx->m_imr.imr_interface.s_addr = INADDR_ANY;
 
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sock < 0) {
 		return NULL;
 	}
