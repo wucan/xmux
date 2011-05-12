@@ -356,7 +356,9 @@ static void get_request_process_var_bind(struct wu_snmp_client *clien,
 		return;
 	}
 
-	if (obj->getter(obj, &v)) {
+	if (!obj->getter) {
+		vb->error = noAccess;
+	} else if (obj->getter(obj, &v)) {
 		vb->error = genErr;
 	} else {
 		memcpy(vb->data_buf, v.data, v.size);
@@ -466,7 +468,9 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 
 	v.data = vb->value.data.string;
 	v.size = vb->value.len;
-	if (obj->setter(obj, &v)) {
+	if (!obj->setter) {
+		vb->error = readOnly;
+	} else if (obj->setter(obj, &v)) {
 		vb->error = genErr;
 	}
 }
