@@ -35,7 +35,7 @@ enum {
 	TagNoSuchObject = 0x80,
 };
 
-union snmp_value {
+struct snmp_value {
 	uint32_t int_v;
 	uint8_t *string;
 	uint8_t *var;
@@ -43,7 +43,7 @@ union snmp_value {
 struct wu_snmp_atom {
 	uint8_t tag;
 	uint16_t len;
-	union snmp_value data;
+	struct snmp_value data;
 };
 struct wu_snmp_com_atom {
 	struct wu_snmp_atom atom;
@@ -134,6 +134,7 @@ static void atom_set_data(struct wu_snmp_atom *atom,
 {
 	switch (atom->tag) {
 		case TagInt:
+			atom->data.int_v = 0;
 			memcpy(&atom->data.int_v, data, len);
 			atom->data.string = data;
 			break;
