@@ -339,6 +339,29 @@ static void com_atom_add_com_atom(struct wu_snmp_com_atom *catom,
 	catom->son_catom = son_catom;
 	son_catom->parent_catom = catom;
 }
+static void build_error(struct wu_snmp_client *client, int vb_cnt)
+{
+	int i;
+	struct wu_snmp_var_bind *vb;
+
+	/*
+	 * build error_status[] and error_index
+	 */
+	client->errors = 0;
+	for (i = 0; i < vb_cnt; i++) {
+		vb = &client->variable_bindings[i];
+		if (vb->error) {
+			client->error_status[client->errors] = vb->error;
+			client->error_index[client->errors] = i;
+			client->errors++;
+		}
+	}
+	if (!client->errors) {
+		client->error_status[0] = 0;
+		client->error_index[0] = 0;
+		client->errors = 1;
+	}
+}
 static void get_request_process_var_bind(struct wu_snmp_client *clien,
 	struct wu_snmp_var_bind *vb)
 {
@@ -391,6 +414,8 @@ static void get_request_handler(struct wu_snmp_client *client,
 		rc = pop_var_bind(&data, &size, &vb);
 	}
 
+	build_error(client, idx);
+
 	/*
 	 * build get-response pdu
 	 */
@@ -400,13 +425,10 @@ static void get_request_handler(struct wu_snmp_client *client,
 	com_atom_add_com_atom(&header, &method, TagGetResponse);
 	com_atom_add_atom(&method, &pdu->request_id);
 
-	/* FIXME */
 	com_atom_add_atom_data(&method, TagInt,
-		client->error_status, 1);
-	//client->errors * sizeof(cleint->error_status[0]));
+		client->error_status, client->errors * sizeof(client->error_status[0]));
 	com_atom_add_atom_data(&method, TagInt,
-		client->error_index, 1);
-	//client->errors * sizeof(cleint->error_index[0]));
+		client->error_index, client->errors * sizeof(client->error_index[0]));
 
 	/* add variable-bindings */
 	com_atom_add_com_atom(&method, &vblist, TagVar);
@@ -498,6 +520,8 @@ static void set_request_handler(struct wu_snmp_client *client,
 		rc = pop_var_bind(&data, &size, &vb);
 	}
 
+	build_error(client, idx);
+
 	/*
 	 * build set-response pdu
 	 */
@@ -507,13 +531,10 @@ static void set_request_handler(struct wu_snmp_client *client,
 	com_atom_add_com_atom(&header, &method, TagGetResponse);
 	com_atom_add_atom(&method, &pdu->request_id);
 
-	/* FIXME */
 	com_atom_add_atom_data(&method, TagInt,
-		client->error_status, 1);
-	//client->errors * sizeof(cleint->error_status[0]));
+		client->error_status, client->errors * sizeof(client->error_status[0]));
 	com_atom_add_atom_data(&method, TagInt,
-		client->error_index, 1);
-	//client->errors * sizeof(cleint->error_index[0]));
+		client->error_index, client->errors * sizeof(client->error_index[0]));
 
 	/* add variable-bindings */
 	com_atom_add_com_atom(&method, &vblist, TagVar);
