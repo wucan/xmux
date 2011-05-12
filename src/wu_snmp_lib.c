@@ -116,6 +116,8 @@ struct wu_snmp_var_bind {
 
 	wu_oid_t oid[WU_OID_MAX_SIZE];
 	int oid_len;
+
+	uint8_t data_buf[2048];
 };
 
 #define RESP_DATA_MAX_SIZE		2048
@@ -340,23 +342,26 @@ static void get_request_process_var_bind(struct wu_snmp_client *clien,
 	struct wu_snmp_var_bind *vb)
 {
 	struct wu_oid_object *obj;
+	struct wu_snmp_value v;
+
+	vb->error = noError;
 
 	trace_info("vb oid is: %s", oid_str_2(vb->oid, vb->oid_len));
 	obj = find_oid_object(vb->oid, vb->oid_len);
 	if (!obj) {
 		trace_err("no such object: %s", oid_str_2(vb->oid, vb->oid_len));
-		vb->error = noError;
 		vb->value.tag = TagNoSuchObject;
 		vb->value.len = 0;
 		return;
 	}
 
-	vb->error = noError;
-	if (vb->error == noError) {
-		static uint8_t d = 0xab;
-		vb->value.tag = TagInt;
-		vb->value.len = 1;
-		vb->value.data.string = &d;
+	if (obj->getter(obj, &v)) {
+		vb->error = genErr;
+	} else {
+		memcpy(vb->data_buf, v.data, v.size);
+		vb->value.tag = TagString;
+		vb->value.len = v.size;
+		vb->value.data.string = vb->data_buf;
 	}
 }
 static void get_request_handler(struct wu_snmp_client *client,
@@ -585,7 +590,9 @@ void wu_agent_loop(void *data)
 	fd_set read_set;
 	struct sockaddr_in addr;
 	int addr_len = sizeof(struct sockaddr_in);
-	struct wu_snmp_client client;
+	struct wu_snmp_client *client;
+
+	client = (struct wu_snmp_client *)malloc(sizeof(*client));
 
 	trace_info("agent running");
 
@@ -603,12 +610,12 @@ void wu_agent_loop(void *data)
 				trace_info("client address %s, port %d",
 					inet_ntoa(addr.sin_addr), addr.sin_port);
 				hex_dump("snmp request data", buf, len);
-				client.request.data = buf;
-				client.request.size = len;
-				process_client_request(&client);
-				len = sendto(agent_sock, client.resp_data, client.resp_size, 0,
+				client->request.data = buf;
+				client->request.size = len;
+				process_client_request(client);
+				len = sendto(agent_sock, client->resp_data, client->resp_size, 0,
 					(struct sockaddr *)&addr, (socklen_t)addr_len);
-				trace_info("resp size %d, len %d", client.resp_size, len);
+				trace_info("resp size %d, len %d", client->resp_size, len);
 			}
 		} else if (rc == 0) {
 			// timeout
@@ -618,6 +625,7 @@ void wu_agent_loop(void *data)
 	}
 
 	trace_info("agent quit");
+	free(client);
 }
 
 int wu_agent_register(struct wu_oid_object *reg_obj)
