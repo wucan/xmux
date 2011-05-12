@@ -691,7 +691,7 @@ int wu_agent_register(struct wu_oid_object *reg_obj)
 	wu_oid_t o;
 	WuTreeNode *node = root, *added, *tmp_node;
 
-	trace_info("register oid %s", oid_str(reg_obj));
+	trace_dbg("register oid %s", oid_str(reg_obj));
 	for (i = 0; i < reg_obj->oid_len; i++) {
 		o = reg_obj->oid[i];
 		tmp_node = wutree_find_in_sons(tree, node, (void *)o);
@@ -704,7 +704,7 @@ int wu_agent_register(struct wu_oid_object *reg_obj)
 			trace_err("wutree node pool empty, expand it!");
 			return -1;
 		}
-		trace_info("add node %d under node %d", o, (int)node->data);
+		trace_dbg("add node %d under node %d", o, (int)node->data);
 		added->data = (void *)o;
 		wutreenode_add_littleson(node, added);
 		node = added;
