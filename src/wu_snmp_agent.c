@@ -16,7 +16,7 @@ extern int netsnmp_agent_init();
 extern void netsnmp_agent_loop(void *data);
 extern int netsnmp_agent_register(struct wu_oid_object *reg_obj);
 
-extern int wu_agent_init();
+extern int wu_agent_init(char *name);
 extern void wu_agent_loop(void *data);
 extern int wu_agent_register(struct wu_oid_object *reg_obj);
 
@@ -68,16 +68,20 @@ struct wu_oid_object * wu_oid_object_dup(struct wu_oid_object *obj)
 
 	return new_obj;
 }
-const char *oid_str(struct wu_oid_object *obj)
+const char *oid_str_2(wu_oid_t *oid, int oid_len)
 {
 	static char buf[128];
 	int i, off = 0;
 
-	for (i = 0; i < obj->oid_len; i++) {
-		off += sprintf(buf + off, "%d,", obj->oid[i]);
+	for (i = 0; i < oid_len; i++) {
+		off += sprintf(buf + off, "%d,", oid[i]);
 	}
 
 	return buf;
+}
+const char *oid_str(struct wu_oid_object *obj)
+{
+	return oid_str_2(obj->oid, obj->oid_len);
 }
 bool oid_is(struct wu_oid_object *obj, wu_oid_t *oid, int oid_len)
 {

@@ -55,6 +55,7 @@ void wu_oid_object_free(struct wu_oid_object *obj);
 struct wu_oid_object * wu_oid_object_dup(struct wu_oid_object *obj);
 int wu_snmp_agent_register(struct wu_oid_object *obj);
 
+const char *oid_str_2(wu_oid_t *oid, int oid_len);
 const char *oid_str(struct wu_oid_object *obj);
 bool oid_is(struct wu_oid_object *obj, wu_oid_t *oid, int oid_len);;;
 
