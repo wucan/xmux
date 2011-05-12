@@ -328,7 +328,7 @@ static void get_request_handler(struct wu_snmp_client *client,
 	uint16_t size = pdu->variable_bindings.len;
 	int rc;
 	int idx = 0, i;
-	struct wu_snmp_com_atom header, method;
+	struct wu_snmp_com_atom header, method, vblist;
 
 	trace_info("get-request: size %#x", size);
 	rc = pop_var_bind(&data, &size, &vb);
@@ -362,10 +362,11 @@ static void get_request_handler(struct wu_snmp_client *client,
 	//client->errors * sizeof(cleint->error_index[0]));
 
 	/* add variable-bindings */
+	com_atom_add_com_atom(&method, &vblist, TagVar);
 	for (i = 0; i < idx; i++) {
 		struct wu_snmp_com_atom vb_catom;
 		if (!client->variable_bindings[i].error) {
-			com_atom_add_com_atom(&method, &vb_catom, TagVar);
+			com_atom_add_com_atom(&vblist, &vb_catom, TagVar);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].name);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].value);
 			com_atom_end(&vb_catom);
@@ -373,6 +374,8 @@ static void get_request_handler(struct wu_snmp_client *client,
 			//	vb_catom.atom.data.string, vb_catom.atom.len + 2);
 		}
 	}
+	com_atom_end(&vblist);
+	com_atom_end(&method);
 	com_atom_end(&header);
 
 	hex_dump("get-response", header.atom.data.string, header.atom.len + 2);
@@ -396,7 +399,7 @@ static void set_request_handler(struct wu_snmp_client *client,
 	uint16_t size = pdu->variable_bindings.len;
 	int rc;
 	int idx = 0, i;
-	struct wu_snmp_com_atom header, method;
+	struct wu_snmp_com_atom header, method, vblist;
 
 	trace_info("set-request: size %#x", size);
 	rc = pop_var_bind(&data, &size, &vb);
@@ -430,15 +433,18 @@ static void set_request_handler(struct wu_snmp_client *client,
 	//client->errors * sizeof(cleint->error_index[0]));
 
 	/* add variable-bindings */
+	com_atom_add_com_atom(&method, &vblist, TagVar);
 	for (i = 0; i < idx; i++) {
 		struct wu_snmp_com_atom vb_catom;
 		if (client->variable_bindings[i].error) {
-			com_atom_add_com_atom(&method, &vb_catom, TagVar);
+			com_atom_add_com_atom(&vblist, &vb_catom, TagVar);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].name);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].value);
 			com_atom_end(&vb_catom);
 		}
 	}
+	com_atom_end(&vblist);
+	com_atom_end(&method);
 	com_atom_end(&header);
 
 	hex_dump("set-response", header.atom.data.string, header.atom.len + 2);
