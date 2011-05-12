@@ -1,16 +1,20 @@
 #include "wu/wu_base_type.h"
 #include "wu/message.h"
 #include "wu/wu_udp.h"
+#include "wu/wutree.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/select.h>
 
+#include "wu_snmp_agent.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "snmp"};
 
+
+static struct wu_oid_object * find_oid_object(wu_oid_t *oid, int oid_len);
 
 /*
  * implement base pdu methods:
@@ -109,6 +113,9 @@ struct wu_snmp_var_bind {
 
 	struct wu_snmp_atom name;
 	struct wu_snmp_atom value;
+
+	wu_oid_t oid[WU_OID_MAX_SIZE];
+	int oid_len;
 };
 
 #define RESP_DATA_MAX_SIZE		2048
@@ -219,6 +226,26 @@ int pop_atom(uint8_t **pdata, uint16_t *psize, struct wu_snmp_atom *atom)
 
 	return 0;
 }
+extern uint32_t oid_encoded2subid(const uint8_t *oid_bytes,
+	int oid_len, uint32_t **subids_p);
+static int decode_oid(struct wu_snmp_var_bind *vb)
+{
+	uint32_t *decoded_oid = NULL;
+
+	vb->oid_len = oid_encoded2subid(vb->name.data.string, vb->name.len,
+		&decoded_oid);
+	if (decoded_oid) {
+		memcpy(vb->oid, decoded_oid, sizeof(*decoded_oid) * vb->oid_len);
+		free(decoded_oid);
+	} else {
+		return -1;
+	}
+	// cut off instance
+	if (vb->oid[vb->oid_len - 1] == 0)
+		vb->oid_len--;
+
+	return 0;
+}
 int pop_var_bind(uint8_t **pdata, uint16_t *psize,
 	struct wu_snmp_var_bind *vb)
 {
@@ -237,6 +264,10 @@ int pop_var_bind(uint8_t **pdata, uint16_t *psize,
 	if (rc < 0)
 		return -1;
 	rc = pop_atom(&data, &size, &vb->value);
+	if (rc < 0)
+		return -1;
+
+	rc = decode_oid(vb);
 	if (rc < 0)
 		return -1;
 
@@ -308,16 +339,24 @@ static void com_atom_add_com_atom(struct wu_snmp_com_atom *catom,
 static void get_request_process_var_bind(struct wu_snmp_client *clien,
 	struct wu_snmp_var_bind *vb)
 {
-	vb->error = noError;
+	struct wu_oid_object *obj;
 
+	trace_info("vb oid is: %s", oid_str_2(vb->oid, vb->oid_len));
+	obj = find_oid_object(vb->oid, vb->oid_len);
+	if (!obj) {
+		trace_err("no such object: %s", oid_str_2(vb->oid, vb->oid_len));
+		vb->error = noError;
+		vb->value.tag = TagNoSuchObject;
+		vb->value.len = 0;
+		return;
+	}
+
+	vb->error = noError;
 	if (vb->error == noError) {
 		static uint8_t d = 0xab;
 		vb->value.tag = TagInt;
 		vb->value.len = 1;
 		vb->value.data.string = &d;
-	} else if (vb->error == noSuchObject) {
-		vb->value.tag = TagNoSuchObject;
-		vb->value.len = 0;
 	}
 }
 static void get_request_handler(struct wu_snmp_client *client,
@@ -507,14 +546,32 @@ void process_client_request(struct wu_snmp_client *client)
 	}
 }
 
+static WuTree *tree;
+static WuTreeNode *root;
+#define NODE_SIZE	1000
+static int oid_finder (void *node_data, void *data)
+{
+	if (node_data == data) {
+		return 0;
+	}
+
+	return -1;
+}
+
 static struct udp_context *udp_ctx;
 static int agent_sock;
-int wu_agent_init(const char name)
+int wu_agent_init(char *name)
 {
 	udp_ctx = udp_open("127.0.0.1", 161);
 	if (!udp_ctx)
 		return -1;
 	agent_sock = udp_ctx->sock;
+
+	tree = wutree_new(NODE_SIZE);
+	root = wutree_node_pool_get_node(tree);
+	wutreenode_set_data(root, name);
+	wutree_set_root(tree, root);
+	wutree_set_finder(tree, oid_finder);
 
 	return 0;
 }
@@ -565,6 +622,69 @@ void wu_agent_loop(void *data)
 
 int wu_agent_register(struct wu_oid_object *reg_obj)
 {
+	int i;
+	wu_oid_t o;
+	WuTreeNode *node = root, *added, *tmp_node;
+
+	trace_info("register oid %s", oid_str(reg_obj));
+	for (i = 0; i < reg_obj->oid_len; i++) {
+		o = reg_obj->oid[i];
+		tmp_node = wutree_find_in_sons(tree, node, (void *)o);
+		if (tmp_node) {
+			node = tmp_node;
+			continue;
+		}
+		added = wutree_node_pool_get_node(tree);
+		if (!added) {
+			trace_err("wutree node pool empty, expand it!");
+			return -1;
+		}
+		trace_info("add node %d under node %d", o, (int)node->data);
+		added->data = (void *)o;
+		wutreenode_add_littleson(node, added);
+		node = added;
+	}
+
+	if (added) {
+		added->ext_data = reg_obj;
+	}
+
+
 	return 0;
+}
+static WuTreeNode * find_node(wu_oid_t *oid, int oid_len)
+{
+	WuTreeNode *node = root;
+	wu_oid_t o;
+	int i;
+
+	if (oid_len <= 0) {
+		trace_err("oid length error %d", oid_len);
+		return NULL;
+	}
+
+	for (i = 0; i < oid_len; i++) {
+		o = oid[i];
+		node = wutree_find_in_sons(tree, node, (void *)o);
+		if (!node) {
+			return NULL;
+		}
+	}
+
+	if (node->eldestson) {
+		return NULL;
+	}
+
+	return node;
+}
+static struct wu_oid_object * find_oid_object(wu_oid_t *oid, int oid_len)
+{
+	WuTreeNode *node;
+
+	node = find_node(oid, oid_len);
+	if (!node) {
+		return NULL;
+	}
+	return (struct wu_oid_object *)node->ext_data;
 }
 
