@@ -433,7 +433,25 @@ static void get_response_handler(struct wu_snmp_client *client,
 static void set_request_process_var_bind(struct wu_snmp_client *clien,
 	struct wu_snmp_var_bind *vb)
 {
-	vb->error = genErr;
+	struct wu_oid_object *obj;
+	struct wu_snmp_value v;
+
+	vb->error = noError;
+
+	trace_info("vb oid is: %s", oid_str_2(vb->oid, vb->oid_len));
+	obj = find_oid_object(vb->oid, vb->oid_len);
+	if (!obj) {
+		trace_err("no such object: %s", oid_str_2(vb->oid, vb->oid_len));
+		vb->value.tag = TagNoSuchObject;
+		vb->value.len = 0;
+		return;
+	}
+
+	v.data = vb->value.data.string;
+	v.size = vb->value.len;
+	if (obj->setter(obj, &v)) {
+		vb->error = genErr;
+	}
 }
 static void set_request_handler(struct wu_snmp_client *client,
 	struct wu_snmp_pdu *pdu)
