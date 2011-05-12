@@ -8,17 +8,13 @@
 #define gint		int
 #define gboolean	bool
 
-#define ep_alloc	malloc
-#define ep_free		free
-
 /*
  * steal these codes from wireshard epan/oids.c
  */
-guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_p) {
+guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32* subids) {
 	gint i;
 	guint n = 1;
 	gboolean is_first = TRUE;
-	guint32* subids;
 	guint32* subid_overflow;
 	/*
 	 * we cannot handle sub-ids greater than 32bytes
@@ -28,7 +24,6 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 
 	for (i=0; i<oid_len; i++) { if (! (oid_bytes[i] & 0x80 )) n++; }
 
-	*subids_p = subids = ep_alloc(sizeof(guint32)*n);
 	subid_overflow = subids+n;
 
 	for (i=0; i<oid_len; i++){
@@ -53,7 +48,6 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 		}
 
 		if( subids >= subid_overflow || subid > 0xffffffff) {
-			*subids_p=NULL;
 			return 0;
 		}
 

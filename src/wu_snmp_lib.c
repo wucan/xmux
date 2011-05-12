@@ -230,17 +230,14 @@ int pop_atom(uint8_t **pdata, uint16_t *psize, struct wu_snmp_atom *atom)
 	return 0;
 }
 extern uint32_t oid_encoded2subid(const uint8_t *oid_bytes,
-	int oid_len, uint32_t **subids_p);
+	int oid_len, uint32_t *subids);
 static int decode_oid(struct wu_snmp_var_bind *vb)
 {
 	uint32_t *decoded_oid = NULL;
 
 	vb->oid_len = oid_encoded2subid(vb->name.data.string, vb->name.len,
-		&decoded_oid);
-	if (decoded_oid) {
-		memcpy(vb->oid, decoded_oid, sizeof(*decoded_oid) * vb->oid_len);
-		free(decoded_oid);
-	} else {
+		vb->oid);
+	if (vb->oid_len <= 0) {
 		return -1;
 	}
 	// cut off instance
