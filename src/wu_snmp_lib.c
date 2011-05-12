@@ -9,6 +9,7 @@
 #include <sys/select.h>
 
 #include "wu_snmp_agent.h"
+#include "xmux_snmp.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "snmp"};
@@ -435,6 +436,7 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 {
 	struct wu_oid_object *obj;
 	struct wu_snmp_value v;
+	static wu_oid_t load_oid[] = {XMUX_ROOT_OID, 100};
 
 	vb->error = noError;
 
@@ -446,6 +448,21 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 		vb->value.len = 0;
 		return;
 	}
+
+	/*
+	 * error if current in front panel mode or not login
+	 */
+	if ((sg_mib_heartDevice.flag != SNMP_LOGIN_STATUS_SUCCESS) &&
+		!oid_is(obj, load_oid, 7)) {
+		if (sg_mib_heartDevice.flag != SNMP_LOGIN_STATUS_SUCCESS) {
+			trace_err("not login!");
+		} else {
+			trace_err("busy!");
+		}
+		vb->error = resourceUnavailable;
+		return;
+	}
+	xmux_snmp_update_heart_device_time();
 
 	v.data = vb->value.data.string;
 	v.size = vb->value.len;
