@@ -11,18 +11,27 @@
 static Thread *agent_thr;
 static bool agent_thread_quit;
 
+#define USE_NETSNMP			1
+
 /* netsnmp stuff */
+#if USE_NETSNMP
 extern int netsnmp_agent_init();
 extern void netsnmp_agent_loop(void *data);
 extern int netsnmp_agent_register(struct wu_oid_object *reg_obj);
 
+#else
 extern int wu_agent_init(char *name);
 extern void wu_agent_loop(void *data);
 extern int wu_agent_register(struct wu_oid_object *reg_obj);
+#endif
 
 int wu_snmp_agent_init()
 {
+#if USE_NETSNMP
 	netsnmp_agent_init();
+#else
+	wu_agent_init("xmux");
+#endif
 
 	return 0;
 }
@@ -39,7 +48,11 @@ void wu_snmp_agent_fini()
 
 static int agent_thread(void *data)
 {
+#if USE_NETSNMP
 	netsnmp_agent_loop(agent_thread_quit);
+#else
+	wu_agent_loop(agent_thread_quit);
+#endif
 
 	return 0;
 }
@@ -94,6 +107,10 @@ bool oid_is(struct wu_oid_object *obj, wu_oid_t *oid, int oid_len)
 }
 int wu_snmp_agent_register(struct wu_oid_object *reg_obj)
 {
+#if USE_NETSNMP
 	return netsnmp_agent_register(reg_obj);
+#else
+	return wu_agent_register(reg_obj);
+#endif
 }
 
