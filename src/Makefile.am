@@ -63,6 +63,7 @@ xmux_SOURCES = \
 	wu_snmp_agent.c \
 	wu_snmp_lib.c \
 	netsnmp.c \
+	oids.c \
 	xmux.c \
 	up_sys.c \
 	up_support.c \
