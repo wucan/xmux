@@ -11,7 +11,7 @@
 static Thread *agent_thr;
 static bool agent_thread_quit;
 
-#define USE_NETSNMP			1
+#define USE_NETSNMP			0
 
 /* netsnmp stuff */
 #if USE_NETSNMP
