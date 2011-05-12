@@ -30,7 +30,7 @@ enum {
 
 	TagGetRequest = 0xa0,
 	TagGetResponse = 0xa2,
-	TagResponse = 0xa3, // FIXME
+	TagSetRequest = 0xa3,
 
 	TagNoSuchObject = 0x80,
 };
@@ -151,6 +151,9 @@ static void atom_set_data(struct wu_snmp_atom *atom,
 			atom->data.string = data;
 			break;
 		case TagGetRequest:
+			atom->data.string = data;
+			break;
+		case TagSetRequest:
 			atom->data.string = data;
 			break;
 		default:
@@ -380,6 +383,67 @@ static void get_response_handler(struct wu_snmp_client *client,
 	struct wu_snmp_pdu *pdu)
 {
 }
+static void set_request_process_var_bind(struct wu_snmp_client *clien,
+	struct wu_snmp_var_bind *vb)
+{
+	vb->error = genErr;
+}
+static void set_request_handler(struct wu_snmp_client *client,
+	struct wu_snmp_pdu *pdu)
+{
+	struct wu_snmp_var_bind vb;
+	uint8_t *data = pdu->variable_bindings.data.string;
+	uint16_t size = pdu->variable_bindings.len;
+	int rc;
+	int idx = 0, i;
+	struct wu_snmp_com_atom header, method;
+
+	trace_info("set-request: size %#x", size);
+	rc = pop_var_bind(&data, &size, &vb);
+	while (rc == 0) {
+		//hex_dump("var name", vb.name.data.string, vb.name.len);
+		if (vb.value.len > 0) {
+			//hex_dump("var value", vb.value.data.string, vb.value.len);
+		}
+		// process var
+		set_request_process_var_bind(client, &vb);
+
+		client->variable_bindings[idx++] = vb;
+		rc = pop_var_bind(&data, &size, &vb);
+	}
+
+	/*
+	 * build set-response pdu
+	 */
+	com_atom_init(&header, TagVar, client->resp_data, RESP_DATA_MAX_SIZE);
+	com_atom_add_atom(&header, &pdu->version);
+	com_atom_add_atom(&header, &pdu->com);
+	com_atom_add_com_atom(&header, &method, TagGetResponse);
+	com_atom_add_atom(&method, &pdu->request_id);
+
+	/* FIXME */
+	com_atom_add_atom_data(&method, TagInt,
+		client->error_status, 1);
+	//client->errors * sizeof(cleint->error_status[0]));
+	com_atom_add_atom_data(&method, TagInt,
+		client->error_index, 1);
+	//client->errors * sizeof(cleint->error_index[0]));
+
+	/* add variable-bindings */
+	for (i = 0; i < idx; i++) {
+		struct wu_snmp_com_atom vb_catom;
+		if (client->variable_bindings[i].error) {
+			com_atom_add_com_atom(&method, &vb_catom, TagVar);
+			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].name);
+			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].value);
+			com_atom_end(&vb_catom);
+		}
+	}
+	com_atom_end(&header);
+
+	hex_dump("set-response", header.atom.data.string, header.atom.len + 2);
+	client->resp_size = header.atom.len + 2;
+}
 void process_client_request(struct wu_snmp_client *client)
 {
 	char com_str[128] = {0};
@@ -426,6 +490,11 @@ void process_client_request(struct wu_snmp_client *client)
 			break;
 		case TagGetResponse:
 			get_response_handler(client, &pdu);
+			break;
+		case TagSetRequest:
+			hex_dump("variable_bindings", pdu.variable_bindings.data.string,
+				pdu.variable_bindings.len);
+			set_request_handler(client, &pdu);
 			break;
 		default:
 			break;
