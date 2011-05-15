@@ -12,6 +12,13 @@
 #include "xmux_snmp.h"
 
 
+#define SNMP_DEBUG		0
+#if SNMP_DEBUG
+#define snmp_hex_dump		hex_dump
+#else
+#define snmp_hex_dump(...)
+#endif
+
 static msgobj mo = {MSG_INFO, ENCOLOR, "snmp"};
 
 
@@ -215,7 +222,7 @@ int pop_atom(uint8_t **pdata, uint16_t *psize, struct wu_snmp_atom *atom)
 	uint16_t size = *psize;
 
 	if (size == 0) {
-		trace_info("pop atom: data size 0, no more atom");
+		trace_dbg("pop atom: data size 0, no more atom");
 		return -1;
 	} else if (size < 2) {
 		trace_err("pop atom: data size %#x too small!", size);
@@ -233,7 +240,7 @@ int pop_atom(uint8_t **pdata, uint16_t *psize, struct wu_snmp_atom *atom)
 	if (size < 2 + atom->len) {
 		trace_err("pop atom: expect data size %#x, but real %#x!",
 			2 + atom->len, size);
-		hex_dump("raw data", *pdata, *psize);
+		snmp_hex_dump("raw data", *pdata, *psize);
 		return -1;
 	}
 
@@ -274,7 +281,7 @@ int pop_var_bind(uint8_t **pdata, uint16_t *psize,
 		return -1;
 	data = var.data.string;
 	size = var.len;
-	hex_dump("var bind", data, size);
+	snmp_hex_dump("var bind", data, size);
 	rc = pop_atom(&data, &size, &vb->name);
 	if (rc < 0)
 		return -1;
@@ -415,7 +422,7 @@ static void get_request_process_var_bind(struct wu_snmp_client *clien,
 
 	vb->error = noError;
 
-	trace_info("vb oid is: %s", oid_str_2(vb->oid, vb->oid_len));
+	trace_dbg("vb oid is: %s", oid_str_2(vb->oid, vb->oid_len));
 	obj = find_oid_object(vb->oid, vb->oid_len);
 	if (!obj) {
 		trace_err("no such object: %s", oid_str_2(vb->oid, vb->oid_len));
@@ -426,6 +433,7 @@ static void get_request_process_var_bind(struct wu_snmp_client *clien,
 	/* the object's oid should fixed to current one */
 	memcpy(obj->oid, vb->oid, sizeof(vb->oid));
 
+	trace_info("%s get", oid_str(obj));
 	if (!obj->getter) {
 		vb->error = noAccess;
 	} else if (obj->getter(obj, &v)) {
@@ -447,12 +455,12 @@ static void get_request_handler(struct wu_snmp_client *client,
 	int rc;
 	int idx = 0, i;
 
-	trace_info("get-request: size %#x", size);
+	trace_dbg("get-request: size %#x", size);
 	rc = pop_var_bind(&data, &size, &vb);
 	while (rc == 0) {
-		//hex_dump("var name", vb.name.data.string, vb.name.len);
+		snmp_hex_dump("var name", vb.name.data.string, vb.name.len);
 		if (vb.value.len > 0) {
-			//hex_dump("var value", vb.value.data.string, vb.value.len);
+			snmp_hex_dump("var value", vb.value.data.string, vb.value.len);
 		}
 		// process var
 		get_request_process_var_bind(client, &vb);
@@ -491,7 +499,7 @@ static void get_request_handler(struct wu_snmp_client *client,
 	com_atom_end(&method);
 	com_atom_end(&header);
 
-	hex_dump("get-response", header.atom.data.string, header.atom.len + 2);
+	snmp_hex_dump("get-response", header.atom.data.string, header.atom.len + 2);
 	client->resp_size = header.atom.len + 2;
 	memcpy(client->resp_data, header.data_buf, client->resp_size);
 }
@@ -509,7 +517,7 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 
 	vb->error = noError;
 
-	trace_info("vb oid is: %s", oid_str_2(vb->oid, vb->oid_len));
+	trace_dbg("vb oid is: %s", oid_str_2(vb->oid, vb->oid_len));
 	obj = find_oid_object(vb->oid, vb->oid_len);
 	if (!obj) {
 		trace_err("no such object: %s", oid_str_2(vb->oid, vb->oid_len));
@@ -537,6 +545,8 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 
 	v.data = vb->value.data.string;
 	v.size = vb->value.len;
+	trace_info("%s set, data %d bytes", oid_str(obj), v.size);
+	hex_dump("snmp set", v.data, MIN(v.size, 48));
 	if (!obj->setter) {
 		vb->error = readOnly;
 	} else if (obj->setter(obj, &v)) {
@@ -555,12 +565,12 @@ static void set_request_handler(struct wu_snmp_client *client,
 	int idx = 0, i;
 	struct wu_snmp_com_atom header, method, vblist;
 
-	trace_info("set-request: size %#x", size);
+	trace_dbg("set-request: size %#x", size);
 	rc = pop_var_bind(&data, &size, &vb);
 	while (rc == 0) {
-		//hex_dump("var name", vb.name.data.string, vb.name.len);
+		snmp_hex_dump("var name", vb.name.data.string, vb.name.len);
 		if (vb.value.len > 0) {
-			//hex_dump("var value", vb.value.data.string, vb.value.len);
+			snmp_hex_dump("var value", vb.value.data.string, vb.value.len);
 		}
 		// process var
 		set_request_process_var_bind(client, &vb);
@@ -600,7 +610,7 @@ static void set_request_handler(struct wu_snmp_client *client,
 	com_atom_end(&method);
 	com_atom_end(&header);
 
-	hex_dump("set-response", header.atom.data.string, header.atom.len + 2);
+	snmp_hex_dump("set-response", header.atom.data.string, header.atom.len + 2);
 	client->resp_size = header.atom.len + 2;
 	memcpy(client->resp_data, header.data_buf, client->resp_size);
 }
@@ -629,14 +639,14 @@ void process_client_request(struct wu_snmp_client *client)
 	extract_fix_atoms(&data, &size, &pdu.com, 1);
 	pop_atom(&data, &size, &pdu.method);
 	memcpy(com_str, pdu.com.data.string, pdu.com.len);
-	trace_info("reqeust snmp: version %#x, com %s, method %#x",
+	trace_dbg("reqeust snmp: version %#x, com %s, method %#x",
 		pdu.version.data.int_v, com_str, pdu.method.tag);
 
 	data = pdu.method.data.string;
 	size = pdu.method.len;
 	// pdu
 	extract_fix_atoms(&data, &size, &pdu.request_id, 4);
-	trace_info("request-id %#x, error_status %#x, error_index %#x,"
+	trace_dbg("request-id %#x, error_status %#x, error_index %#x,"
 		"variable_bindings %#x bytes",
 		pdu.request_id.data.int_v, pdu.error_status.data.int_v,
 		pdu.error_index.data.int_v, pdu.variable_bindings.len);
@@ -644,7 +654,7 @@ void process_client_request(struct wu_snmp_client *client)
 	// variable list
 	switch (pdu.method.tag) {
 		case TagGetRequest:
-			hex_dump("variable_bindings", pdu.variable_bindings.data.string,
+			snmp_hex_dump("variable_bindings", pdu.variable_bindings.data.string,
 				pdu.variable_bindings.len);
 			get_request_handler(client, &pdu);
 			break;
@@ -652,7 +662,7 @@ void process_client_request(struct wu_snmp_client *client)
 			get_response_handler(client, &pdu);
 			break;
 		case TagSetRequest:
-			hex_dump("variable_bindings", pdu.variable_bindings.data.string,
+			snmp_hex_dump("variable_bindings", pdu.variable_bindings.data.string,
 				pdu.variable_bindings.len);
 			set_request_handler(client, &pdu);
 			break;
@@ -719,13 +729,13 @@ void wu_agent_loop(void *data)
 			if (len > 0) {
 				trace_info("client address %s, port %d",
 					inet_ntoa(addr.sin_addr), addr.sin_port);
-				hex_dump("snmp request data", buf, len);
+				snmp_hex_dump("snmp request data", buf, len);
 				client->request.data = buf;
 				client->request.size = len;
 				process_client_request(client);
 				len = sendto(agent_sock, client->resp_data, client->resp_size, 0,
 					(struct sockaddr *)&addr, (socklen_t)addr_len);
-				trace_info("resp size %d, len %d", client->resp_size, len);
+				trace_dbg("resp size %d, len %d", client->resp_size, len);
 			}
 		} else if (rc == 0) {
 			// timeout
