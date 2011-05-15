@@ -512,6 +512,8 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 		vb->error = readOnly;
 	} else if (obj->setter(obj, &v)) {
 		vb->error = genErr;
+	} else {
+		vb->value.len = 0;
 	}
 }
 static void set_request_handler(struct wu_snmp_client *client,
