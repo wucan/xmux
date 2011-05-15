@@ -1,6 +1,10 @@
 bin_PROGRAMS = xmux
 
-NETSNMP_LIBS = -lnetsnmpagent -lnetsnmphelpers -lnetsnmp
+#NETSNMP_LIBS = -lnetsnmpagent -lnetsnmphelpers -lnetsnmp
+NETSNMP_LIBS =
+
+#NETSNMP_SRC = netsnmp.c
+NETSNMP_SRC =
 
 AM_CFLAGS = $(CFLAGS) $(DVBPSI_CFLAGS) \
 	-I $(top_srcdir)/include \
@@ -62,7 +66,7 @@ xmux_SOURCES = \
 	xmux_snmp.c \
 	wu_snmp_agent.c \
 	wu_snmp_lib.c \
-	netsnmp.c \
+	$(NETSNMP_SRC) \
 	oids.c \
 	xmux.c \
 	up_sys.c \
