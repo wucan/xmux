@@ -391,6 +391,9 @@ static void get_request_process_var_bind(struct wu_snmp_client *clien,
 		return;
 	}
 
+	/* the object's oid should fixed to current one */
+	memcpy(obj->oid, vb->oid, sizeof(vb->oid));
+
 	if (!obj->getter) {
 		vb->error = noAccess;
 	} else if (obj->getter(obj, &v)) {
@@ -499,6 +502,9 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 		return;
 	}
 	xmux_snmp_update_heart_device_time();
+
+	/* the object's oid should fixed to current one */
+	memcpy(obj->oid, vb->oid, sizeof(vb->oid));
 
 	v.data = vb->value.data.string;
 	v.size = vb->value.len;
