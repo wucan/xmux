@@ -180,11 +180,19 @@ static int extract_fix_atoms(uint8_t **pdata, uint16_t *psize,
 	uint8_t *data = *pdata;
 	uint16_t size = *psize;
 	uint8_t *data_end = data + size;
-	uint8_t tag, len;
+	uint8_t tag;
+	uint16_t len;
 
 	while (data < data_end && atom_idx < atom_cnt) {
 		tag = *data++;
 		len = *data++;
+		if (len == 0x82) {
+			len = data[0] << 8 | data[1];
+			data += 2;
+		} else if (len == 0x81) {
+			len = data[0];
+			data += 1;
+		}
 		if (tag != atoms[atom_idx].tag) {
 			trace_err("atom #%d tag mismatch!(recv %#x, expect %#x)",
 				atom_idx, tag, atoms[atom_idx].tag);
@@ -215,6 +223,13 @@ int pop_atom(uint8_t **pdata, uint16_t *psize, struct wu_snmp_atom *atom)
 	}
 	atom->tag = *data++;
 	atom->len = *data++;
+	if (atom->len == 0x82) {
+		atom->len = data[0] << 8 | data[1];
+		data += 2;
+	} else if (atom->len == 0x81) {
+		atom->len = data[0];
+		data += 1;
+	}
 	if (size < 2 + atom->len) {
 		trace_err("pop atom: expect data size %#x, but real %#x!",
 			2 + atom->len, size);
