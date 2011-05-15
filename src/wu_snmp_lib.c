@@ -364,7 +364,7 @@ static void build_error(struct wu_snmp_client *client, int vb_cnt)
 		vb = &client->variable_bindings[i];
 		if (vb->error) {
 			client->error_status[client->errors] = vb->error;
-			client->error_index[client->errors] = i;
+			client->error_index[client->errors] = i + 1;
 			client->errors++;
 		}
 	}
