@@ -97,6 +97,7 @@ int psi_apply_from_output_psi()
 	uint8_t psi_type, howto = 0;
 	int i;
 	struct psisi_write_info write_info[PSISI_MAX_NUM] = {0};
+	int mul_pkt_off = PSISI_MUL_PKT_0 - 1;
 
 	/*
 	 * create packet temp buffer
@@ -120,6 +121,41 @@ int psi_apply_from_output_psi()
 				psi_type, ent->offset, ent->nr_ts_pkts);
 			for (i = 0; i < ent->nr_ts_pkts; i++) {
 				hex_dump("ts", &psi_data->ts_pkts[ent->offset] + i, 48);
+			}
+
+			/*
+			 * handle multiple same pid of PISSI_40MS type pid
+			 */
+			if (howto == PSISI_40MS) {
+				uint8_t *ts;
+				uint16_t last_pid = 0xFFFF, pid, next_pid;
+
+				for (i = 0; i < ent->nr_ts_pkts; i++) {
+					ts = (uint8_t *)(&psi_data->ts_pkts[ent->offset] + i);
+					pid = GET_PID(ts);
+					next_pid = (i == (ent->nr_ts_pkts - 1)) ? 0xFFFF: GET_PID(ts + 188);
+
+					if (pid == last_pid || pid == next_pid) {
+						if (pid != last_pid) {
+							mul_pkt_off++;
+						}
+						if (mul_pkt_off <= PSISI_MUL_PKT_3) {
+							howto = mul_pkt_off;
+							trace_info("%#x [%#x] %#x, put to %x",
+								last_pid, pid, next_pid, mul_pkt_off);
+						} else {
+							howto = PSISI_40MS;
+						}
+					} else {
+						howto = PSISI_40MS;
+					}
+
+					memcpy(write_info[howto].pkts_buf +
+						write_info[howto].size, ts, 188);
+					write_info[howto].size += 188;
+					last_pid = pid;
+				}
+				continue;
 			}
 
 			memcpy(write_info[howto].pkts_buf + write_info[howto].size,
