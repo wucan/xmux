@@ -286,6 +286,13 @@ int pop_var_bind(uint8_t **pdata, uint16_t *psize,
 
 	return 0;
 }
+static void atom_init(struct wu_snmp_atom *atom,
+	uint8_t tag, uint8_t *data, uint16_t size)
+{
+	atom->tag = tag;
+	atom->len = size;
+	atom->data.string = data;
+}
 static void com_atom_init(struct wu_snmp_com_atom *catom, uint8_t tag,
 	uint8_t *data, uint16_t size)
 {
@@ -319,22 +326,20 @@ static void com_atom_add_atom(struct wu_snmp_com_atom *catom,
 	catom->atom.data.string[2 + catom->atom.len] = atom->tag;
 	catom->atom.data.string[2 + catom->atom.len + 1] = atom->len;
 	catom->atom.len += 2;
-	memcpy(catom->atom.data.string + 2 + catom->atom.len,
-		atom->data.string, atom->len);
-	catom->atom.len += atom->len;
+	if (atom->len > 0) {
+		memcpy(catom->atom.data.string + 2 + catom->atom.len,
+			atom->data.string, atom->len);
+		catom->atom.len += atom->len;
+	}
 	catom->atom.data.string[1] = catom->atom.len;
 }
 static void com_atom_add_atom_data(struct wu_snmp_com_atom *catom,
 	uint8_t tag, uint8_t *data, uint16_t size)
 {
-	catom->atom.data.string[2 + catom->atom.len] = tag;
-	catom->atom.data.string[2 + catom->atom.len + 1] = size;
-	catom->atom.len += 2;
-	if (size > 0) {
-		memcpy(catom->atom.data.string + 2 + catom->atom.len, data, size);
-		catom->atom.len += size;
-	}
-	catom->atom.data.string[1] = catom->atom.len;
+	struct wu_snmp_atom atom;
+
+	atom_init(&atom, tag, data, size);
+	com_atom_add_atom(catom, &atom);
 }
 static void com_atom_add_com_atom(struct wu_snmp_com_atom *catom,
 	struct wu_snmp_com_atom *son_catom, uint8_t tag)
