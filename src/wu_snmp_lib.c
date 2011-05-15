@@ -324,8 +324,19 @@ static void com_atom_add_atom(struct wu_snmp_com_atom *catom,
 	struct wu_snmp_atom *atom)
 {
 	catom->atom.data.string[2 + catom->atom.len] = atom->tag;
-	catom->atom.data.string[2 + catom->atom.len + 1] = atom->len;
-	catom->atom.len += 2;
+	if (atom->len > 0xFF) {
+		catom->atom.data.string[2 + catom->atom.len + 1] = 0x82;
+		catom->atom.data.string[2 + catom->atom.len + 2] = atom->len >> 8;
+		catom->atom.data.string[2 + catom->atom.len + 3] = atom->len & 0xFF;
+		catom->atom.len += 4;
+	} else if (atom->len >= 0x80) {
+		catom->atom.data.string[2 + catom->atom.len + 1] = 0x81;
+		catom->atom.data.string[2 + catom->atom.len + 2] = atom->len;
+		catom->atom.len += 3;
+	} else {
+		catom->atom.data.string[2 + catom->atom.len + 1] = atom->len;
+		catom->atom.len += 2;
+	}
 	if (atom->len > 0) {
 		memcpy(catom->atom.data.string + 2 + catom->atom.len,
 			atom->data.string, atom->len);
