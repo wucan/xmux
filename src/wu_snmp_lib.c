@@ -560,7 +560,7 @@ static void set_request_handler(struct wu_snmp_client *client,
 	com_atom_add_com_atom(&method, &vblist, TagVar);
 	for (i = 0; i < idx; i++) {
 		struct wu_snmp_com_atom vb_catom;
-		if (client->variable_bindings[i].error) {
+		if (!client->variable_bindings[i].error) {
 			com_atom_add_com_atom(&vblist, &vb_catom, TagVar);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].name);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].value);
