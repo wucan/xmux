@@ -33,7 +33,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 #define OID_TUNNER_ID_IDX			6
 
 
-#define PID_TRANS_INFO_NUM		24
+#define PID_TRANS_INFO_NUM		32
 #define LOAD_INFO_SIZE				USER_INFO_SIZE
 
 struct pid_trans_snmp_data sg_mib_trans;
