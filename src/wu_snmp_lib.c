@@ -36,8 +36,6 @@ enum {
 	TagGetRequest = 0xa0,
 	TagGetResponse = 0xa2,
 	TagSetRequest = 0xa3,
-
-	TagNoSuchObject = 0x80,
 };
 
 struct snmp_value {
@@ -386,8 +384,7 @@ static void get_request_process_var_bind(struct wu_snmp_client *clien,
 	obj = find_oid_object(vb->oid, vb->oid_len);
 	if (!obj) {
 		trace_err("no such object: %s", oid_str_2(vb->oid, vb->oid_len));
-		vb->value.tag = TagNoSuchObject;
-		vb->value.len = 0;
+		vb->error = noSuchName;
 		return;
 	}
 
@@ -454,8 +451,6 @@ static void get_request_handler(struct wu_snmp_client *client,
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].name);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].value);
 			com_atom_end(&vb_catom);
-			//hex_dump("no error vb_catom",
-			//	vb_catom.atom.data.string, vb_catom.atom.len + 2);
 		}
 	}
 	com_atom_end(&vblist);
@@ -483,8 +478,7 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 	obj = find_oid_object(vb->oid, vb->oid_len);
 	if (!obj) {
 		trace_err("no such object: %s", oid_str_2(vb->oid, vb->oid_len));
-		vb->value.tag = TagNoSuchObject;
-		vb->value.len = 0;
+		vb->error = noSuchName;
 		return;
 	}
 
