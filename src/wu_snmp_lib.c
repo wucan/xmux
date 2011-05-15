@@ -55,6 +55,8 @@ struct wu_snmp_com_atom {
 
 	struct wu_snmp_com_atom *parent_catom;
 	struct wu_snmp_com_atom *son_catom;
+
+	uint8_t data_buf[2048];
 };
 
 struct wu_snmp_pdu {
@@ -293,31 +295,54 @@ static void atom_init(struct wu_snmp_atom *atom,
 	atom->len = size;
 	atom->data.string = data;
 }
-static void com_atom_init(struct wu_snmp_com_atom *catom, uint8_t tag,
-	uint8_t *data, uint16_t size)
+static void com_atom_init(struct wu_snmp_com_atom *catom, uint8_t tag)
 {
 	catom->atom.tag = tag;
 	catom->atom.len = 0;
-	catom->atom.data.string = data;
+	catom->atom.data.string = catom->data_buf;
 	catom->atom.data.string[0] = tag;
-	catom->atom.data.string[1] = 0;
 
-	catom->max_size = size;
+	catom->max_size = 2048;
 	catom->parent_catom = NULL;
 	catom->son_catom = NULL;
+}
+static void com_atom_fix_data(struct wu_snmp_com_atom *catom)
+{
+	if (catom->atom.len > 0xFF) {
+		memcpy(catom->data_buf + 4, catom->data_buf + 2, catom->atom.len);
+		catom->data_buf[1] = 0x82;
+		catom->data_buf[2] = catom->atom.len >> 8;
+		catom->data_buf[3] = catom->atom.len & 0xFF;
+		catom->atom.len += 2;
+	} else if (catom->atom.len >= 0x80) {
+		memcpy(catom->data_buf + 3, catom->data_buf + 2, catom->atom.len);
+		catom->data_buf[1] = 0x81;
+		catom->data_buf[2] = catom->atom.len;
+		catom->atom.len += 1;
+	} else {
+		catom->data_buf[1] = catom->atom.len;
+	}
+}
+static void com_atom_merge(struct wu_snmp_com_atom *parent,
+		struct wu_snmp_com_atom *son)
+{
+	com_atom_fix_data(son);
+	memcpy(parent->data_buf + 2 + parent->atom.len,
+		son->data_buf, 2 + son->atom.len);
+	parent->atom.len += 2 + son->atom.len;
 }
 static void com_atom_end(struct wu_snmp_com_atom *catom)
 {
 	if (catom->son_catom) {
-		catom->atom.len += 2 + catom->son_catom->atom.len;
-		catom->atom.data.string[1] = catom->atom.len;
+		com_atom_merge(catom, catom->son_catom);
 		catom->son_catom = NULL;
 	}
 	if (catom->parent_catom) {
-		catom->parent_catom->atom.len += 2 + catom->atom.len;
-		catom->parent_catom->atom.data.string[1] = catom->parent_catom->atom.len;
+		com_atom_merge(catom->parent_catom, catom);
 		catom->parent_catom->son_catom = NULL;
 		catom->parent_catom = NULL;
+	} else {
+		com_atom_fix_data(catom);
 	}
 }
 static void com_atom_add_atom(struct wu_snmp_com_atom *catom,
@@ -342,7 +367,6 @@ static void com_atom_add_atom(struct wu_snmp_com_atom *catom,
 			atom->data.string, atom->len);
 		catom->atom.len += atom->len;
 	}
-	catom->atom.data.string[1] = catom->atom.len;
 }
 static void com_atom_add_atom_data(struct wu_snmp_com_atom *catom,
 	uint8_t tag, uint8_t *data, uint16_t size)
@@ -355,12 +379,7 @@ static void com_atom_add_atom_data(struct wu_snmp_com_atom *catom,
 static void com_atom_add_com_atom(struct wu_snmp_com_atom *catom,
 	struct wu_snmp_com_atom *son_catom, uint8_t tag)
 {
-	if (catom->son_catom)
-		catom->atom.len += 2 + catom->son_catom->atom.len;
-
-	com_atom_init(son_catom, tag,
-		catom->atom.data.string + 2 + catom->atom.len,
-		catom->max_size - (2 + catom->atom.len));
+	com_atom_init(son_catom, tag);
 
 	catom->son_catom = son_catom;
 	son_catom->parent_catom = catom;
@@ -418,6 +437,7 @@ static void get_request_process_var_bind(struct wu_snmp_client *clien,
 		vb->value.data.string = vb->data_buf;
 	}
 }
+struct wu_snmp_com_atom header, method, vblist, vb_catom;
 static void get_request_handler(struct wu_snmp_client *client,
 	struct wu_snmp_pdu *pdu)
 {
@@ -426,7 +446,6 @@ static void get_request_handler(struct wu_snmp_client *client,
 	uint16_t size = pdu->variable_bindings.len;
 	int rc;
 	int idx = 0, i;
-	struct wu_snmp_com_atom header, method, vblist;
 
 	trace_info("get-request: size %#x", size);
 	rc = pop_var_bind(&data, &size, &vb);
@@ -447,7 +466,7 @@ static void get_request_handler(struct wu_snmp_client *client,
 	/*
 	 * build get-response pdu
 	 */
-	com_atom_init(&header, TagVar, client->resp_data, RESP_DATA_MAX_SIZE);
+	com_atom_init(&header, TagVar);
 	com_atom_add_atom(&header, &pdu->version);
 	com_atom_add_atom(&header, &pdu->com);
 	com_atom_add_com_atom(&header, &method, TagGetResponse);
@@ -461,7 +480,6 @@ static void get_request_handler(struct wu_snmp_client *client,
 	/* add variable-bindings */
 	com_atom_add_com_atom(&method, &vblist, TagVar);
 	for (i = 0; i < idx; i++) {
-		struct wu_snmp_com_atom vb_catom;
 		if (!client->variable_bindings[i].error) {
 			com_atom_add_com_atom(&vblist, &vb_catom, TagVar);
 			com_atom_add_atom(&vb_catom, &client->variable_bindings[i].name);
@@ -475,6 +493,7 @@ static void get_request_handler(struct wu_snmp_client *client,
 
 	hex_dump("get-response", header.atom.data.string, header.atom.len + 2);
 	client->resp_size = header.atom.len + 2;
+	memcpy(client->resp_data, header.data_buf, client->resp_size);
 }
 
 static void get_response_handler(struct wu_snmp_client *client,
@@ -555,7 +574,7 @@ static void set_request_handler(struct wu_snmp_client *client,
 	/*
 	 * build set-response pdu
 	 */
-	com_atom_init(&header, TagVar, client->resp_data, RESP_DATA_MAX_SIZE);
+	com_atom_init(&header, TagVar);
 	com_atom_add_atom(&header, &pdu->version);
 	com_atom_add_atom(&header, &pdu->com);
 	com_atom_add_com_atom(&header, &method, TagGetResponse);
@@ -583,6 +602,7 @@ static void set_request_handler(struct wu_snmp_client *client,
 
 	hex_dump("set-response", header.atom.data.string, header.atom.len + 2);
 	client->resp_size = header.atom.len + 2;
+	memcpy(client->resp_data, header.data_buf, client->resp_size);
 }
 void process_client_request(struct wu_snmp_client *client)
 {
