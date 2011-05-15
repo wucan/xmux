@@ -44,7 +44,7 @@ struct mpeg_ts_packet {
 /*
  * get pid from ts packet
  */
-#define GET_PID(bs)			(((bs[1] & 0x1F) << 8) | bs[2])
+#define GET_PID(bs)			((((bs)[1] & 0x1F) << 8) | (bs)[2])
 
 
 #endif /* _MPEGTS_H_ */
