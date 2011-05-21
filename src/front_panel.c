@@ -13,10 +13,12 @@
 #include "front_panel_data_churning.h"
 
 
+#define fp_tty		"/dev/ttyS2"
+
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp"};
 
 extern int front_panel_parse_msg(int fd, unsigned char *recv_msg_buf);
-extern int openport();
+extern int openport(const char *dev_path);
 
 static Thread *fp_thr;
 static bool fp_thread_quit;
@@ -25,7 +27,7 @@ static WuSWait fp_swait;
 
 int front_panel_open()
 {
-	fd = openport();
+	fd = openport(fp_tty);
 	if (fd <= 0) {
 		trace_err("failed to open port!");
 		return -1;

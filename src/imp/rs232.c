@@ -14,9 +14,6 @@
 
 #include "rs232.h"
 
-//#define defDevTtyS1 	"/dev/ttyS1"
-#define defDevTtyS1 	"/dev/ttyS2"
-
 
 static int setport(int fd, int baud, int databits, int stopbits, int parity) 
 {
@@ -119,14 +116,12 @@ static void clearport(int fd) //if found data error, call the function to refres
     tcflush(fd, TCIOFLUSH);
 }
 
-int openport(void) 
+int openport(const char *dev_path)
 {
 	int fdttyS1 = -1;
 	if(fdttyS1<=0)
 	{
-		//fdttyS1 = open(defDevTtyS1,O_RDWR | O_NONBLOCK );
-		
-		fdttyS1 = open(defDevTtyS1,O_RDWR );
+		fdttyS1 = open(dev_path,O_RDWR );
 		if (-1 == fdttyS1) 
 		{
 			perror("Can't Open Serial Port");
