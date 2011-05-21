@@ -87,13 +87,13 @@ static int read_bytes(char *buf, int expect_size)
 	return expect_size;
 }
 
-static uint8_t recv_buf[FP_RECV_MSG_MAX_SIZE + 10];
 static int fp_thread(void *data)
 {
 	int rc;
 	fd_set rset;
 	struct timeval tv;
 	int readed_len = 0;
+	uint8_t recv_buf[FP_RECV_MSG_MAX_SIZE + 10];
 
 	trace_info("front panel thread running ...");
 	while (!fp_thread_quit) {
