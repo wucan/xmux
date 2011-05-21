@@ -116,7 +116,7 @@ static void clearport(int fd) //if found data error, call the function to refres
     tcflush(fd, TCIOFLUSH);
 }
 
-int openport(const char *dev_path)
+int openport(const char *dev_path, int baud)
 {
 	int fdttyS1 = -1;
 	if(fdttyS1<=0)
@@ -130,7 +130,7 @@ int openport(const char *dev_path)
 		printf("init rs232 for rf successfully.\n");
 
 		//set serial port:baud,databits,stopbits,parity
-		if (setport(fdttyS1, B115200, 8, 1, 'n') < 0)
+		if (setport(fdttyS1, baud, 8, 1, 'n') < 0)
 		{
 			printf("rf: Can't Set Serial Port!\n");
 			return -1;

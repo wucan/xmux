@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <termios.h>
 
 #include "wu/wu_base_type.h"
 #include "wu/thread.h"
@@ -18,7 +19,7 @@
 static msgobj mo = {MSG_INFO, ENCOLOR, "fp"};
 
 extern int front_panel_parse_msg(int fd, unsigned char *recv_msg_buf);
-extern int openport(const char *dev_path);
+extern int openport(const char *dev_path, int baud);
 
 static Thread *fp_thr;
 static bool fp_thread_quit;
@@ -27,7 +28,7 @@ static WuSWait fp_swait;
 
 int front_panel_open()
 {
-	fd = openport(fp_tty);
+	fd = openport(fp_tty, B115200);
 	if (fd <= 0) {
 		trace_err("failed to open port!");
 		return -1;
