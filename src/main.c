@@ -66,6 +66,7 @@ int main(int argc, char **argv)
 
 	while (1) {
 		xmux_snmp_check_connection();
+		pid_trans_info_save_check();
 		sleep(1);
 	}
 

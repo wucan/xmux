@@ -14,6 +14,8 @@
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "pid_trans_info"};
 
+uint64_t save_chan_bitmap;
+
 struct pid_trans_info_snmp_data sg_mib_pid_trans_info[CHANNEL_MAX_NUM];
 
 #define NODE_NUM				4
@@ -51,6 +53,7 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 		trace_info("begin recv pid_trans_info of channel #%d, clear it at first",
 			chan_idx);
 		memset(&sg_mib_pid_trans_info[chan_idx], 0, sizeof(sg_mib_pid_trans_info[0]));
+		save_chan_bitmap &= ~(1 << chan_idx);
 	}
 	memcpy(d->node[idx], v->data, v->size);
 
@@ -61,9 +64,8 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 		/* fix received data */
 		fix_data(chan_idx);
 		pid_trans_info_dump(&sg_mib_pid_trans_info[chan_idx]);
-		/* save it */
-		xmux_config_save_pid_trans_info_channel(chan_idx,
-			&sg_mib_pid_trans_info[chan_idx]);
+		/* schedule to save it */
+		save_chan_bitmap |= (1 << chan_idx);
 	}
 }
 
@@ -126,6 +128,20 @@ void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
 			trace_info("  #%d, pid(%#x => %#x, type %d)",
 				pid_idx,
 				data_pid_in, prog->data[pid_idx].out, prog->data[pid_idx].type);
+		}
+	}
+}
+
+void pid_trans_info_save_check()
+{
+	if (save_chan_bitmap) {
+		int chan_idx;
+		for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+			if (save_chan_bitmap & (1 << chan_idx)) {
+				xmux_config_save_pid_trans_info_channel(chan_idx,
+					&sg_mib_pid_trans_info[chan_idx]);
+				save_chan_bitmap &= ~(1 << chan_idx);
+			}
 		}
 	}
 }
