@@ -51,6 +51,7 @@ xmux_SOURCES = \
 	front_panel_data_churning.c \
 	front_panel_psi_gen.c \
 	front_panel_psi_parse.c \
+	ctrl_mcu.c \
 	xmux_4_chan_rf.c \
 	section.c \
 	psi_worker.c \

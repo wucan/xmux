@@ -11,6 +11,7 @@
 #include "xmux_misc.h"
 #include "psi_gen.h"
 #include "pid_map_table.h"
+#include "ctrl_mcu.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "main"};
@@ -37,6 +38,8 @@ int main(int argc, char **argv)
 	 */
 	enter_fp_management_mode();
 	leave_fp_management_mode();
+
+	ctrl_mcu_open();
 
 	/*
 	 * restore all system to work again!
@@ -69,6 +72,7 @@ int main(int argc, char **argv)
 	wu_snmp_agent_fini();
 	psi_worker_close();
 	front_panel_close();
+	ctrl_mcu_close();
 
 	exit(EXIT_SUCCESS);
 }

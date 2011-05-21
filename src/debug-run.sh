@@ -1,1 +1,2 @@
-sudo libtool --mode=execute gdb ./xmux
+#sudo libtool --mode=execute gdb ./xmux
+libtool --mode=execute gdb ./xmux
