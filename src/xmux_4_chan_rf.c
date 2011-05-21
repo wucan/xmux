@@ -50,6 +50,7 @@ switch_again:
 	{
 		struct tunner_param tp;
 		if (is_read) {
+			tunner_get_param(tunner_id, &tp);
 			tunner_param_2_buf(&g_4_chan_rf_param.tunner[tunner_id].param, &tp);
 			*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
 				&tp, sizeof(tp));
@@ -86,6 +87,7 @@ switch_again:
 	{
 		struct bcm3033_param bp;
 		if (is_read) {
+			bcm3033_get_param(&bp);
 			bcm3033_param_2_buf(&g_4_chan_rf_param.bcm, &bp);
 			*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
 				&bp, sizeof(bp));
