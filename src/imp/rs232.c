@@ -29,7 +29,7 @@ static int setport(int fd, int baud, int databits, int stopbits, int parity)
 
 	nCount=sizeof(arrbps)/sizeof(int);
 
-	baudrate=B115200;
+	baudrate=baud;
 	for(i=0;i<nCount/2;i++)
 	{
 		if(baud!=arrbps[i*2]) continue;
@@ -37,7 +37,7 @@ static int setport(int fd, int baud, int databits, int stopbits, int parity)
 		break;
 	}
 
-	baudrate=B115200;
+	baudrate=baud;
 
     tcgetattr(fd, &newtio);
     bzero(&newtio, sizeof (newtio));
@@ -130,7 +130,7 @@ int openport(const char *dev_path)
 		printf("init rs232 for rf successfully.\n");
 
 		//set serial port:baud,databits,stopbits,parity
-		if (setport(fdttyS1, 9600, 8, 1, 'n') < 0) 
+		if (setport(fdttyS1, B115200, 8, 1, 'n') < 0)
 		{
 			printf("rf: Can't Set Serial Port!\n");
 			return -1;
