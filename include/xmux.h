@@ -264,15 +264,19 @@ struct xmux_eeprom_param {
 	union {
 		struct pid_trans_info_snmp_data pid_trans_info[CHANNEL_MAX_NUM];
 	} pid_trans_info_area EEPROM_PAGE_ALIGN;
+	uint8_t pid_trans_info_tail[EEPROM_PAGE_SIZE];
 	union {
 		struct xmux_pid_map_table pid_map_table;
 	} pid_map_table_area EEPROM_PAGE_ALIGN;
+	uint8_t pid_map_table_tail[EEPROM_PAGE_SIZE];
 	union {
 		uint8_t bytes[OUTPUT_PSI_AREA_SIZE];
 		struct xmux_output_psi_data output_psi;
 	} output_psi_area EEPROM_PAGE_ALIGN;
+	uint8_t psi_tail[EEPROM_PAGE_SIZE];
 #if CHANNEL_MAX_NUM == 1
 	uint8_t input_pmt_sec[PROGRAM_MAX_NUM][INPUT_PMT_SEC_MAX_LEN] EEPROM_PAGE_ALIGN;
+	uint8_t input_pmt_sect_tail[EEPROM_PAGE_SIZE];
 #endif
 	struct xmux_system_param sys EEPROM_PAGE_ALIGN;
 	struct xmux_net_param net EEPROM_PAGE_ALIGN;
