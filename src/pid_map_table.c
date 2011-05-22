@@ -44,13 +44,13 @@ int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data)
 {
 	int size = sizeof(struct xmux_pid_map_table);
 
-	if (size != sizeof(tmp_pid_map.pid_map)) {
-		trace_warn("pid map table struct inconsistent! check it!");
+	if (size > sizeof(tmp_pid_map.pid_map)) {
+		trace_warn("pid map table struct exceed! check it!");
 		return -1;
 	}
 
 	tmp_pid_map.cha = CHANNEL_ALL_BITMAP;
-	memcpy((unsigned char *)&tmp_pid_map.pid_map, pid_map_data, sizeof(tmp_pid_map.pid_map));
+	memcpy((unsigned char *)&tmp_pid_map.pid_map, pid_map_data, sizeof(*pid_map_data));
 
 	hfpga_write_pid_map(&tmp_pid_map);
 
