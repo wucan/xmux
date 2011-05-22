@@ -24,7 +24,7 @@ static int fd;
 
 int ctrl_mcu_open()
 {
-	fd = openport(ctrl_mcu_tty, B9600);
+	fd = openport(ctrl_mcu_tty, B115200);
 	if (fd <= 0) {
 		trace_err("failed to open port %s!", ctrl_mcu_tty);
 		return -1;
