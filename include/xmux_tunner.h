@@ -13,8 +13,6 @@ struct tunner_param {
 	uint8_t polarization; // H = 0, V = 1
 	uint8_t lnb; // off = 0,  on = 1
 	uint8_t f22k; // off = 0, on = 1
-
-	uint8_t csc;
 } __attribute__ ((__packed__));
 
 

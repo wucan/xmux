@@ -1,5 +1,3 @@
-#include "wu/wu_csc.h"
-
 #include "xmux_tunner.h"
 #include "ctrl_mcu.h"
 
@@ -25,7 +23,6 @@ int tunner_set_param(int id, struct tunner_param *param)
 {
 	int len, rc;
 
-	param->csc = wu_csc(param, sizeof(*param) - 1);
 	len = fp_build_cmd(send_buf, false, CTRL_MCU_CMD_TUNNER1_PARAM + id,
 			param, sizeof(*param));
 	ctrl_mcu_send_cmd(send_buf, len);
