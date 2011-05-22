@@ -328,12 +328,15 @@ static int psi_status_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 /*
  * APPLY PSI
  */
+extern int save_pid_trans_info;
 static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	trace_info("apply psi...");
 	memcpy(&sg_mib_apply_psi, v->data, v->size);
 	psi_gen_output_psi_from_sections();
 	psi_apply_from_output_psi();
+
+	save_pid_trans_info = 1;
 
 #if CHANNEL_MAX_NUM == 1
 	/*
