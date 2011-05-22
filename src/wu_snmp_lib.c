@@ -140,6 +140,8 @@ struct wu_snmp_client {
 
 	uint8_t resp_data[RESP_DATA_MAX_SIZE];
 	uint16_t resp_size;
+
+	int readonly;
 };
 
 struct wu_snmp_pdu *build_pdu(void *data)
@@ -515,6 +517,11 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 	struct wu_snmp_value v;
 	static wu_oid_t load_oid[] = {XMUX_ROOT_OID, 100};
 
+	if (clien->readonly) {
+		vb->error = readOnly;
+		return;
+	}
+
 	vb->error = noError;
 
 	trace_dbg("vb oid is: %s", oid_str_2(vb->oid, vb->oid_len));
@@ -708,7 +715,7 @@ void wu_agent_loop(void *data)
 	int len, rc;
 	struct timeval to;
 	fd_set read_set;
-	struct sockaddr_in addr;
+	struct sockaddr_in addr, login_addr;
 	int addr_len = sizeof(struct sockaddr_in);
 	struct wu_snmp_client *client;
 
@@ -729,6 +736,20 @@ void wu_agent_loop(void *data)
 			if (len > 0) {
 				trace_info("client address %s, port %d",
 					inet_ntoa(addr.sin_addr), addr.sin_port);
+
+				/*
+				 * if other client logined, make it readonly
+				 */
+				if (sg_mib_heartDevice.flag == SNMP_LOGIN_STATUS_SUCCESS &&
+					addr.sin_addr.s_addr != login_addr.sin_addr.s_addr) {
+					trace_warn("manager logined! readonly granted");
+					client->readonly = 1;
+				} else {
+					// this is the candicate manager
+					login_addr = addr;
+					client->readonly = 0;
+				}
+
 				snmp_hex_dump("snmp request data", buf, len);
 				client->request.data = buf;
 				client->request.size = len;
