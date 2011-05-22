@@ -76,7 +76,7 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 	uint8_t prog_idx;
 	struct xmux_program_info_with_csc *prog;
 
-	if (data->data_len != sizeof(*data) - 2) {
+	if (data->data_len && data->data_len != sizeof(*data) - 2) {
 		trace_err("data_len 0, but expect %d!", sizeof(*data) - 2);
 		return false;
 	}
