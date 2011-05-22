@@ -217,6 +217,7 @@ int ctrl_mcu_send_cmd(uint8_t *send_data, int send_data_len)
 {
 	int rc;
 
+	hex_dump("ctrl muc send", send_data, send_data_len);
 	rc = write(fd, send_data, send_data_len);
 	if (rc < send_data_len) {
 		trace_err("send failed! rc %d\n", rc);
@@ -234,6 +235,7 @@ int ctrl_mcu_send_and_recv_cmd(uint8_t *send_data, int send_data_len,
 	struct fp_cmd_header hdr;
 	static uint8_t recv_buf[256];
 
+	hex_dump("ctrl muc send", send_data, send_data_len);
 	rc = write(fd, send_data, send_data_len);
 	if (rc < send_data_len) {
 		trace_err("send failed! rc %d\n", rc);
@@ -241,8 +243,8 @@ int ctrl_mcu_send_and_recv_cmd(uint8_t *send_data, int send_data_len,
 	}
 
 	// read header
-	nlen = read(fd, recv_buf, sizeof(hdr));
-	if (nlen < 0) {
+	nlen = read_bytes(recv_buf, sizeof(hdr));
+	if (nlen != sizeof(hdr)) {
 		trace_err("failed to read header, readed %d!", nlen);
 		return -1;
 	}
@@ -250,7 +252,7 @@ int ctrl_mcu_send_and_recv_cmd(uint8_t *send_data, int send_data_len,
 		trace_err("invalid sync byte %#x! flush buffer..", recv_buf[0]);
 		hex_dump("invalid header", recv_buf, sizeof(hdr));
 		nlen = read(fd, recv_buf, 256);
-		if (rc > 0) {
+		if (nlen > 0) {
 			trace_err("discard %d bytes data...", nlen);
 			hex_dump("discard data", recv_buf, MIN(nlen, 16));
 		}
@@ -278,6 +280,7 @@ int ctrl_mcu_send_and_recv_cmd(uint8_t *send_data, int send_data_len,
 		return -1;
 	}
 	memcpy(recv_param_buf, recv_buf + sizeof(hdr), expect_param_len);
+	hex_dump("ctrl recv", recv_param_buf, expect_param_len);
 
 	return 0;
 }
