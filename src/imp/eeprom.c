@@ -37,8 +37,14 @@ int eeprom_open()
 }
 void eeprom_write(int offset, void *buf, size_t len)
 {
+	static int busy = 0;
+
+	while (busy)
+		usleep(10000);
+	busy = 1;
 	lseek(eep_fd, offset, SEEK_SET);
 	write(eep_fd, buf, len);
+	busy = 0;
 }
 void eeprom_read(int offset, void *buf, size_t len)
 {
