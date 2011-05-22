@@ -196,7 +196,7 @@ static int parse_cat()
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_CAT;
 	sg_si_param.sec[0] = sg_mib_cat[sg_si_param.cha];
-	psi_parse_timer_start(5);
+	psi_parse_timer_start(10);
 	rc = dvbSI_Dec_CAT(cat_descr, &cat_descr_num);
 	psi_parse_timer_stop();
 	if (rc) {
