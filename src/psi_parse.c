@@ -160,7 +160,9 @@ static int parse_pmt()
 		sg_si_param.type = EUV_SECTION;
 		sg_si_param.tbl_type = EUV_TBL_PMT;
 		sg_si_param.sec[0] = sg_mib_curpmt;
-		psi_parse_timer_start(5);
+		trace_info("parse pmt, pid %04x, program_number %d",
+			pmt.i_pmt_pid, pmt.i_pg_num);
+		psi_parse_timer_start(10);
 		rc = dvbSI_Dec_PMT(&pmt, es, &es_num);
 		psi_parse_timer_stop();
 		if (rc) {
