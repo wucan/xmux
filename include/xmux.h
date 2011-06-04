@@ -2,6 +2,7 @@
 #define _XMUX_H_
 
 #include "wu/wu_base_type.h"
+#include "wu/wu_bitmap.h"
 #include "mpegts.h"
 
 
@@ -101,7 +102,7 @@ struct pid_trans_info_snmp_data {
 
 	uint8_t update_flag_and_chan_num;
 	uint8_t nprogs;
-	uint32_t sel_status;
+	WU_BITMAP_DECLARE(sel_status, PROGRAM_MAX_NUM);
 #if CHANNEL_MAX_NUM == 1
 	uint32_t scramble_status;
 #endif
@@ -109,11 +110,12 @@ struct pid_trans_info_snmp_data {
 } __attribute__((packed));
 #define PID_TRANS_INFO_SIZE			sizeof(struct pid_trans_info_snmp_data)
 
-#define PROGRAM_SELECTED(status, prog_id)		(status & (1 << prog_id))
+#define PROGRAM_SELECTED(status, prog_id) \
+	wu_bitmap_test_bit(status, prog_id)
 #define SELECT_PROGRAM(info, prog_idx) \
-	(info->sel_status |= (1 << prog_idx))
+	wu_bitmap_set_bit(info->sel_status, prog_idx)
 #define DESELECT_PROGRAM(info, prog_idx) \
-	(info->sel_status &= ~(1 << prog_idx))
+	wu_bitmap_clear_bit(info->sel_status, prog_idx)
 
 /*
  * FIXME: xmux define pid type for pcr, pmt, pcr_audio, pcr=video, pid=pad
