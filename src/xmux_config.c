@@ -24,6 +24,8 @@ int xmux_config_init()
 		return rc;
 	}
 
+	trace_info("xmux eeprom size %#x, param size %#x",
+		EEPROM_SIZE, sizeof(struct xmux_eeprom_param));
 	trace_info("offset in eeprom: %#x, %#x, %#x, %#x, %#x, %#x, %#x, %#x",
 		EEPROM_OFF_PID_TRANS_INFO, EEPROM_OFF_PID_MAP_TABLE,
 		EEPROM_OFF_OUTPUT_PSI, EEPROM_OFF_SYS, EEPROM_OFF_NET,
