@@ -680,7 +680,8 @@ void process_client_request(struct wu_snmp_client *client)
 
 static WuTree *tree;
 static WuTreeNode *root;
-#define NODE_SIZE	1000
+#define NODE_SIZE	((PROGRAM_MAX_NUM / 32) * 1000)
+
 static int oid_finder (void *node_data, void *data)
 {
 	if (node_data == data) {
