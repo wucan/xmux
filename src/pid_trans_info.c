@@ -18,8 +18,14 @@ int save_pid_trans_info;
 
 struct pid_trans_info_snmp_data sg_mib_pid_trans_info[CHANNEL_MAX_NUM];
 
+#if PROGRAM_MAX_NUM == 32
 #define NODE_NUM				4
 #define NODE_MAX_SIZE			1194
+#elif PROGRAM_MAX_NUM == 64
+#define NODE_NUM				8
+#define NODE_MAX_SIZE			1193
+#endif
+
 struct access_data {
 	uint8_t node[NODE_NUM][NODE_MAX_SIZE];
 };
@@ -59,7 +65,7 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 	/*
 	 * save to eeprom if channel's pid trans info all got
 	 */
-	if (v->size < NODE_MAX_SIZE || chan_idx == 2) {
+	if (v->size < NODE_MAX_SIZE || idx == (NODE_NUM - 1)) {
 		/* fix received data */
 		fix_data(chan_idx);
 		if (!pid_trans_info_validate(&sg_mib_pid_trans_info[chan_idx])) {
