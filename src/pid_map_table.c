@@ -123,6 +123,8 @@ void pid_map_table_dump(struct xmux_pid_map_table *pid_map)
 				out == PID_MAP_TABLE_PAD_PID) {
 				continue;
 			}
+			if (in == 0 && out == 0)
+				continue;
 			trace_info("  #%d, pid_idx #%d pid(%d(%#x) => %d(%#x))",
 				chan_idx, pid_idx, in, in, out, out);
 		}
