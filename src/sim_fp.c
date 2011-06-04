@@ -38,7 +38,7 @@ static void enter_fp_management_mode_btn_press(GtkWidget *widget,
 	uint16_t sys_cmd = FP_SYS_CMD_ENTER_FP_MANAGEMENT_MODE;
 
 	sys_cmd = htons(sys_cmd);
-	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	fp_build_cmd(req_buf, true, FP_CMD_SYS, &sys_cmd, sizeof(sys_cmd));
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 }
 
@@ -48,7 +48,7 @@ static void leave_fp_management_mode_btn_press(GtkWidget *widget,
 	uint16_t sys_cmd = FP_SYS_CMD_LEAVE_FP_MANAGEMENT_MODE;
 
 	sys_cmd = htons(sys_cmd);
-	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	fp_build_cmd(req_buf, true, FP_CMD_SYS, &sys_cmd, sizeof(sys_cmd));
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 }
 
@@ -58,7 +58,7 @@ static void analyse_psi_btn_press(GtkWidget *widget,
 	uint16_t sys_cmd = FP_SYS_CMD_START_ANALYSE_PSI;
 
 	sys_cmd = htons(sys_cmd);
-	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	fp_build_cmd(req_buf, true, FP_CMD_SYS, &sys_cmd, sizeof(sys_cmd));
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 }
 
@@ -69,7 +69,7 @@ static void read_map_analyse_status_btn_press(GtkWidget *widget,
 	CHN_NUM_T chnum;
 
 	sys_cmd = htons(sys_cmd);
-	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	fp_build_cmd(req_buf, true, FP_CMD_SYS, &sys_cmd, sizeof(sys_cmd));
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 	if (!fp_validate_cmd(resp_buf, resp_len, sizeof(CHN_NUM_T))) {
 		g_print("response cmd invalidate!\n");
@@ -85,7 +85,7 @@ static void get_ts_status_btn_press(GtkWidget *widget,
 	uint16_t sys_cmd = FP_SYS_CMD_READ_TS_STATUS;
 
 	sys_cmd = htons(sys_cmd);
-	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	fp_build_cmd(req_buf, true, FP_CMD_SYS, &sys_cmd, sizeof(sys_cmd));
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 	if (!fp_validate_cmd(resp_buf, resp_len, 1)) {
 		g_print("response cmd invalidate!\n");
@@ -101,7 +101,7 @@ static void apply_btn_press(GtkWidget *widget,
 	uint16_t sys_cmd = FP_SYS_CMD_APPLY_MAP_ANALYSE;
 
 	sys_cmd = htons(sys_cmd);
-	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	fp_build_cmd(req_buf, true, FP_CMD_SYS, &sys_cmd, sizeof(sys_cmd));
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 }
 
@@ -111,7 +111,7 @@ static void reset_net_btn_press(GtkWidget *widget,
 	uint16_t sys_cmd = FP_SYS_CMD_RESET_NET;
 
 	sys_cmd = htons(sys_cmd);
-	fp_build_cmd(req_buf, true, 0x103, &sys_cmd, sizeof(sys_cmd));
+	fp_build_cmd(req_buf, true, FP_CMD_SYS, &sys_cmd, sizeof(sys_cmd));
 	__parse_mcu_cmd(req_buf, resp_buf, &resp_len);
 }
 
