@@ -84,8 +84,8 @@ static void clear_channel_section_data(uint8_t chan_id)
 	int i;
 
 	memset(sg_mib_pat[chan_id], 0, 2);
-	for (i = 0; i < 5; i++)
-		memset(sg_mib_sdt[chan_id][i], 0, 2);
+	for (i = 0; i < SDT_SECTION_NUM; i++)
+		memset(sg_mib_sdt[chan_id][SDT_SECTION_NUM], 0, 2);
 	memset(sg_mib_cat[chan_id], 0, 2);
 	memset(sg_mib_nit[chan_id], 0, 2);
 	for (i = 0; i < PROGRAM_MAX_NUM; i++)
@@ -216,7 +216,7 @@ static int parse_sdt()
 	sg_si_param.cur_cnt = 0;
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_SDT;
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < SDT_SECTION_NUM; i++)
 		sg_si_param.sec[i] = sg_mib_sdt[sg_si_param.cha][i];
 	psi_parse_timer_start(20);
 	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
@@ -225,7 +225,7 @@ static int parse_sdt()
 		trace_err("sdt parse failed! rc %d", rc);
 		return -1;
 	}
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < SDT_SECTION_NUM; i++) {
 		memcpy(&len, sg_mib_sdt[sg_si_param.cha][i], 2);
 		trace_info("got sdt section #%d, len %d", i, len);
 	}
