@@ -149,7 +149,7 @@ static void get_program_info_btn_press(GtkWidget *widget,
 	// build program index
 	chan = gtk_combo_box_get_active(chan_combo_box);
 	prog = gtk_combo_box_get_active(prog_combo_box);
-	prog_idx = chan * 32 + prog;
+	prog_idx = chan * PROGRAM_MAX_NUM + prog;
 
 	fp_build_cmd(req_buf, true, prog_idx, NULL, 0);
 	hex_dump("req", req_buf, 6);
@@ -167,7 +167,7 @@ static void select_program_btn_press(GtkWidget *widget,
 
 	chan = gtk_combo_box_get_active(chan_combo_box);
 	prog = gtk_combo_box_get_active(prog_combo_box);
-	prog_idx = chan * 32 + prog;
+	prog_idx = chan * PROGRAM_MAX_NUM + prog;
 
 	FP_SELECT_PROG(&cur_prog);
 	fp_build_cmd(req_buf, false, prog_idx, &cur_prog, sizeof(cur_prog));
@@ -183,7 +183,7 @@ static void deselect_program_btn_press(GtkWidget *widget,
 
 	chan = gtk_combo_box_get_active(chan_combo_box);
 	prog = gtk_combo_box_get_active(prog_combo_box);
-	prog_idx = chan * 32 + prog;
+	prog_idx = chan * PROGRAM_MAX_NUM + prog;
 
 	FP_DESELECT_PROG(&cur_prog);
 	fp_build_cmd(req_buf, false, prog_idx, &cur_prog, sizeof(cur_prog));
@@ -257,7 +257,7 @@ static void build_control_ui(GtkWidget *vbox)
 	gtk_box_pack_start(GTK_BOX(hbox), chan_combo_box, FALSE, FALSE, 0);
 	/* program */
 	prog_combo_box = gtk_combo_box_new_text();
-	for (i = 0; i < 32; i++) {
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
 		char s[10];
 		sprintf(s, "%d", i);
 		gtk_combo_box_append_text(prog_combo_box, s);
