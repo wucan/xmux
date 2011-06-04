@@ -73,7 +73,6 @@ static uint16_t cat_descr_num;
 
 static uv_sdt_serv_data serv[PROGRAM_MAX_NUM];
 static uv_sdt_data sdt;
-static uint16_t serv_num;
 
 static uv_nit_data nit;
 
@@ -209,6 +208,7 @@ static int parse_cat()
 
 static int parse_sdt()
 {
+	uint16_t serv_num;
 	unsigned short len;
 	int rc;
 	int i;
@@ -229,7 +229,6 @@ static int parse_sdt()
 		memcpy(&len, sg_mib_sdt[sg_si_param.cha][i], 2);
 		trace_info("got sdt section #%d, len %d", i, len);
 	}
-	trace_info("there are total %d services", serv_num);
 
 	return 0;
 }
