@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "xmux.h"
 
-#define UV_PROGRAM_MAX_NUM			32
 
 // define TS analyse operation type
 // ---- default is decode the content,
@@ -37,7 +37,7 @@ SDT¶ÔÓ¦5¸ö½Úµã£¬PMT¶ÔÓ¦32¸ö½Úµã£¨Ã¿¸ö½Úµã¶ÔÓ�
 */
 typedef struct {
 	uint8_t ch_s; 				// MSB is ch8
-	uint8_t tbl_s[8][(UV_PROGRAM_MAX_NUM / 8) + 1];  
+	uint8_t tbl_s[8][(PROGRAM_MAX_NUM / 8) + 1];  
 } __attribute__((packed)) uv_cha_si_stat;
 
 typedef struct _uv_param{
