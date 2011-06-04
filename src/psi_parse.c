@@ -327,3 +327,30 @@ void uvSI_psi_parse_stop()
 	request_stop_parse = true;
 }
 
+int parse_sdt_section_and_decode(uint8_t chan_idx,
+	uv_sdt_data *p_sdt_data, uv_sdt_serv_data *p_sdt_serv_data,
+	uint16_t *p_serv_num)
+{
+	int i, rc;
+	uint16_t len;
+
+	/* prepare */
+	sg_si_param.cur_stat = &All_Channel_Psi_Status;
+	sg_si_param.cha = chan_idx;
+
+	rc = parse_sdt();
+	if (rc) {
+		return -1;
+	}
+	dvbpsi_decode_sdt_section_begin(p_sdt_data, p_sdt_serv_data, p_serv_num);
+	for (i = 0; i < SDT_SECTION_NUM; i++) {
+		memcpy(&len, sg_mib_sdt[chan_idx][i], 2);
+		if (len <= 0)
+			break;
+		dvbpsi_push_sdt_section(&sg_mib_sdt[chan_idx][i][2], len);
+	}
+	dvbpsi_decode_sdt_section_end();
+
+	return 0;
+}
+

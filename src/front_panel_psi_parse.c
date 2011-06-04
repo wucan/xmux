@@ -255,7 +255,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	sg_si_param.type = EUV_DEFAULT;
 	sg_si_param.tbl_type = EUV_TBL_SDT;
 	psi_parse_timer_start(20);
-	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
+	rc = parse_sdt_section_and_decode(chan_idx, &sdt, serv, &serv_num);
 	psi_parse_timer_stop();
 	if (rc) {
 		trace_err("sdt parse failed! rc %d\n", rc);
