@@ -24,7 +24,10 @@ static void build_pid_trans_info()
 		d->data_len = sizeof(*d) - 2;
 		d->update_flag_and_chan_num = chan_idx;
 		d->nprogs = 8;
-		d->sel_status = 0x5A;
+		SELECT_PROGRAM(d, 1);
+		SELECT_PROGRAM(d, 3);
+		SELECT_PROGRAM(d, 4);
+		SELECT_PROGRAM(d, 6);
 		for (prog_idx = 0; prog_idx < d->nprogs; prog_idx++) {
 			uint16_t pids[3];
 			prog = &d->programs[prog_idx];
