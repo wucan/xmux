@@ -171,6 +171,7 @@ int hfpga_write_pid_map(ACCESS_HFPGA_PID_MAP *pid_map)
 	}
 	__write_pids_map(hdev, pid_map);
 	close(hdev);
+	trace_info("write pid map table done.");
 
 	return 0;
 }
