@@ -240,7 +240,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 					}
 				}
 
-				for (k = 0; k < es[i].i_descr_num; k++) {
+				for (k = 0; k < es[j].i_descr_num; k++) {
 					trace_info("es descriptor %d, tag %#x, len %d",
 						 k, es[j].p_descr[k].i_tag, es[j].p_descr[k].i_length);
 					hex_dump("desc", es[j].p_descr[k].p_data,
