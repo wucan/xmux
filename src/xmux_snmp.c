@@ -33,7 +33,6 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "xmux_snmp"};
 #define OID_TUNNER_ID_IDX			6
 
 
-#define PID_TRANS_INFO_NUM		32
 #define LOAD_INFO_SIZE				USER_INFO_SIZE
 
 struct pid_trans_snmp_data sg_mib_trans;
@@ -706,7 +705,7 @@ static void register_input_trans_oids()
 {
 	int i;
 
-	for (i = 0; i < PID_TRANS_INFO_NUM; i++) {
+	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
 		pid_trans_info_obj.oid[7] = i + 1;
 		wu_snmp_agent_register(&pid_trans_info_obj);
 	}
