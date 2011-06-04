@@ -385,10 +385,9 @@ static void write_hook_psi(void *data, int len)
 	hex_dump("psi", data, len);
 	fill_output_psi_data(psi_type, data, len);
 }
+static uint8_t packpara[8192];
 int psi_gen_and_apply_from_fp()
 {
-	uint8_t *packpara[8192];
-
 	build_program_number_table();
 
 	dvbSI_Start(&hfpga_dev);
