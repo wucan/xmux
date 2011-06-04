@@ -157,7 +157,7 @@ bool check_and_select_program(int prog_idx, PROG_INFO_T *sel_prog,
 	old_status = FP_PROG_SELECTED(&g_prog_info_table[prog_idx]);
 	FP_DESELECT_PROG(&g_prog_info_table[prog_idx]);
 
-	if (program_selected_count() + 1 > defSelectedProgFpga) {
+	if (program_selected_count() + 1 > PROGRAM_MAX_NUM) {
 		trace_err("cann't select more programs!");
 	} else if (valid_program_pids(sel_prog) != enm_prog_pid_valid) {
 		trace_err("selected program had invalid pid!");

@@ -7,7 +7,6 @@
 #define defMcuBufMax		4096
 #define defProgPidMin		0x0020
 #define defProgPidMax		(NULL_PID - 1)
-#define defSelectedProgFpga	0x20
 #define defMcuSyncFlag		0x74
 
 /*
