@@ -62,51 +62,33 @@ int fake_hfpga_readn(unsigned char *p_buf, unsigned int len,
 		trace_info("readn(), begin filter pid %d(%#x)", filter_pid, filter_pid);
 	}
 read_again:
-	rc = read(ts_fd, buf, len);
-	if (rc != len) {
+	rc = read(ts_fd, buf, PLEN);
+	if (rc != PLEN) {
 		lseek(ts_fd, 0, SEEK_SET);
 		rewind_cnt++;
 		if (rewind_cnt >= 2) {
 			trace_err("file rewind exceed for filter pid %d", filter_pid);
 			return 0;
 		}
-		rc = read(ts_fd, buf, len);
-		if (rc != len) {
+		rc = read(ts_fd, buf, PLEN);
+		if (rc != PLEN) {
 			return 0;
 		}
 	}
 	// sync stream
 sync_again:
-	for (i = 0; i < len; i++) {
+	for (i = 0; i < PLEN; i++) {
 		if (buf[i] == 0x47) {
 			break;
 		}
 	}
 	if (i > 0) {
 		//trace_err("lost synced! skip %d bytes", i);
-		read(ts_fd, buf + len, i);
-		memcpy(buf, buf + i, PLEN);
+		memcpy(buf, buf + i, PLEN - i);
+		read(ts_fd, buf + PLEN - i, i);
 		goto sync_again;
 	}
 	memcpy(p_buf, buf, PLEN);
-
-	//trace_err("seems sync at fpos %#x", lseek(ts_fd, 0, SEEK_CUR) - PLEN);
-	/*
-	 * ensure really synced
-	 */
-	i = read(ts_fd, next_buf, PLEN);
-	if (i == PLEN) {
-		lseek(ts_fd, -PLEN, SEEK_CUR);
-		if (next_buf[0] != 0x47) {
-			//trace_err("next not sync at fpos %#x", lseek(ts_fd, 0, SEEK_CUR));
-			memcpy(buf, p_buf, PLEN);
-			buf[0] = 0x00;
-			goto sync_again;
-		}
-		//trace_err("next sync at fpos %#x", lseek(ts_fd, 0, SEEK_CUR));
-	} else {
-		goto read_again;
-	}
 
 	pid = GET_PID(p_buf);
 	if (pid_table[pid] == 0) {
