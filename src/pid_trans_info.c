@@ -72,7 +72,7 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 			trace_err("channel #%d pid trans info invalidate!", chan_idx);
 			return;
 		}
-		pid_trans_info_dump(&sg_mib_pid_trans_info[chan_idx]);
+		pid_trans_info_dump(chan_idx, &sg_mib_pid_trans_info[chan_idx]);
 	}
 }
 
@@ -83,7 +83,8 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 	struct xmux_program_info_with_csc *prog;
 
 	if (data->data_len && data->data_len != sizeof(*data) - 2) {
-		trace_err("data_len 0, but expect %d!", sizeof(*data) - 2);
+		trace_err("data_len %d, but expect %d!",
+			data->data_len, sizeof(*data) - 2);
 		return false;
 	}
 	for (prog_idx = 0; prog_idx < data->nprogs; prog_idx++) {
@@ -97,14 +98,14 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 	return true;
 }
 
-void pid_trans_info_dump(struct pid_trans_info_snmp_data *data)
+void pid_trans_info_dump(uint8_t chan_idx, struct pid_trans_info_snmp_data *data)
 {
 	struct xmux_program_info *prog;
 	uint8_t prog_idx, pid_idx;
 	char prog_name[33];
 	int prog_name_len;
 
-	trace_info("pid trans info:");
+	trace_info("channel #%d pid trans info:", chan_idx);
 	trace_info("len %02d, chan %d, update flag %d, nprogs %d, status %#x",
 		data->data_len, data->update_flag_and_chan_num & 0x07,
 		data->update_flag_and_chan_num >> 7, data->nprogs, data->sel_status);
