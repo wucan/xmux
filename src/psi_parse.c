@@ -131,6 +131,9 @@ static int parse_pat()
 	return 0;
 }
 
+struct pmt_status_bitmap {
+	WU_BITMAP_DECLARE(bitmap, PROGRAM_MAX_NUM);
+};
 static int parse_pmt()
 {
 	unsigned int cnt = 0;
@@ -138,11 +141,7 @@ static int parse_pmt()
 	int i, rc;
 	unsigned char sg_mib_curpmt[SECTION_MAX_SIZE];
 	uint8_t chan_idx = sg_si_param.cha;
-#if PROGRAM_MAX_NUM == 32
-	uint32_t pmt_state = 0;
-#elif PROGRAM_MAX_NUM == 64
-	uint64_t pmt_state = 0;
-#endif
+	struct pmt_status_bitmap pmt_state = {0};
 
 	had_nit = false;
 	for (i = 0; i < pid_num; i++) {
@@ -182,7 +181,7 @@ static int parse_pmt()
 #if CHANNEL_MAX_NUM == 1
 			memcpy(g_input_pmt_sec[cnt], sg_mib_curpmt, len + 2);
 #endif
-			pmt_state |= 1 << cnt;
+			wu_bitmap_set_bit(pmt_state.bitmap, cnt);
 		}
 		cnt++;
 	}
