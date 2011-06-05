@@ -138,7 +138,11 @@ static int parse_pmt()
 	int i, rc;
 	unsigned char sg_mib_curpmt[SECTION_MAX_SIZE];
 	uint8_t chan_idx = sg_si_param.cha;
+#if PROGRAM_MAX_NUM == 32
 	uint32_t pmt_state = 0;
+#elif PROGRAM_MAX_NUM == 64
+	uint64_t pmt_state = 0;
+#endif
 
 	had_nit = false;
 	for (i = 0; i < pid_num; i++) {
@@ -166,7 +170,8 @@ static int parse_pmt()
 		psi_parse_timer_stop();
 		if (rc) {
 			trace_err("pmt parse failed! rc %d", rc);
-			memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state, 4);
+			memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state,
+				sizeof(pmt_state));
 			continue;
 		}
 		memcpy(&len, sg_mib_curpmt, 2);
@@ -181,7 +186,8 @@ static int parse_pmt()
 		}
 		cnt++;
 	}
-	memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state, 4);
+	memcpy(&sg_si_param.cur_stat->tbl_s[chan_idx][1], &pmt_state,
+		sizeof(pmt_state));
 
 	return 0;
 }
