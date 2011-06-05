@@ -23,7 +23,7 @@
 #define CHANNEL_MAX_NUM					8
 
 #define PROGRAM_NAME_SIZE				33
-#define PROGRAM_MAX_NUM					32
+#define PROGRAM_MAX_NUM					64
 #define PROGRAM_DATA_PID_MAX_NUM		14
 // data pid + pcr pid + pmt pid
 #define PROGRAM_PID_MAX_NUM				(2 + PROGRAM_DATA_PID_MAX_NUM)
