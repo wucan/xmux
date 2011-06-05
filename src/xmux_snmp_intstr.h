@@ -2,6 +2,7 @@
 #define _XMUX_SNMP_INTSTR_H_
 
 #include "wu/wu_base_type.h"
+#include "wu/wu_bitmap.h"
 
 #include "xmux.h"
 
@@ -49,7 +50,7 @@ struct heart_device_snmp_data {
 struct apply_psi_snmp_data {
 	uint16_t magic; // 0xAA55
 	uint8_t other_table_flag;
-	uint32_t pmt_flag;
+	WU_BITMAP_DECLARE(pmt_flag, PROGRAM_MAX_NUM);
 	uint16_t pmt_pid_table[PROGRAM_MAX_NUM];
 } __attribute__((packed));
 #define PAT_FLAG_SHIFT		7

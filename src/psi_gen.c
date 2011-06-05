@@ -53,7 +53,7 @@ int psi_gen_output_psi_from_sections()
 
 	cc = 0;
 	for (bit = 0; bit < PROGRAM_MAX_NUM; bit++) {
-		if (sg_mib_apply_psi.pmt_flag & (1 << bit)) {
+		if (wu_bitmap_test_bit(sg_mib_apply_psi.pmt_flag, bit)) {
 			sec_len = sg_mib_xxx_len(sg_mib_pmt[CHANNEL_MAX_NUM][bit]);
 			ts_len = section_to_ts_length(sec_len);
 			ts_len = section_to_ts(sg_mib_pmt[CHANNEL_MAX_NUM][bit] + 2,
