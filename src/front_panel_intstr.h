@@ -59,8 +59,9 @@ extern CHN_NUM_T g_chan_num;
  * 1. pcr type and grouping
  */
 struct program_attribute {
+	uint8_t pad;
 	uint8_t pcr_type;
-	uint8_t pcr_group_id;
+	uint16_t pcr_group_id;
 };
 enum {
 	NA_PCR = 0,

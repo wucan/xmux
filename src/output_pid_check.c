@@ -53,7 +53,7 @@ static uint16_t ref_2_pid(struct pid_ref_info *ref)
 	return ((uint32_t)ref - (uint32_t)pid_ref_table) / sizeof(ref[0]);
 }
 
-static struct pid_ref_info *get_pub_pcr_ref(uint8_t pcr_group_id)
+static struct pid_ref_info *get_pub_pcr_ref(uint16_t pcr_group_id)
 {
 	struct program_attribute *ref_attr;
 	struct pid_ref_info *ref;
