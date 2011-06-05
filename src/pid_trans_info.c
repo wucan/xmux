@@ -23,7 +23,7 @@ struct pid_trans_info_snmp_data sg_mib_pid_trans_info[CHANNEL_MAX_NUM];
 #define NODE_MAX_SIZE			1194
 #elif PROGRAM_MAX_NUM == 64
 #define NODE_NUM				8
-#define NODE_MAX_SIZE			1193
+#define NODE_MAX_SIZE			1194
 #endif
 
 struct access_data {
