@@ -24,7 +24,8 @@ static void restore_work_field();
 int main(int argc, char **argv)
 {
 	trace_info("xmux %s", XMUX_VERSION_STR);
-	trace_info("support %d channels", CHANNEL_MAX_NUM);
+	trace_info("support %d channels, %d programs",
+		CHANNEL_MAX_NUM, PROGRAM_MAX_NUM);
 
 	mem_init_size(1024 * 1024 * 3);
 
