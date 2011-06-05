@@ -73,7 +73,6 @@ static uint16_t cat_descr_num;
 
 static uv_sdt_serv_data serv[PROGRAM_MAX_NUM];
 static uv_sdt_data sdt;
-static uint16_t serv_num;
 
 static uv_nit_data nit;
 
@@ -85,8 +84,8 @@ static void clear_channel_section_data(uint8_t chan_id)
 	int i;
 
 	memset(sg_mib_pat[chan_id], 0, 2);
-	for (i = 0; i < 5; i++)
-		memset(sg_mib_sdt[chan_id][i], 0, 2);
+	for (i = 0; i < SDT_SECTION_NUM; i++)
+		memset(sg_mib_sdt[chan_id][SDT_SECTION_NUM], 0, 2);
 	memset(sg_mib_cat[chan_id], 0, 2);
 	memset(sg_mib_nit[chan_id], 0, 2);
 	for (i = 0; i < PROGRAM_MAX_NUM; i++)
@@ -209,6 +208,7 @@ static int parse_cat()
 
 static int parse_sdt()
 {
+	uint16_t serv_num;
 	unsigned short len;
 	int rc;
 	int i;
@@ -216,7 +216,7 @@ static int parse_sdt()
 	sg_si_param.cur_cnt = 0;
 	sg_si_param.type = EUV_SECTION;
 	sg_si_param.tbl_type = EUV_TBL_SDT;
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < SDT_SECTION_NUM; i++)
 		sg_si_param.sec[i] = sg_mib_sdt[sg_si_param.cha][i];
 	psi_parse_timer_start(20);
 	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
@@ -225,11 +225,10 @@ static int parse_sdt()
 		trace_err("sdt parse failed! rc %d", rc);
 		return -1;
 	}
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < SDT_SECTION_NUM; i++) {
 		memcpy(&len, sg_mib_sdt[sg_si_param.cha][i], 2);
 		trace_info("got sdt section #%d, len %d", i, len);
 	}
-	trace_info("there are total %d services", serv_num);
 
 	return 0;
 }
@@ -326,5 +325,32 @@ channel_analyse_done:
 void uvSI_psi_parse_stop()
 {
 	request_stop_parse = true;
+}
+
+int parse_sdt_section_and_decode(uint8_t chan_idx,
+	uv_sdt_data *p_sdt_data, uv_sdt_serv_data *p_sdt_serv_data,
+	uint16_t *p_serv_num)
+{
+	int i, rc;
+	uint16_t len;
+
+	/* prepare */
+	sg_si_param.cur_stat = &All_Channel_Psi_Status;
+	sg_si_param.cha = chan_idx;
+
+	rc = parse_sdt();
+	if (rc) {
+		return -1;
+	}
+	dvbpsi_decode_sdt_section_begin(p_sdt_data, p_sdt_serv_data, p_serv_num);
+	for (i = 0; i < SDT_SECTION_NUM; i++) {
+		memcpy(&len, sg_mib_sdt[chan_idx][i], 2);
+		if (len <= 0)
+			break;
+		dvbpsi_push_sdt_section(&sg_mib_sdt[chan_idx][i][2], len);
+	}
+	dvbpsi_decode_sdt_section_end();
+
+	return 0;
 }
 

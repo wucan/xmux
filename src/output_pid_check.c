@@ -11,6 +11,7 @@
 static msgobj mo = {MSG_INFO, ENCOLOR, "output_pid_check"};
 
 extern int prog_pid_val_isvalid(uint16_t prog_pid);
+extern uint16_t input_pid_table[];
 
 static int pid_ref_table_nprogs;
 struct pid_ref_info pid_ref_table[NULL_PID + 1];
@@ -76,28 +77,15 @@ static uint16_t pick_pid(struct xmux_program_info *prog)
 {
 	uint16_t pid;
 	struct pid_ref_info *ref;
-	int i;
 
 	for (pid = next_start_pid; pid < NULL_PID; pid++) {
 		/*
-		 * check pid had been in program's in pid, we should not use it
+		 * check pid had been in programs' input pid, we should not use it
 		 */
-		if (pid == prog->pmt.in || pid == prog->pcr.in) {
-			trace_warn("pid %#x in program's %s, try next...",
-				pid, pid == prog->pmt.in ? "pmt" : "pcr");
+		if (input_pid_table[pid]) {
+			trace_warn("pid %#x in programs' input pid, try next...", pid);
 			continue;
 		}
-		for (i = 0; i < PROGRAM_DATA_PID_MAX_NUM; i++) {
-			if (!prog_pid_val_isvalid(prog->data[i].in))
-				continue;
-			if (prog->data[i].in == pid) {
-				trace_warn("pid %#x in program's data pid, try next...",
-					pid);
-				break;
-			}
-		}
-		if (i != PROGRAM_DATA_PID_MAX_NUM)
-			continue;
 
 		ref = &pid_ref_table[pid];
 		if (!ref->ref_cnt) {

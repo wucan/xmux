@@ -255,7 +255,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	sg_si_param.type = EUV_DEFAULT;
 	sg_si_param.tbl_type = EUV_TBL_SDT;
 	psi_parse_timer_start(20);
-	rc = dvbSI_Dec_SDT(&sdt, serv, &serv_num);
+	rc = parse_sdt_section_and_decode(chan_idx, &sdt, serv, &serv_num);
 	psi_parse_timer_stop();
 	if (rc) {
 		trace_err("sdt parse failed! rc %d\n", rc);
@@ -386,6 +386,31 @@ void fp_build_program_attr_table()
 	}
 }
 
+uint16_t input_pid_table[NULL_PID + 1];
+void fp_build_program_input_pid_table()
+{
+	uint8_t chan_idx, prog_idx, pid_idx;
+	struct xmux_program_info *prog;
+
+	memset(input_pid_table, 0, sizeof(input_pid_table));
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		for (prog_idx = 0; prog_idx < PROGRAM_MAX_NUM; prog_idx++) {
+			prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx].info;
+			if (!prog->prog_num)
+				continue;
+			if (prog->pmt.in != DATA_PID_PAD_VALUE)
+				input_pid_table[prog->pmt.in]++;
+			if (prog->pcr.in != DATA_PID_PAD_VALUE)
+				input_pid_table[prog->pcr.in]++;
+			for (pid_idx = 0; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
+				if (prog->data[pid_idx].in == DATA_PID_PAD_VALUE)
+					break;
+				input_pid_table[prog->data[pid_idx].in]++;
+			}
+		}
+	}
+}
+
 int fp_psi_parse()
 {
 	int progs, total_progs = 0;
@@ -409,6 +434,7 @@ int fp_psi_parse()
 	hex_dump("g_chan_num", &g_chan_num, sizeof(g_chan_num));
 
 	fp_build_program_attr_table();
+	fp_build_program_input_pid_table();
 
 	return total_progs;
 }
