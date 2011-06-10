@@ -351,7 +351,7 @@ int parse_mcu_cmd(int fdttyS1, uint8_t *recv_msg_buf)
 
 }
 
-void fp_select_program(uint8_t prog_idx)
+void fp_select_program(uint16_t prog_idx)
 {
 	PROG_INFO_T prog = g_prog_info_table[prog_idx];
 	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
@@ -370,7 +370,7 @@ void fp_select_program(uint8_t prog_idx)
 	trace_info("select program #%d success", prog_idx);
 }
 
-void fp_deselect_program(uint8_t prog_idx)
+void fp_deselect_program(uint16_t prog_idx)
 {
 	PROG_INFO_T *prog = &g_prog_info_table[prog_idx];
 	int chan_idx_sel = prog_idx / PROGRAM_MAX_NUM;
