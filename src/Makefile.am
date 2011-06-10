@@ -63,7 +63,7 @@ xmux_SOURCES = \
 	pid_map_table.c \
 	pid_map_rule.c \
 	program_pid_validater.c \
-	output_pid_check.c \
+	io_table.c \
 	xmux_snmp.c \
 	wu_snmp_agent.c \
 	wu_snmp_lib.c \

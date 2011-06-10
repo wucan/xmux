@@ -9,7 +9,7 @@
 #include "pid_map_rule.h"
 #include "front_panel_intstr.h"
 #include "front_panel_data_churning.h"
-#include "output_pid_check.h"
+#include "io_table.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "pid_map_table"};
@@ -135,8 +135,7 @@ void pid_map_table_gen_and_apply_from_fp()
 {
 	struct pid_map_table_gen_context gen_ctx;
 	int chan_idx, prog_idx;
-	int j;
-	struct pid_ref_info *ref;
+	uint16_t in_pid;
 
 	/* clear mux program info */
 	memset(&g_eeprom_param.mux_prog_info, 0, sizeof(struct xmux_mux_program_info));
@@ -144,30 +143,37 @@ void pid_map_table_gen_and_apply_from_fp()
 	pid_map_table_gen_start(&gen_ctx);
 
 	/*
-	 * gather pid map from pid ref table
+	 * gather pid map from io_table
 	 */
-	build_pid_ref_table(g_prog_info_table);
-	for (j = 0; j < NULL_PID; j++) {
-		ref = &pid_ref_table[j];
-		if (ref->type == 0)
+	build_io_table();
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+	for (in_pid = 0x20; in_pid < NULL_PID; in_pid++) {
+		if (!io_table[chan_idx][in_pid].selected)
 			continue;
 #if CHANNEL_MAX_NUM == 1
 		/* FIXME: should we set the output pid to NULL_PID? */
-		if (!(ref->type & PMT_BIT))
+		if (!(io_table[chan_idx][in_pid].pid_type == IO_PID_TYPE_PMT))
 #else
-		if (ref->type & PMT_BIT)
+		if (io_table[chan_idx][in_pid].pid_type == IO_PID_TYPE_PMT)
 #endif
 			continue;
-		chan_idx = ref->prog_idx / PROGRAM_MAX_NUM;
-		prog_idx = ref->prog_idx % PROGRAM_MAX_NUM;
-		if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx, ref->in_pid, j)) {
-			trace_err("channel #%d pid exceed! discard start from pid %#x", j);
-			break;
+		if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx, in_pid, io_table[chan_idx][in_pid].out_pid)) {
+			trace_err("channel #%d pid exceed! discard pid %#x => %#",
+				chan_idx, in_pid, io_table[chan_idx][in_pid].out_pid);
 		}
-		/* fill mux program info */
-		g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].chan_idx = chan_idx;
-		g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].prog_idx = prog_idx;
-		g_eeprom_param.mux_prog_info.nprogs++;
+	}
+	}
+
+	/* fill mux program info */
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		for (prog_idx = 0; prog_idx < g_chan_num.num[chan_idx]; prog_idx++) {
+			PROG_INFO_T *prog = &g_prog_info_table[chan_idx * PROGRAM_MAX_NUM + prog_idx];
+			if (FP_PROG_SELECTED(prog)) {
+				g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].chan_idx = chan_idx;
+				g_eeprom_param.mux_prog_info.programs[g_eeprom_param.mux_prog_info.nprogs].prog_idx = prog_idx;
+				g_eeprom_param.mux_prog_info.nprogs++;
+			}
+		}
 	}
 
 pid_map_gen_done:
