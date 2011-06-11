@@ -39,8 +39,17 @@ void build_io_table()
 					chan_io_table[e[i].in].flags |= IO_PID_FLAG_PMT_PID;
 				chan_io_table[e[i].in].flags |= IO_PID_FLAG_IS_INPUT_PID;
 				if (FP_PROG_SELECTED(prog)) {
-					chan_io_table[e[i].in].out_pid = e[i].out;
-					chan_io_table[e[i].in].flags |= IO_PID_FLAG_SELECTED;
+					/*
+					 * same pmt pid value mapped to different pid
+					 */
+					if (chan_io_table[e[i].in].flags & IO_PID_FLAG_PMT_PID &&
+						chan_io_table[e[i].in].flags & IO_PID_FLAG_SELECTED) {
+						chan_io_table[e[i].out].flags |= IO_PID_FLAG_IS_PMT_OUT_PID;
+						chan_io_table[e[i].out].pmt_in_pid = e[i].in;
+					} else {
+						chan_io_table[e[i].in].out_pid = e[i].out;
+						chan_io_table[e[i].in].flags |= IO_PID_FLAG_SELECTED;
+					}
 				}
 			}
 		}
@@ -62,6 +71,15 @@ void dump_io_table(const char *ctx)
 				else
 					trace_info("    pid %#x => %#x", pid, io_table[chan_idx][pid].out_pid);
 			}
+
+			if (io_table[chan_idx][pid].flags & IO_PID_FLAG_IS_PMT_OUT_PID) {
+				if (io_table[chan_idx][pid].flags & IO_PID_FLAG_JUST_ADDED)
+					trace_info("    pid %#x => %#x [+] (pmt)",
+						io_table[chan_idx][pid].pmt_in_pid, pid);
+				else
+					trace_info("    pid %#x => %#x (pmt)",
+						io_table[chan_idx][pid].pmt_in_pid, pid);
+			}
 		}
 	}
 }
@@ -74,6 +92,22 @@ static void io_table_set_pid(int g_prog_idx, uint16_t in_pid, uint16_t out_pid)
 		io_table[chan_idx][in_pid].flags |= IO_PID_FLAG_JUST_ADDED;
 	io_table[chan_idx][in_pid].out_pid = out_pid;
 	io_table[chan_idx][in_pid].flags |= IO_PID_FLAG_SELECTED;
+}
+
+static void io_table_set_pmt_pid(int g_prog_idx, uint16_t in_pid, uint16_t out_pid)
+{
+	uint8_t chan_idx = g_prog_idx / PROGRAM_MAX_NUM;
+
+	if (io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED) {
+		io_table[chan_idx][out_pid].flags |=
+			IO_PID_FLAG_IS_PMT_OUT_PID | IO_PID_FLAG_JUST_ADDED;
+		io_table[chan_idx][out_pid].pmt_in_pid = in_pid;
+		return;
+	}
+
+	io_table[chan_idx][in_pid].out_pid = out_pid;
+	io_table[chan_idx][in_pid].flags |=
+		IO_PID_FLAG_SELECTED | IO_PID_FLAG_JUST_ADDED;
 }
 
 static uint16_t io_table_get_out_pid(int g_prog_idx, uint16_t in_pid)
@@ -111,18 +145,33 @@ static bool is_out_pid_usable(uint8_t sel_chan_idx,
 
 	trace_info("test out pid %#x of channel #%d ...", out_pid, sel_chan_idx);
 
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		if (io_table[chan_idx][out_pid].flags & IO_PID_FLAG_IS_PMT_OUT_PID) {
+			trace_warn("out pid %#x had been mapped to pmt pid in channel #%d",
+				out_pid, chan_idx);
+			return false;
+		}
+	}
+
 	if (io_table[sel_chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED &&
 		io_table[sel_chan_idx][in_pid].out_pid == out_pid) {
-		trace_info("%#x => %#x had been mapped in this channel",
-			in_pid, out_pid);
-		return true;
+		if (io_table[sel_chan_idx][in_pid].flags & IO_PID_FLAG_PMT_PID) {
+			trace_info("pmt %#x => %#x had been mapped in this channel!",
+				in_pid, out_pid);
+			return false;
+		} else {
+			trace_info("%#x => %#x had been mapped in this channel",
+				in_pid, out_pid);
+			return true;
+		}
 	}
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		for (tmp_in_pid = 0x20; tmp_in_pid < NULL_PID; tmp_in_pid++) {
 			if ((io_table[chan_idx][tmp_in_pid].flags & IO_PID_FLAG_SELECTED) &&
 				(io_table[chan_idx][tmp_in_pid].out_pid == out_pid)) {
-				if (chan_idx == sel_chan_idx && (tmp_in_pid == in_pid))
+				if (chan_idx == sel_chan_idx && (tmp_in_pid == in_pid) &&
+					!(io_table[chan_idx][tmp_in_pid].flags & IO_PID_FLAG_PMT_PID))
 					continue;
 				trace_warn("out pid %#x had been used as output pid for input pid %#x in channel %#x",
 					out_pid, tmp_in_pid, chan_idx);
@@ -192,7 +241,7 @@ bool check_user_output_pid(PROG_INFO_T *old_prog,
 		}
 		trace_info("user set pmt %#x ok", sel_prog->info.pmt.out);
 	}
-	io_table_set_pid(sel_prog_idx, sel_prog->info.pmt.in, sel_prog->info.pmt.out);
+	io_table_set_pmt_pid(sel_prog_idx, sel_prog->info.pmt.in, sel_prog->info.pmt.out);
 
 	// pcr + data
 	e = &sel_prog->info.pcr;
@@ -234,7 +283,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 
 	sel_prog->info.pmt.out = io_table_get_pmt_out_pid(sel_prog_idx,
 								sel_prog->info.pmt.in);
-	io_table_set_pid(sel_prog_idx, sel_prog->info.pmt.in,
+	io_table_set_pmt_pid(sel_prog_idx, sel_prog->info.pmt.in,
 				sel_prog->info.pmt.out);
 	trace_info("fix pmt pid %#x => %#x",
 		sel_prog->info.pmt.in, sel_prog->info.pmt.out);

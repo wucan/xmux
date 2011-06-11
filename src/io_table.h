@@ -10,11 +10,13 @@
 #define IO_PID_FLAG_JUST_ADDED		(1 << 1)
 #define IO_PID_FLAG_IS_INPUT_PID	(1 << 2)
 #define IO_PID_FLAG_PMT_PID			(1 << 3)
+#define IO_PID_FLAG_IS_PMT_OUT_PID	(1 << 4)
 
 struct io_pid_entry {
 	uint8_t flags;
 	uint8_t reserved;
 	uint16_t out_pid;
+	uint16_t pmt_in_pid;
 };
 
 void build_io_table();
