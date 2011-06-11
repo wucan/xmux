@@ -12,7 +12,8 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "io_table"};
 
 
 static uint16_t pick_free_pid();
-static bool io_table_is_pid_free(uint16_t pid);
+static bool is_out_pid_usable(uint8_t sel_chan_idx,
+		uint16_t in_pid, uint16_t out_pid);
 static void update_channel_other_program_out_pid(int sel_prog_idx,
 		uint16_t in_pid, uint16_t out_pid);
 
@@ -36,12 +37,10 @@ void build_io_table()
 					break;
 				if (i == 0)
 					chan_io_table[e[i].in].pid_type = IO_PID_TYPE_PMT;
-				if (FP_PROG_SELECTED(prog)) {
-					chan_io_table[e[i].in].out_pid = e[i].out;
-					chan_io_table[e[i].in].flags = IO_PID_FLAG_SELECTED;
-				} else {
-					chan_io_table[e[i].in].flags = 0;
-				}
+				chan_io_table[e[i].in].flags |= IO_PID_FLAG_IS_INPUT_PID;
+				chan_io_table[e[i].in].out_pid = e[i].out;
+				if (FP_PROG_SELECTED(prog))
+					chan_io_table[e[i].in].flags |= IO_PID_FLAG_SELECTED;
 			}
 		}
 	}
@@ -76,20 +75,20 @@ static void io_table_set_pid(int g_prog_idx, uint16_t in_pid, uint16_t out_pid)
 	io_table[chan_idx][in_pid].flags |= IO_PID_FLAG_SELECTED;
 }
 
-static uint16_t io_table_get_pid(int g_prog_idx, uint16_t in_pid)
+static uint16_t io_table_get_out_pid(int g_prog_idx, uint16_t in_pid)
 {
 	uint8_t chan_idx = g_prog_idx / PROGRAM_MAX_NUM;
 
 	if (io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED)
 		return (io_table[chan_idx][in_pid].out_pid);
 
-	if (io_table_is_pid_free(in_pid))
+	if (is_out_pid_usable(chan_idx, in_pid, in_pid))
 		return in_pid;
 
 	return pick_free_pid();
 }
 
-static uint16_t io_table_get_pmt_pid(int g_prog_idx, uint16_t in_pid)
+static uint16_t io_table_get_pmt_out_pid(int g_prog_idx, uint16_t in_pid)
 {
 	uint8_t chan_idx = g_prog_idx / PROGRAM_MAX_NUM;
 
@@ -97,35 +96,41 @@ static uint16_t io_table_get_pmt_pid(int g_prog_idx, uint16_t in_pid)
 	if (io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED)
 		return pick_free_pid();
 
-	if (io_table_is_pid_free(in_pid))
+	if (is_out_pid_usable(chan_idx, in_pid, in_pid))
 		return in_pid;
 
 	return pick_free_pid();
 }
 
-static bool io_table_is_pid_free(uint16_t pid)
+static bool is_out_pid_usable(uint8_t sel_chan_idx,
+		uint16_t in_pid, uint16_t out_pid)
 {
 	uint8_t chan_idx;
-	uint16_t tmp_pid;
+	uint16_t tmp_in_pid;
 
-	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) { 
-		if (io_table[chan_idx][pid].flags & IO_PID_FLAG_SELECTED) {
-			trace_warn("pid %#x had been selected in channel %#x", pid, chan_idx);
-			return false;
-		}
+	trace_info("test out pid %#x of channel #%d ...", out_pid, sel_chan_idx);
+
+	if (io_table[sel_chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED &&
+		io_table[sel_chan_idx][in_pid].out_pid == out_pid) {
+		trace_info("%#x => %#x had been mapped in this channel",
+			in_pid, out_pid);
+		return true;
 	}
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		for (tmp_pid = 0x20; tmp_pid < NULL_PID; tmp_pid++) {
-			if ((io_table[chan_idx][tmp_pid].flags & IO_PID_FLAG_SELECTED) && (io_table[chan_idx][tmp_pid].out_pid == pid)) {
-				trace_warn("pid %#x had been used as output pid for input pid %#x in channel %#x",
-					pid, tmp_pid, chan_idx);
+		for (tmp_in_pid = 0x20; tmp_in_pid < NULL_PID; tmp_in_pid++) {
+			if ((io_table[chan_idx][tmp_in_pid].flags & IO_PID_FLAG_SELECTED) &&
+				(io_table[chan_idx][tmp_in_pid].out_pid == out_pid)) {
+				if (chan_idx == sel_chan_idx && (tmp_in_pid == in_pid))
+					continue;
+				trace_warn("out pid %#x had been used as output pid for input pid %#x in channel %#x",
+					out_pid, tmp_in_pid, chan_idx);
 				return false;
 			}
 		}
 	}
 
-	trace_info("pid %#x is free and available for using", pid);
+	trace_info("out pid %#x is free and available for using", out_pid);
 
 	return true;
 }
@@ -137,19 +142,21 @@ static uint16_t pick_free_pid()
 	uint16_t out_pid, pid;
 
 	for (out_pid = 0x20; out_pid < NULL_PID; out_pid++) {
+		/* don't use input pid */
 		for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) { 
-		 	if (io_table[chan_idx][out_pid].flags & IO_PID_FLAG_SELECTED)
-				break;
+		 	if (io_table[chan_idx][out_pid].flags)
+				goto try_next_free_pid;
 		}
-		if (chan_idx == CHANNEL_MAX_NUM) {
-			for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-				for (pid = 0x20; pid < NULL_PID; pid++) {
-		 			if ((io_table[chan_idx][pid].flags & IO_PID_FLAG_SELECTED) && (io_table[chan_idx][pid].out_pid == out_pid))
+
+		/* don't use output pid */
+		for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+			for (pid = 0x20; pid < NULL_PID; pid++) {
+		 		if ((io_table[chan_idx][pid].flags & IO_PID_FLAG_SELECTED) &&
+					(io_table[chan_idx][pid].out_pid == out_pid))
 						goto try_next_free_pid;
-				}
 			}
-			return out_pid;
 		}
+		return out_pid;
 
 try_next_free_pid:
 		;;;
@@ -177,7 +184,7 @@ bool check_user_output_pid(PROG_INFO_T *old_prog,
 
 	// pmt
 	if (sel_prog->info.pmt.out != old_prog->info.pmt.out) {
-		if (!io_table_is_pid_free(sel_prog->info.pmt.out)) {
+		if (!is_out_pid_usable(chan_idx, sel_prog->info.pmt.in, sel_prog->info.pmt.out)) {
 			trace_err("user set pmt %#x are used!", sel_prog->info.pmt.out);
 			return false;
 		}
@@ -193,7 +200,7 @@ bool check_user_output_pid(PROG_INFO_T *old_prog,
 			continue;
 		}
 		if (e[i].out != old_e[i].out) {
-			if (!io_table_is_pid_free(e[i].out)) {
+			if (!is_out_pid_usable(chan_idx, e[i].in, e[i].out)) {
 				trace_err("user set pid %#x are used!", e[i].out);
 				return false;
 			}
@@ -223,7 +230,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 	build_io_table();
 	dump_io_table("start");
 
-	sel_prog->info.pmt.out = io_table_get_pmt_pid(sel_prog_idx,
+	sel_prog->info.pmt.out = io_table_get_pmt_out_pid(sel_prog_idx,
 								sel_prog->info.pmt.in);
 	io_table_set_pid(sel_prog_idx, sel_prog->info.pmt.in,
 				sel_prog->info.pmt.out);
@@ -236,7 +243,7 @@ void fix_selected_program_output_pid(PROG_INFO_T *sel_prog, int sel_prog_idx,
 		if (!prog_pid_val_isvalid(e[i].in)) {
 			continue;
 		}
-		e[i].out = io_table_get_pid(sel_prog_idx, e[i].in);
+		e[i].out = io_table_get_out_pid(sel_prog_idx, e[i].in);
 		io_table_set_pid(sel_prog_idx, e[i].in, e[i].out);
 		trace_info("fix pid %#x => %#x", e[i].in, e[i].out);
 

@@ -12,6 +12,7 @@ enum {
 
 #define IO_PID_FLAG_SELECTED		(1 << 0)
 #define IO_PID_FLAG_JUST_ADDED		(1 << 1)
+#define IO_PID_FLAG_IS_INPUT_PID	(1 << 2)
 
 struct io_pid_entry {
 	uint8_t flags;
