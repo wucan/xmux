@@ -68,6 +68,8 @@ void dump_io_table(const char *ctx)
 			if (io_table[chan_idx][pid].flags & IO_PID_FLAG_SELECTED) {
 				if (io_table[chan_idx][pid].flags & IO_PID_FLAG_JUST_ADDED)
 					trace_info("    pid %#x => %#x [+]", pid, io_table[chan_idx][pid].out_pid);
+				else if (io_table[chan_idx][pid].flags & IO_PID_FLAG_ADD_AGAIN)
+					trace_info("    pid %#x => %#x [*]", pid, io_table[chan_idx][pid].out_pid);
 				else
 					trace_info("    pid %#x => %#x", pid, io_table[chan_idx][pid].out_pid);
 			}
@@ -75,6 +77,9 @@ void dump_io_table(const char *ctx)
 			if (io_table[chan_idx][pid].flags & IO_PID_FLAG_IS_PMT_OUT_PID) {
 				if (io_table[chan_idx][pid].flags & IO_PID_FLAG_JUST_ADDED)
 					trace_info("    pid %#x => %#x [+] (pmt)",
+						io_table[chan_idx][pid].pmt_in_pid, pid);
+				else if (io_table[chan_idx][pid].flags & IO_PID_FLAG_ADD_AGAIN)
+					trace_info("    pid %#x => %#x [*] (pmt)",
 						io_table[chan_idx][pid].pmt_in_pid, pid);
 				else
 					trace_info("    pid %#x => %#x (pmt)",
@@ -90,6 +95,8 @@ static void io_table_set_pid(int g_prog_idx, uint16_t in_pid, uint16_t out_pid)
 
 	if (!(io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED) || io_table[chan_idx][in_pid].out_pid != out_pid)
 		io_table[chan_idx][in_pid].flags |= IO_PID_FLAG_JUST_ADDED;
+	else
+		io_table[chan_idx][in_pid].flags |= IO_PID_FLAG_ADD_AGAIN;
 	io_table[chan_idx][in_pid].out_pid = out_pid;
 	io_table[chan_idx][in_pid].flags |= IO_PID_FLAG_SELECTED;
 }
@@ -99,8 +106,11 @@ static void io_table_set_pmt_pid(int g_prog_idx, uint16_t in_pid, uint16_t out_p
 	uint8_t chan_idx = g_prog_idx / PROGRAM_MAX_NUM;
 
 	if (io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED) {
-		io_table[chan_idx][out_pid].flags |=
-			IO_PID_FLAG_IS_PMT_OUT_PID | IO_PID_FLAG_JUST_ADDED;
+		io_table[chan_idx][out_pid].flags |= IO_PID_FLAG_IS_PMT_OUT_PID;
+		if (io_table[chan_idx][out_pid].flags & IO_PID_FLAG_SELECTED)
+			io_table[chan_idx][out_pid].flags |= IO_PID_FLAG_ADD_AGAIN;
+		else
+			io_table[chan_idx][out_pid].flags |= IO_PID_FLAG_JUST_ADDED;
 		io_table[chan_idx][out_pid].pmt_in_pid = in_pid;
 		return;
 	}

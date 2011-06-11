@@ -11,6 +11,7 @@
 #define IO_PID_FLAG_IS_INPUT_PID	(1 << 2)
 #define IO_PID_FLAG_PMT_PID			(1 << 3)
 #define IO_PID_FLAG_IS_PMT_OUT_PID	(1 << 4)
+#define IO_PID_FLAG_ADD_AGAIN		(1 << 5)
 
 struct io_pid_entry {
 	uint8_t flags;
