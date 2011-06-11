@@ -6,17 +6,14 @@
 #include "wu/wu_base_type.h"
 
 
-enum {
-	IO_PID_TYPE_PMT = 1,
-};
-
 #define IO_PID_FLAG_SELECTED		(1 << 0)
 #define IO_PID_FLAG_JUST_ADDED		(1 << 1)
 #define IO_PID_FLAG_IS_INPUT_PID	(1 << 2)
+#define IO_PID_FLAG_PMT_PID			(1 << 3)
 
 struct io_pid_entry {
 	uint8_t flags;
-	uint8_t pid_type;
+	uint8_t reserved;
 	uint16_t out_pid;
 };
 

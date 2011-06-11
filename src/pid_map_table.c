@@ -152,9 +152,9 @@ void pid_map_table_gen_and_apply_from_fp()
 			continue;
 #if CHANNEL_MAX_NUM == 1
 		/* FIXME: should we set the output pid to NULL_PID? */
-		if (!(io_table[chan_idx][in_pid].pid_type == IO_PID_TYPE_PMT))
+		if (!(io_table[chan_idx][in_pid].flags & IO_PID_FLAG_PMT_PID))
 #else
-		if (io_table[chan_idx][in_pid].pid_type == IO_PID_TYPE_PMT)
+		if (io_table[chan_idx][in_pid].flags & IO_PID_FLAG_PMT_PID)
 #endif
 			continue;
 		if (pid_map_table_push_pid_pair(&gen_ctx, chan_idx, in_pid, io_table[chan_idx][in_pid].out_pid)) {

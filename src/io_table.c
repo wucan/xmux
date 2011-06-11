@@ -36,7 +36,7 @@ void build_io_table()
 				if (!prog_pid_val_isvalid(e[i].in))
 					break;
 				if (i == 0)
-					chan_io_table[e[i].in].pid_type = IO_PID_TYPE_PMT;
+					chan_io_table[e[i].in].flags |= IO_PID_FLAG_PMT_PID;
 				chan_io_table[e[i].in].flags |= IO_PID_FLAG_IS_INPUT_PID;
 				if (FP_PROG_SELECTED(prog)) {
 					chan_io_table[e[i].in].out_pid = e[i].out;
@@ -157,6 +157,7 @@ static uint16_t pick_free_pid()
 						goto try_next_free_pid;
 			}
 		}
+		trace_info("pick free pid %#x", out_pid);
 		return out_pid;
 
 try_next_free_pid:
