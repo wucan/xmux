@@ -11,13 +11,12 @@ enum {
 };
 
 #define IO_PID_FLAG_SELECTED		(1 << 0)
+#define IO_PID_FLAG_JUST_ADDED		(1 << 1)
 
 struct io_pid_entry {
 	uint8_t flags;
-	uint8_t just_added;
-	uint16_t out_pid;
-
 	uint8_t pid_type;
+	uint16_t out_pid;
 };
 
 void build_io_table();

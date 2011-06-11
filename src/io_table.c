@@ -57,7 +57,7 @@ void dump_io_table(const char *ctx)
 		trace_info("  channel #%d:", chan_idx);
 		for (pid = 0x20; pid < NULL_PID; pid++) {
 			if (io_table[chan_idx][pid].flags & IO_PID_FLAG_SELECTED) {
-				if (io_table[chan_idx][pid].just_added)
+				if (io_table[chan_idx][pid].flags & IO_PID_FLAG_JUST_ADDED)
 					trace_info("    pid %#x => %#x [+]", pid, io_table[chan_idx][pid].out_pid);
 				else
 					trace_info("    pid %#x => %#x", pid, io_table[chan_idx][pid].out_pid);
@@ -71,9 +71,9 @@ static void io_table_set_pid(int g_prog_idx, uint16_t in_pid, uint16_t out_pid)
 	uint8_t chan_idx = g_prog_idx / PROGRAM_MAX_NUM;
 
 	if (!(io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED) || io_table[chan_idx][in_pid].out_pid != out_pid)
-		io_table[chan_idx][in_pid].just_added = 1;
+		io_table[chan_idx][in_pid].flags |= IO_PID_FLAG_JUST_ADDED;
 	io_table[chan_idx][in_pid].out_pid = out_pid;
-	io_table[chan_idx][in_pid].flags = IO_PID_FLAG_SELECTED;
+	io_table[chan_idx][in_pid].flags |= IO_PID_FLAG_SELECTED;
 }
 
 static uint16_t io_table_get_pid(int g_prog_idx, uint16_t in_pid)
