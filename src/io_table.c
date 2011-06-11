@@ -38,9 +38,9 @@ void build_io_table()
 					chan_io_table[e[i].in].pid_type = IO_PID_TYPE_PMT;
 				if (FP_PROG_SELECTED(prog)) {
 					chan_io_table[e[i].in].out_pid = e[i].out;
-					chan_io_table[e[i].in].selected = 1;
+					chan_io_table[e[i].in].flags = IO_PID_FLAG_SELECTED;
 				} else {
-					chan_io_table[e[i].in].selected = 0;
+					chan_io_table[e[i].in].flags = 0;
 				}
 			}
 		}
@@ -56,7 +56,7 @@ void dump_io_table(const char *ctx)
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) { 
 		trace_info("  channel #%d:", chan_idx);
 		for (pid = 0x20; pid < NULL_PID; pid++) {
-			if (io_table[chan_idx][pid].selected) {
+			if (io_table[chan_idx][pid].flags & IO_PID_FLAG_SELECTED) {
 				if (io_table[chan_idx][pid].just_added)
 					trace_info("    pid %#x => %#x [+]", pid, io_table[chan_idx][pid].out_pid);
 				else
@@ -70,17 +70,17 @@ static void io_table_set_pid(int g_prog_idx, uint16_t in_pid, uint16_t out_pid)
 {
 	uint8_t chan_idx = g_prog_idx / PROGRAM_MAX_NUM;
 
-	if (!io_table[chan_idx][in_pid].selected || io_table[chan_idx][in_pid].out_pid != out_pid)
+	if (!(io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED) || io_table[chan_idx][in_pid].out_pid != out_pid)
 		io_table[chan_idx][in_pid].just_added = 1;
 	io_table[chan_idx][in_pid].out_pid = out_pid;
-	io_table[chan_idx][in_pid].selected = 1;
+	io_table[chan_idx][in_pid].flags = IO_PID_FLAG_SELECTED;
 }
 
 static uint16_t io_table_get_pid(int g_prog_idx, uint16_t in_pid)
 {
 	uint8_t chan_idx = g_prog_idx / PROGRAM_MAX_NUM;
 
-	if (io_table[chan_idx][in_pid].selected)
+	if (io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED)
 		return (io_table[chan_idx][in_pid].out_pid);
 
 	if (io_table_is_pid_free(in_pid))
@@ -94,7 +94,7 @@ static uint16_t io_table_get_pmt_pid(int g_prog_idx, uint16_t in_pid)
 	uint8_t chan_idx = g_prog_idx / PROGRAM_MAX_NUM;
 
 	trace_info("program #%d get pmt pid (in=%#x)", g_prog_idx, in_pid);
-	if (io_table[chan_idx][in_pid].selected)
+	if (io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED)
 		return pick_free_pid();
 
 	if (io_table_is_pid_free(in_pid))
@@ -109,7 +109,7 @@ static bool io_table_is_pid_free(uint16_t pid)
 	uint16_t tmp_pid;
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) { 
-		if (io_table[chan_idx][pid].selected) {
+		if (io_table[chan_idx][pid].flags & IO_PID_FLAG_SELECTED) {
 			trace_warn("pid %#x had been selected in channel %#x", pid, chan_idx);
 			return false;
 		}
@@ -117,7 +117,7 @@ static bool io_table_is_pid_free(uint16_t pid)
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		for (tmp_pid = 0x20; tmp_pid < NULL_PID; tmp_pid++) {
-			if (io_table[chan_idx][tmp_pid].selected && (io_table[chan_idx][tmp_pid].out_pid == pid)) {
+			if ((io_table[chan_idx][tmp_pid].flags & IO_PID_FLAG_SELECTED) && (io_table[chan_idx][tmp_pid].out_pid == pid)) {
 				trace_warn("pid %#x had been used as output pid for input pid %#x in channel %#x",
 					pid, tmp_pid, chan_idx);
 				return false;
@@ -138,13 +138,13 @@ static uint16_t pick_free_pid()
 
 	for (out_pid = 0x20; out_pid < NULL_PID; out_pid++) {
 		for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) { 
-		 	if (io_table[chan_idx][out_pid].selected)
+		 	if (io_table[chan_idx][out_pid].flags & IO_PID_FLAG_SELECTED)
 				break;
 		}
 		if (chan_idx == CHANNEL_MAX_NUM) {
 			for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 				for (pid = 0x20; pid < NULL_PID; pid++) {
-		 			if (io_table[chan_idx][pid].selected && (io_table[chan_idx][pid].out_pid == out_pid))
+		 			if ((io_table[chan_idx][pid].flags & IO_PID_FLAG_SELECTED) && (io_table[chan_idx][pid].out_pid == out_pid))
 						goto try_next_free_pid;
 				}
 			}

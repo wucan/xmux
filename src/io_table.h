@@ -10,8 +10,10 @@ enum {
 	IO_PID_TYPE_PMT = 1,
 };
 
+#define IO_PID_FLAG_SELECTED		(1 << 0)
+
 struct io_pid_entry {
-	uint8_t selected;
+	uint8_t flags;
 	uint8_t just_added;
 	uint16_t out_pid;
 

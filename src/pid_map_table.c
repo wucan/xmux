@@ -148,7 +148,7 @@ void pid_map_table_gen_and_apply_from_fp()
 	build_io_table();
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 	for (in_pid = 0x20; in_pid < NULL_PID; in_pid++) {
-		if (!io_table[chan_idx][in_pid].selected)
+		if (!(io_table[chan_idx][in_pid].flags & IO_PID_FLAG_SELECTED))
 			continue;
 #if CHANNEL_MAX_NUM == 1
 		/* FIXME: should we set the output pid to NULL_PID? */
