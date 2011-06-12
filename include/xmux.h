@@ -203,11 +203,11 @@ struct xmux_system_param {
 #define XMUX_VENDOR			"SOUKA"
 
 #define XMUX_VERSION_MAJOR	0
-#define XMUX_VERSION_MINOR	21
+#define XMUX_VERSION_MINOR	22
 #define XMUX_VERSION_NUM	((XMUX_VERSION_MAJOR << 16) | XMUX_VERSION_MINOR)
-#define XMUX_VERSION_STR	"0.21"
+#define XMUX_VERSION_STR	"0.22"
 
-#define XMUX_UPDATE_TIME	((2011 << 16) | (6 << 8) | 11)
+#define XMUX_UPDATE_TIME	((2011 << 16) | (6 << 8) | 12)
 
 /*
  * net parameter
