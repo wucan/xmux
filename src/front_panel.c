@@ -138,7 +138,7 @@ static int fp_thread(void *data)
 			buf_2_fp_cmd_header(&hdr, recv_buf);
 			if (hdr.len + sizeof(hdr) + FP_MSG_CRC_SIZE > FP_RECV_MSG_MAX_SIZE) {
 				trace_err("error! len %d too large!", hdr.len);
-				hex_dump("header", &hdr, sizeof(hdr));
+				hex_dump("header", recv_buf, sizeof(hdr));
 				continue;
 			}
 			// read body and crc

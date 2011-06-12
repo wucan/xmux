@@ -262,17 +262,18 @@ int ctrl_mcu_send_and_recv_cmd(uint8_t *send_data, int send_data_len,
 	buf_2_fp_cmd_header(&hdr, recv_buf);
 	if (hdr.len + sizeof(hdr) + FP_MSG_CRC_SIZE > 256) {
 		trace_err("error! len %d too large!", hdr.len);
-		hex_dump("header", &hdr, sizeof(hdr));
+		hex_dump("header", recv_buf, sizeof(hdr));
 		return -1;
 	}
 	// read body and crc
 	nlen = read_bytes(recv_buf + sizeof(hdr), hdr.len + FP_MSG_CRC_SIZE);
 	if (nlen != hdr.len + FP_MSG_CRC_SIZE) {
-		trace_err("recv body and crc failed!");
+		trace_err("recv body and crc failed! readed %d", nlen);
 		return -1;
 	}
 	if ((hdr.seq & 0x7FFF) != expect_cmd) {
-		trace_err("recv cmd invalidate! expect %d\n", expect_cmd);
+		trace_err("recv cmd invalidate! expect %#x\n", expect_cmd);
+		hex_dump("recv data", recv_buf, 32);
 		return -1;
 	}
 	if (nlen != expect_param_len + FP_MSG_CRC_SIZE) {
