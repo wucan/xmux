@@ -75,7 +75,7 @@ switch_again:
 	case FP_CMD_TUNNER2_STATUS:
 		// reuse TUNNER1 codes
 		tunner_id = 1;
-		cmd -= 3;
+		cmd -= 2;
 		goto switch_again;
 		break;
 	case FP_CMD_BCM3033:
