@@ -24,10 +24,6 @@ void buf_2_tunner_status(void *buf, struct tunner_status *s)
 {
 	memcpy(s, buf, sizeof(*s));
 }
-void bcm3033_param_2_buf(struct bcm3033_param *p, void *buf)
-{
-	memcpy(buf, p, sizeof(*p));
-}
 void buf_2_bcm3033_param(void *buf, struct bcm3033_param *p)
 {
 	memcpy(p, buf, sizeof(*p));
@@ -83,7 +79,6 @@ switch_again:
 		struct bcm3033_param bp;
 		if (is_read) {
 			bcm3033_get_param(&bp);
-			bcm3033_param_2_buf(&g_4_chan_rf_param.bcm, &bp);
 			*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
 				&bp, sizeof(bp));
 		} else {
