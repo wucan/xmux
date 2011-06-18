@@ -15,6 +15,16 @@ static uint16_t resp_len;
 
 static GtkComboBox *chan_combo_box;
 static GtkComboBox *prog_combo_box;
+static GtkLabel *pmt_in_label;
+static GtkEntry *pmt_entry;
+static GtkLabel *pcr_in_label;
+static GtkEntry *pcr_entry;
+static GtkLabel *data_0_in_label;
+static GtkEntry *data_0_entry;
+static GtkLabel *data_1_in_label;
+static GtkEntry *data_1_entry;
+static GtkLabel *data_2_in_label;
+static GtkEntry *data_2_entry;
 
 static gboolean window_delete_event(GtkWidget *widget,
 		GdkEvent *event, gpointer data)
@@ -134,7 +144,7 @@ static void prog_0_btn_press(GtkWidget *widget,
 	cnt++;
 }
 
-static PROG_INFO_T cur_prog;
+static PROG_INFO_T cur_prog, local_prog;
 static void get_program_info_btn_press(GtkWidget *widget,
 		GdkEventButton *event, gpointer *user_data)
 {
@@ -153,6 +163,34 @@ static void get_program_info_btn_press(GtkWidget *widget,
 
 	// cache program info
 	memcpy(&cur_prog, resp_buf + sizeof(struct fp_cmd_header), sizeof(cur_prog));
+
+	char text_buf[10];
+	buf_2_prog_info(&local_prog, &cur_prog);
+
+	sprintf(text_buf, "%#x", local_prog.info.pmt.in);
+	gtk_label_set_text(pmt_in_label, text_buf);
+	sprintf(text_buf, "%#x", local_prog.info.pmt.out);
+	gtk_entry_set_text(pmt_entry, text_buf);
+
+	sprintf(text_buf, "%#x", local_prog.info.pcr.in);
+	gtk_label_set_text(pcr_in_label, text_buf);
+	sprintf(text_buf, "%#x", local_prog.info.pcr.out);
+	gtk_entry_set_text(pcr_entry, text_buf);
+
+	sprintf(text_buf, "%#x", local_prog.info.data[0].in);
+	gtk_label_set_text(data_0_in_label, text_buf);
+	sprintf(text_buf, "%#x", local_prog.info.data[0].out);
+	gtk_entry_set_text(data_0_entry, text_buf);
+
+	sprintf(text_buf, "%#x", local_prog.info.data[1].in);
+	gtk_label_set_text(data_1_in_label, text_buf);
+	sprintf(text_buf, "%#x", local_prog.info.data[1].out);
+	gtk_entry_set_text(data_1_entry, text_buf);
+
+	sprintf(text_buf, "%#x", local_prog.info.data[2].in);
+	gtk_label_set_text(data_2_in_label, text_buf);
+	sprintf(text_buf, "%#x", local_prog.info.data[2].out);
+	gtk_entry_set_text(data_2_entry, text_buf);
 }
 
 static void select_program_btn_press(GtkWidget *widget,
@@ -163,6 +201,24 @@ static void select_program_btn_press(GtkWidget *widget,
 	chan = gtk_combo_box_get_active(chan_combo_box);
 	prog = gtk_combo_box_get_active(prog_combo_box);
 	prog_idx = chan * PROGRAM_MAX_NUM + prog;
+
+	char *text = gtk_entry_get_text(pmt_entry);
+	local_prog.info.pmt.out = strtol(text, NULL, 16);
+	text = gtk_entry_get_text(pcr_entry);
+	local_prog.info.pcr.out = strtol(text, NULL, 16);
+	if (local_prog.info.data[0].type != PID_TYPE_PAD) {
+		text = gtk_entry_get_text(data_0_entry);
+		local_prog.info.data[0].out = strtol(text, NULL, 16);
+	}
+	if (local_prog.info.data[1].type != PID_TYPE_PAD) {
+		text = gtk_entry_get_text(data_1_entry);
+		local_prog.info.data[1].out = strtol(text, NULL, 16);
+	}
+	if (local_prog.info.data[2].type != PID_TYPE_PAD) {
+		text = gtk_entry_get_text(data_2_entry);
+		local_prog.info.data[2].out = strtol(text, NULL, 16);
+	}
+	buf_2_prog_info(&cur_prog, &local_prog);
 
 	FP_SELECT_PROG(&cur_prog);
 	fp_build_cmd(req_buf, false, prog_idx, &cur_prog, sizeof(cur_prog));
@@ -191,6 +247,7 @@ static void build_control_ui(GtkWidget *vbox)
 {
 	GtkWidget *btn, *radio1, *radio2;
 	GtkWidget *hbox;
+	GtkWidget *label;
 	int i;
 
 	hbox = gtk_hbox_new(TRUE, 2);
@@ -274,6 +331,45 @@ static void build_control_ui(GtkWidget *vbox)
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 		GTK_SIGNAL_FUNC(deselect_program_btn_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	hbox = gtk_hbox_new(TRUE, 2);
+	label = gtk_label_new("PMT:");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	pmt_in_label = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(hbox), pmt_in_label, FALSE, FALSE, 0);
+	pmt_entry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(pmt_entry), TRUE);
+	gtk_entry_set_width_chars(GTK_ENTRY(pmt_entry), 8);
+	gtk_box_pack_start(GTK_BOX(hbox), pmt_entry, FALSE, FALSE, 0);
+	label = gtk_label_new("PCR:");
+	pcr_in_label = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(hbox), pcr_in_label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	pcr_entry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(pcr_entry), 8);
+	gtk_box_pack_start(GTK_BOX(hbox), pcr_entry, FALSE, FALSE, 0);
+	label = gtk_label_new("DATA 0:");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	data_0_in_label = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(hbox), data_0_in_label, FALSE, FALSE, 0);
+	data_0_entry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(data_0_entry), 8);
+	gtk_box_pack_start(GTK_BOX(hbox), data_0_entry, FALSE, FALSE, 0);
+	label = gtk_label_new("DATA 1:");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	data_1_in_label = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(hbox), data_1_in_label, FALSE, FALSE, 0);
+	data_1_entry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(data_1_entry), 8);
+	gtk_box_pack_start(GTK_BOX(hbox), data_1_entry, FALSE, FALSE, 0);
+	label = gtk_label_new("DATA 2:");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	data_2_in_label = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(hbox), data_2_in_label, FALSE, FALSE, 0);
+	data_2_entry = gtk_entry_new();
+	gtk_entry_set_width_chars(GTK_ENTRY(data_2_entry), 8);
+	gtk_box_pack_start(GTK_BOX(hbox), data_2_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 }
