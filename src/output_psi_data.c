@@ -167,11 +167,13 @@ int psi_apply_from_output_psi()
 	/*
 	 * write to fpga
 	 */
+	disable_snmp_connection_check();
 	for (i = 0; i < PSISI_MAX_NUM; i++) {
 		howto = i;
 		hfpga_dev.write(write_info[i].pkts_buf, write_info[i].size, &howto);
 		free(write_info[i].pkts_buf);
 	}
+	enable_snmp_connection_check();
 
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
 	dvbSI_Stop(&hfpga_dev);

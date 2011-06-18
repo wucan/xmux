@@ -737,16 +737,31 @@ int xmux_snmp_register_all_oids()
 }
 
 static time_t heart_device_time;
+static int disable_check;
 void xmux_snmp_update_heart_device_time()
 {
 	heart_device_time = time(NULL);
 }
 void xmux_snmp_check_connection()
 {
+	if (disable_check)
+		return;
+
 	if ((sg_mib_heartDevice.flag == SNMP_LOGIN_STATUS_SUCCESS) &&
 		(time(NULL) - heart_device_time > 15)) {
 		trace_warn("timeout of heart beat!");
 		sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_IDLE;
 	}
+}
+
+void disable_snmp_connection_check()
+{
+	disable_check = 1;
+}
+
+void enable_snmp_connection_check()
+{
+	xmux_snmp_update_heart_device_time();
+	disable_check = 0;
 }
 
