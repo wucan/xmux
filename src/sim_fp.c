@@ -27,11 +27,6 @@ static void window_destroy(GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
-static void window_key_press_event(GtkWidget *w, GdkEventKey *event)
-{
-	guint keyval = event->keyval;
-}
-
 static void enter_fp_management_mode_btn_press(GtkWidget *widget,
 		GdkEventButton *event, gpointer *user_data)
 {
@@ -302,9 +297,6 @@ static void fp_gtk_ui_create()
 	build_control_ui(vbox);
 	gtk_container_add(GTK_CONTAINER(window), vbox);
 	gtk_window_set_title(GTK_WINDOW(window), "XMUX FP");
-	/* set the event */
-	gtk_signal_connect(GTK_OBJECT(window), "key_press_event",
-		GTK_SIGNAL_FUNC(window_key_press_event), NULL);
 	/* show all */
 	gtk_widget_show_all(window);
 }
