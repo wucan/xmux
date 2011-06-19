@@ -23,7 +23,7 @@ static void restore_work_field();
 
 int main(int argc, char **argv)
 {
-	trace_info("xmux %s", XMUX_VERSION_STR);
+	trace_info("xmux %s, build %s, %s", XMUX_VERSION_STR, __DATE__, __TIME__);
 	trace_info("support %d channels, %d programs",
 		CHANNEL_MAX_NUM, PROGRAM_MAX_NUM);
 
