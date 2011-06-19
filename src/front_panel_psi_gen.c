@@ -96,9 +96,9 @@ int gen_cat_from_fp()
 	return 0;
 }
 
+static struct sdt_gen_context gen_ctx;
 int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 {
-	struct sdt_gen_context gen_ctx;
 	int ncount;
 	int nProgSel = 0;
 	PROG_INFO_T *pProg;
@@ -123,6 +123,7 @@ int gen_sdt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	return 0;
 }
 
+static struct pat_gen_context pat_gen_ctx;
 int gen_pat_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 {
 	int i, j;
@@ -130,7 +131,6 @@ int gen_pat_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	int nProgSel = 0;
 	int nProgNum = 0;
 	PROG_INFO_T *pProg = (PROG_INFO_T *) pProgpara;
-	struct pat_gen_context pat_gen_ctx;
 
 	trace_info("generate PAT ...");
 	// Begin Set Values
@@ -152,6 +152,7 @@ int gen_pat_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 	return 0;
 }
 
+static struct pmt_gen_context pmt_gen_ctx;
 int gen_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 {
 	int i, j;
@@ -163,7 +164,6 @@ int gen_pmt_from_fp(uint8_t *packpara, const PROG_INFO_T *pProgpara)
 		int j;
 		pProg = (PROG_INFO_T *) pProgpara + i;
 		if (FP_PROG_SELECTED(pProg)) {
-			struct pmt_gen_context pmt_gen_ctx;
 			pmt_gen_context_init(&pmt_gen_ctx);
 			pmt_gen_context_add_program_info(&pmt_gen_ctx,
 				prog_num_table[nProgSel], pProg->info.pmt.out, pProg->info.pcr.out);
