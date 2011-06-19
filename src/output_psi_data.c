@@ -175,6 +175,7 @@ int psi_apply_from_output_psi()
 	}
 	enable_snmp_connection_check();
 
+	dvb_io_dev.ioctl(0x11, NULL); // readback psi from fpga and dump it
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
 	dvbSI_Stop(&hfpga_dev);
 
