@@ -184,7 +184,7 @@ void xmux_config_save_pid_trans_info_all()
 		trace_info("#%d pid trans info eeprom offset %#x", chan_idx, off);
 		eeprom_write(off,
 			&g_eeprom_param.pid_trans_info_area.table[chan_idx].data,
-			sizeof(g_eeprom_param.pid_trans_info_area.table[chan_idx].data));
+			g_eeprom_param.pid_trans_info_area.table[chan_idx].data.data_len + 2);
 		usleep(100000);
 	}
 }
