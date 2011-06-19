@@ -45,10 +45,6 @@ void pid_trans_info_read_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 	}
 }
 
-static void fix_data(uint8_t chan_idx)
-{
-	sg_mib_pid_trans_info[chan_idx].data_len = sizeof(sg_mib_pid_trans_info[0]) - 2;
-}
 void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 {
 	uint8_t chan_idx = trans_idx / NODE_NUM;
@@ -66,8 +62,6 @@ void pid_trans_info_write_data_snmp(uint8_t trans_idx, struct wu_snmp_value *v)
 	 * save to eeprom if channel's pid trans info all got
 	 */
 	if (v->size < NODE_MAX_SIZE || idx == (NODE_NUM - 1)) {
-		/* fix received data */
-		fix_data(chan_idx);
 		if (!pid_trans_info_validate(&sg_mib_pid_trans_info[chan_idx])) {
 			trace_err("channel #%d pid trans info invalidate!", chan_idx);
 			return;
@@ -82,8 +76,8 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 	uint8_t prog_idx;
 	struct xmux_program_info_with_csc *prog;
 
-	if (data->data_len && data->data_len != sizeof(*data) - 2) {
-		trace_err("data_len %d, but expect %d!",
+	if (data->data_len && data->data_len > sizeof(*data) - 2) {
+		trace_err("data_len %d > %d!",
 			data->data_len, sizeof(*data) - 2);
 		return false;
 	}

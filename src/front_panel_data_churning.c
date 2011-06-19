@@ -142,7 +142,7 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 
 	pid_trans_info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
 
-	pid_trans_info->data_len = sizeof(*pid_trans_info) - 2;
+	pid_trans_info->data_len = 0;
 	pid_trans_info->update_flag_and_chan_num = chan_idx;
 	pid_trans_info->nprogs = g_chan_num.num[chan_idx];
 	if (pid_trans_info->nprogs == 0) {
@@ -171,6 +171,9 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 		pid_trans_info->programs[prog_idx].csc = wu_csc(
 			&pid_trans_info->programs[prog_idx], sizeof(struct xmux_program_info_with_csc) - 1);
 	}
+	pid_trans_info->data_len =
+		offsetof(struct pid_trans_info_snmp_data, programs) - 2 +
+		sizeof(struct xmux_program_info_with_csc) * pid_trans_info->nprogs;
 }
 
 void prog_info_2_pid_trans_info()

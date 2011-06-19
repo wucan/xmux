@@ -128,12 +128,27 @@ static void xmux_eeprom_param_init_default(struct xmux_eeprom_param *p)
  */
 void xmux_config_load_from_eeprom()
 {
+	uint8_t chan_idx;
+
 	/*
 	 * load real data, so accelerate load speed
 	 */
-	eeprom_read(EEPROM_OFF_PID_TRANS_INFO,
-		(uint8_t *)&g_eeprom_param.pid_trans_info_area,
-		sizeof(g_eeprom_param.pid_trans_info_area));
+	/* pid_trans_info_area */
+	// read head
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		struct pid_trans_info_snmp_data *info;
+		uint16_t data_len = 0;
+		info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
+		eeprom_read(EEPROM_OFF_PID_TRANS_INFO +
+			sizeof(struct pid_trans_info_snmp_data) * chan_idx,
+			(uint8_t *)&data_len, 2);
+		trace_info("load pid trans info channel #%d data_len %d",
+			chan_idx, data_len);
+		eeprom_read(EEPROM_OFF_PID_TRANS_INFO +
+			sizeof(struct pid_trans_info_snmp_data) * chan_idx,
+			(uint8_t *)info,
+			MIN(data_len + 2, sizeof(struct pid_trans_info_snmp_data)));
+	}
 
 	eeprom_read(EEPROM_OFF_PID_MAP_TABLE,
 		(uint8_t *)&g_eeprom_param.pid_map_table_area,
