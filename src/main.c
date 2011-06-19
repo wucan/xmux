@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "wu/message.h"
 #include "wu/mem.h"
@@ -21,11 +22,51 @@ struct xmux_param_management_info g_param_mng_info;
 
 static void restore_work_field();
 
+static void parse_opt(int argc, char **argv)
+{
+	int c;
+
+	if (argc <= 1)
+		return;
+
+	while ((c = getopt(argc, argv, "?hvd:")) != EOF) {
+		switch (c) {
+		case 'v':
+			trace_info("version %s", XMUX_VERSION_STR);
+			exit(0);
+			break;
+		case 'd':
+		{
+			uint32_t off = strtol(optarg, NULL, 16);
+			xmux_config_init();
+			xmux_config_dump(off, 64);
+			exit(0);
+		}
+			break;
+		case 'h':
+		case '?':
+			trace_info("xmux support %d channels, %d programs",
+				CHANNEL_MAX_NUM, PROGRAM_MAX_NUM);
+			exit(0);
+			break;
+		default:
+			trace_warn("unsupport option '%c'", c);
+			break;
+		}
+	}
+
+	if (optind < argc) {
+		// last non option
+	}
+}
+
 int main(int argc, char **argv)
 {
 	trace_info("xmux %s, build %s, %s", XMUX_VERSION_STR, __DATE__, __TIME__);
 	trace_info("support %d channels, %d programs",
 		CHANNEL_MAX_NUM, PROGRAM_MAX_NUM);
+
+	parse_opt(argc, argv);
 
 	mem_init_size(1024 * 1024 * 3);
 
