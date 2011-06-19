@@ -193,6 +193,16 @@ void xmux_config_load_from_eeprom()
 	g_param_mng_info.eeprom_pid_map_table_version++;
 }
 
+void xmux_config_dump(uint32_t off, int len)
+{
+	int dump_len = MIN(len, 64);
+	uint8_t buf[64];
+
+	trace_info("dump config at offset %#x, len %d", off, dump_len);
+	eeprom_read(off, buf, dump_len);
+	hex_dump("config data", buf, dump_len);
+}
+
 void xmux_config_save_output_bitrate(uint32_t bitrate)
 {
 	g_eeprom_param.sys.output_bitrate = bitrate;

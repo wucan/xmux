@@ -11,6 +11,7 @@ extern struct xmux_eeprom_param g_eeprom_param;
 
 int xmux_config_init();
 void xmux_config_load_from_eeprom();
+void xmux_config_dump(uint32_t off, int len);
 
 void xmux_config_save_output_bitrate(uint32_t bitrate);
 void xmux_config_save_packet_format(uint8_t fmt);
