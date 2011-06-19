@@ -372,7 +372,7 @@ static int mux_program_info_set(struct wu_oid_object *obj,
 static int tunner_param_get(struct wu_oid_object *obj,
 		struct wu_snmp_value *v)
 {
-	struct tunner_param p;
+	static struct tunner_param p;
 	int tunner_id = 0;
 
 	switch (obj->oid[OID_TUNNER_ID_IDX]) {
@@ -407,7 +407,7 @@ static int tunner_param_set(struct wu_oid_object *obj,
 static int tunner_status_get(struct wu_oid_object *obj,
 		struct wu_snmp_value *v)
 {
-	struct tunner_status s;
+	static struct tunner_status s;
 	int tunner_id = 0;
 
 	switch (obj->oid[OID_TUNNER_ID_IDX]) {
@@ -427,7 +427,7 @@ static int tunner_status_get(struct wu_oid_object *obj,
 static int bcm3033_param_get(struct wu_oid_object *obj,
 		struct wu_snmp_value *v)
 {
-	struct bcm3033_param p;
+	static struct bcm3033_param p;
 
 	bcm3033_get_param(&p);
 	v->size = sizeof(struct bcm3033_param);
