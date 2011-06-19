@@ -83,6 +83,7 @@ void fill_output_psi_data(int psi_type, uint8_t *ts_buf, int ts_len)
 	memcpy(&psi_data->ts_pkts[pkt_offset], ts_buf, ts_len);
 
 	pkt_offset += ts_len / TS_PACKET_BYTES;
+	psi_data->pkt_nr = pkt_offset;
 }
 
 struct psisi_write_info {

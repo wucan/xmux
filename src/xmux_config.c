@@ -139,9 +139,19 @@ void xmux_config_load_from_eeprom()
 		(uint8_t *)&g_eeprom_param.pid_map_table_area,
 		sizeof(g_eeprom_param.pid_map_table_area));
 
+	/* output_psi_area */
+	// read head
 	eeprom_read(EEPROM_OFF_OUTPUT_PSI,
 		(uint8_t *)&g_eeprom_param.output_psi_area,
-		sizeof(g_eeprom_param.output_psi_area));
+		sizeof(g_eeprom_param.output_psi_area.output_psi));
+	trace_info("output_psi had %d packages",
+		g_eeprom_param.output_psi_area.output_psi.pkt_nr);
+	// read all
+	eeprom_read(EEPROM_OFF_OUTPUT_PSI,
+		(uint8_t *)&g_eeprom_param.output_psi_area,
+		MIN(sizeof(g_eeprom_param.output_psi_area),
+			sizeof(g_eeprom_param.output_psi_area.output_psi) +
+			g_eeprom_param.output_psi_area.output_psi.pkt_nr * TS_PACKET_BYTES));
 
 #if CHANNEL_MAX_NUM == 1
 	eeprom_read(EEPROM_OFF_INPUT_PMT_SEC,
@@ -214,10 +224,13 @@ void xmux_config_save_pid_trans_info_all()
 
 void xmux_config_save_output_psi_data()
 {
-	trace_info("save output psi data...");
+	trace_info("save output psi data, %d packets ...",
+		g_eeprom_param.output_psi_area.output_psi.pkt_nr);
 	output_psi_data_dump(&g_eeprom_param.output_psi_area.output_psi);
 	eeprom_write(EEPROM_OFF_OUTPUT_PSI, &g_eeprom_param.output_psi_area,
-		sizeof(g_eeprom_param.output_psi_area));
+		MIN(sizeof(g_eeprom_param.output_psi_area),
+			sizeof(g_eeprom_param.output_psi_area.output_psi) +
+			g_eeprom_param.output_psi_area.output_psi.pkt_nr * TS_PACKET_BYTES));
 }
 
 void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t)

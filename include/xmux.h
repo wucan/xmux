@@ -177,6 +177,7 @@ struct output_psi_data_entry {
 	uint8_t nr_ts_pkts;
 } __attribute__((packed));
 struct xmux_output_psi_data {
+	uint32_t pkt_nr;
 	struct output_psi_data_entry psi_ents[OUTPUT_PSI_TYPE_MAX_NUM];
 	struct mpeg_ts_packet ts_pkts[0];
 } __attribute__((packed));
