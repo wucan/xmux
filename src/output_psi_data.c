@@ -103,7 +103,7 @@ int psi_apply_from_output_psi()
 	 * create packet temp buffer
 	 */
 	for (i = 0; i < PSISI_MAX_NUM; i++) {
-		write_info[i].pkts_buf = malloc(TS_PACKET_BYTES * 50);
+		write_info[i].pkts_buf = malloc(TS_PACKET_BYTES * 128);
 		if (!write_info[i].pkts_buf) {
 			trace_err("can't allocate pkts_buf!");
 			return -1;

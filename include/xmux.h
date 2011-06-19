@@ -168,9 +168,9 @@ struct xmux_pid_map_table {
 #define PID_MAP_TABLE_PAD_PID			0x000F
 
 /*
- * output psi/si ts packets, 8KB
+ * output psi/si ts packets, 16KB
  */
-#define OUTPUT_PSI_AREA_SIZE		(1024 * 8)
+#define OUTPUT_PSI_AREA_SIZE		(1024 * 16)
 #define OUTPUT_PSI_TYPE_MAX_NUM		8
 struct output_psi_data_entry {
 	uint8_t offset;
