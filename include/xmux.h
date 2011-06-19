@@ -264,7 +264,10 @@ struct xmux_mux_program_info {
 #define EEPROM_PAGE_ALIGN	 __attribute__ ((aligned(EEPROM_PAGE_SIZE)))
 struct xmux_eeprom_param {
 	union {
-		struct pid_trans_info_snmp_data pid_trans_info[CHANNEL_MAX_NUM];
+		struct eeprom_pid_trans_info {
+			struct pid_trans_info_snmp_data data EEPROM_PAGE_ALIGN;
+			uint8_t pad[EEPROM_PAGE_SIZE];
+		} table[CHANNEL_MAX_NUM];
 	} pid_trans_info_area EEPROM_PAGE_ALIGN;
 	uint8_t pid_trans_info_tail[EEPROM_PAGE_SIZE];
 	union {

@@ -48,7 +48,7 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 	 * pid trans info
 	 */
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		pid_trans_info = &p->pid_trans_info_area.pid_trans_info[chan_idx];
+		pid_trans_info = &p->pid_trans_info_area.table[chan_idx].data;
 		if (!pid_trans_info_validate(pid_trans_info)) {
 			trace_err("#%d pid trans info invalidate!", chan_idx);
 			memset(pid_trans_info, 0, sizeof(struct pid_trans_info_snmp_data));
@@ -168,20 +168,25 @@ void xmux_config_save_pid_trans_info_all()
 {
 	uint8_t chan_idx;
 	struct pid_trans_info_snmp_data *info;
+	uint32_t off;
 
 	trace_info("save pid trans info...");
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		info = &g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx];
+		info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
 		if (!pid_trans_info_validate(info)) {
 			trace_err("#%d pid trans info invalidate!", chan_idx);
-			return;
+			continue;
 		}
 		pid_trans_info_dump(chan_idx, info);
-	}
 
-	eeprom_write(EEPROM_OFF_PID_TRANS_INFO,
-		&g_eeprom_param.pid_trans_info_area,
-		sizeof(g_eeprom_param.pid_trans_info_area.pid_trans_info));
+		off = EEPROM_OFF_PID_TRANS_INFO +
+			sizeof(g_eeprom_param.pid_trans_info_area.table[0]) * chan_idx;
+		trace_info("#%d pid trans info eeprom offset %#x", chan_idx, off);
+		eeprom_write(off,
+			&g_eeprom_param.pid_trans_info_area.table[chan_idx].data,
+			sizeof(g_eeprom_param.pid_trans_info_area.table[chan_idx].data));
+		usleep(100000);
+	}
 }
 
 void xmux_config_save_output_psi_data()

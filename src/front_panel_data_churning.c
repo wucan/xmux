@@ -94,7 +94,7 @@ void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
 	uint8_t prog_idx, pid_idx;
 	uint16_t in_pid, out_pid;
 
-	pid_trans_info = &g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx];
+	pid_trans_info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
 
 	g_chan_num.num[chan_idx] = pid_trans_info->nprogs;
 	if (pid_trans_info->nprogs == 0) {
@@ -140,7 +140,7 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 	uint16_t in_pid, out_pid;
 	uint8_t pid_type;
 
-	pid_trans_info = &g_eeprom_param.pid_trans_info_area.pid_trans_info[chan_idx];
+	pid_trans_info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
 
 	pid_trans_info->data_len = sizeof(*pid_trans_info) - 2;
 	pid_trans_info->update_flag_and_chan_num = chan_idx;

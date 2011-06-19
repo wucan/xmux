@@ -95,13 +95,18 @@ void xmux_user_param_dump(struct xmux_user_param *user)
 
 void leave_fp_management_mode()
 {
+	uint8_t chan_idx;
+
 	sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_IDLE;
 	if (g_param_mng_info.eeprom_pid_trans_info_version !=
 		g_param_mng_info.snmp_pid_trans_info_version) {
 		g_param_mng_info.snmp_pid_trans_info_version =
 			g_param_mng_info.eeprom_pid_trans_info_version;
-		memcpy(&sg_mib_pid_trans_info, &g_eeprom_param.pid_trans_info_area,
-			sizeof(g_eeprom_param.pid_trans_info_area.pid_trans_info));
+		for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+			memcpy(&sg_mib_pid_trans_info[chan_idx],
+				&g_eeprom_param.pid_trans_info_area.table[chan_idx].data,
+				sizeof(sg_mib_pid_trans_info[0]));
+		}
 	}
 	if (g_param_mng_info.eeprom_pid_map_table_version !=
 		g_param_mng_info.snmp_pid_map_table_version) {
