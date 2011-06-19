@@ -133,6 +133,9 @@ void xmux_config_load_from_eeprom()
 	/*
 	 * load real data, so accelerate load speed
 	 */
+	eeprom_read(EEPROM_OFF_MISC_PARAM,
+		(uint8_t *)&g_eeprom_param.sys, EEPROM_MISC_PARAM_SIZE);
+
 	/* pid_trans_info_area */
 	// read head
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
@@ -173,9 +176,6 @@ void xmux_config_load_from_eeprom()
 		(uint8_t *)&g_eeprom_param.input_pmt_sec,
 		sizeof(g_eeprom_param.input_pmt_sec));
 #endif
-
-	eeprom_read(EEPROM_OFF_MISC_PARAM,
-		(uint8_t *)&g_eeprom_param.sys, EEPROM_MISC_PARAM_SIZE);
 
 	/*
 	 * force to snmp management mode always in startup! else if we are starting
