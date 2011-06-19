@@ -413,8 +413,8 @@ int psi_gen_and_apply_from_fp()
 	gen_sdt_from_fp(packpara, g_prog_info_table);
 	psi_type = PSI_TYPE_NIT;
 	gen_nit_from_fp();
-	fpga_set_write_hook(NULL);
 #endif
+	fpga_set_write_hook(NULL);
 
 	trace_info("start gen si");
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
