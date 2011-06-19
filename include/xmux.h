@@ -263,6 +263,15 @@ struct xmux_mux_program_info {
 
 #define EEPROM_PAGE_ALIGN	 __attribute__ ((aligned(EEPROM_PAGE_SIZE)))
 struct xmux_eeprom_param {
+	struct xmux_system_param sys EEPROM_PAGE_ALIGN;
+	struct xmux_net_param net EEPROM_PAGE_ALIGN;
+	struct xmux_user_param user EEPROM_PAGE_ALIGN;
+	uint8_t mng_mode EEPROM_PAGE_ALIGN;
+
+	struct xmux_mux_program_info mux_prog_info EEPROM_PAGE_ALIGN;
+
+	uint8_t misc_param_tail[EEPROM_PAGE_SIZE];
+
 	union {
 		struct eeprom_pid_trans_info {
 			struct pid_trans_info_snmp_data data EEPROM_PAGE_ALIGN;
@@ -283,18 +292,12 @@ struct xmux_eeprom_param {
 	uint8_t input_pmt_sec[PROGRAM_MAX_NUM][INPUT_PMT_SEC_MAX_LEN] EEPROM_PAGE_ALIGN;
 	uint8_t input_pmt_sect_tail[EEPROM_PAGE_SIZE];
 #endif
-	struct xmux_system_param sys EEPROM_PAGE_ALIGN;
-	struct xmux_net_param net EEPROM_PAGE_ALIGN;
-	struct xmux_user_param user EEPROM_PAGE_ALIGN;
-	uint8_t mng_mode EEPROM_PAGE_ALIGN;
-
-	struct xmux_mux_program_info mux_prog_info EEPROM_PAGE_ALIGN;
 };
 
 /*
  * param address offset in eeprom
  */
-#define EEPROM_OFF_PID_TRANS_INFO			0
+#define EEPROM_OFF_PID_TRANS_INFO			(offsetof(struct xmux_eeprom_param, pid_trans_info_area))
 #define EEPROM_OFF_PID_MAP_TABLE			(offsetof(struct xmux_eeprom_param, pid_map_table_area))
 #define EEPROM_OFF_OUTPUT_PSI				(offsetof(struct xmux_eeprom_param, output_psi_area))
 #if CHANNEL_MAX_NUM == 1
@@ -310,6 +313,10 @@ struct xmux_eeprom_param {
 	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, output_bitrate)))
 #define EEPROM_OFF_SYS_PACKET_FORMAT \
 	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, format)))
+
+#define EEPROM_OFF_MISC_PARAM				0
+#define EEPROM_MISC_PARAM_SIZE \
+	(offsetof(struct xmux_eeprom_param, misc_param_tail))
 
 struct xmux_param_management_info {
 	uint32_t eeprom_pid_trans_info_version;

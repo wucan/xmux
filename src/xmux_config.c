@@ -128,7 +128,30 @@ static void xmux_eeprom_param_init_default(struct xmux_eeprom_param *p)
  */
 void xmux_config_load_from_eeprom()
 {
-	eeprom_read(0, (uint8_t *)&g_eeprom_param, sizeof(g_eeprom_param));
+	/*
+	 * load real data, so accelerate load speed
+	 */
+	eeprom_read(EEPROM_OFF_PID_TRANS_INFO,
+		(uint8_t *)&g_eeprom_param.pid_trans_info_area,
+		sizeof(g_eeprom_param.pid_trans_info_area));
+
+	eeprom_read(EEPROM_OFF_PID_MAP_TABLE,
+		(uint8_t *)&g_eeprom_param.pid_map_table_area,
+		sizeof(g_eeprom_param.pid_map_table_area));
+
+	eeprom_read(EEPROM_OFF_OUTPUT_PSI,
+		(uint8_t *)&g_eeprom_param.output_psi_area,
+		sizeof(g_eeprom_param.output_psi_area));
+
+#if CHANNEL_MAX_NUM == 1
+	eeprom_read(EEPROM_OFF_INPUT_PMT_SEC,
+		(uint8_t *)&g_eeprom_param.input_pmt_sec,
+		sizeof(g_eeprom_param.input_pmt_sec));
+#endif
+
+	eeprom_read(EEPROM_OFF_MISC_PARAM,
+		(uint8_t *)&g_eeprom_param.sys, EEPROM_MISC_PARAM_SIZE);
+
 	/*
 	 * force to snmp management mode always in startup! else if we are starting
 	 * and in fp management mode, if the fp is malfunction, then out of control!
