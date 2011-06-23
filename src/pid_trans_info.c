@@ -108,6 +108,10 @@ void pid_trans_info_dump(uint8_t chan_idx, struct pid_trans_info_snmp_data *data
 	 * program info
 	 */
 	for (prog_idx = 0; prog_idx < data->nprogs; prog_idx++) {
+		if (prog_idx >= 4) {
+			trace_info("...");
+			break;
+		}
 		prog = &data->programs[prog_idx];
 		prog_name_len = MIN(prog->prog_name[0][0], PROGRAM_NAME_SIZE - 1);
 		memcpy(prog_name, &prog->prog_name[0][1], prog_name_len);
