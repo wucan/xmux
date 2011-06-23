@@ -148,12 +148,12 @@ void xmux_config_load_from_eeprom()
 		uint16_t data_len = 0;
 		info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
 		eeprom_read(EEPROM_OFF_PID_TRANS_INFO +
-			sizeof(struct pid_trans_info_snmp_data) * chan_idx,
+			sizeof(struct eeprom_pid_trans_info) * chan_idx,
 			(uint8_t *)&data_len, 2);
 		trace_info("load pid trans info channel #%d data_len %d",
 			chan_idx, data_len);
 		eeprom_read(EEPROM_OFF_PID_TRANS_INFO +
-			sizeof(struct pid_trans_info_snmp_data) * chan_idx,
+			sizeof(struct eeprom_pid_trans_info) * chan_idx,
 			(uint8_t *)info,
 			MIN(data_len + 2, sizeof(struct pid_trans_info_snmp_data)));
 	}
