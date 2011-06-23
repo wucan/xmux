@@ -54,34 +54,6 @@ typedef struct {
 extern PROG_INFO_T g_prog_info_table[];
 extern CHN_NUM_T g_chan_num;
 
-/*
- * program attribute
- * 1. pcr type and grouping
- */
-struct program_attribute {
-	uint8_t pad;
-	uint8_t pcr_type;
-	uint16_t pcr_group_id;
-};
-enum {
-	NA_PCR = 0,
-	SOLO_PCR,
-	COM_PCR,
-	PUB_PCR,
-};
-extern struct program_attribute g_prog_attr_table[];
-static inline const char *pcr_type_name(uint8_t type)
-{
-	switch (type) {
-		case SOLO_PCR: return "SOLO"; break;
-		case COM_PCR: return "COM"; break;
-		case PUB_PCR: return "PUB"; break;
-		default: return "NA"; break;
-	}
-
-	return "NA";
-}
-
 
 #endif /* _FRONT_PANEL_INTSTR_H_ */
 

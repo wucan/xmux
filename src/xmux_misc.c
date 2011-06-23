@@ -124,7 +124,6 @@ void enter_fp_management_mode()
 {
 	sg_mib_heartDevice.flag = SNMP_LOGIN_STATUS_BUSY;
 	pid_trans_info_2_prog_info();
-	fp_build_program_attr_table();
 	fp_build_program_input_pid_table();
 
 	management_mode = MANAGEMENT_MODE_FP;
