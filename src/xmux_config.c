@@ -146,15 +146,13 @@ void xmux_config_load_from_eeprom()
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		struct pid_trans_info_snmp_data *info;
 		uint16_t data_len = 0;
+		uint32_t off = EEPROM_OFF_PID_TRANS_INFO +
+			sizeof(struct eeprom_pid_trans_info) * chan_idx;
 		info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
-		eeprom_read(EEPROM_OFF_PID_TRANS_INFO +
-			sizeof(struct eeprom_pid_trans_info) * chan_idx,
-			(uint8_t *)&data_len, 2);
-		trace_info("load pid trans info channel #%d data_len %d",
-			chan_idx, data_len);
-		eeprom_read(EEPROM_OFF_PID_TRANS_INFO +
-			sizeof(struct eeprom_pid_trans_info) * chan_idx,
-			(uint8_t *)info,
+		eeprom_read(off, (uint8_t *)&data_len, 2);
+		trace_info("channel #%d pid trans info data_len %d, off %#x",
+			chan_idx, data_len, off);
+		eeprom_read(off, (uint8_t *)info,
 			MIN(data_len + 2, sizeof(struct pid_trans_info_snmp_data)));
 	}
 
@@ -245,9 +243,7 @@ void xmux_config_save_pid_trans_info_all()
 		off = EEPROM_OFF_PID_TRANS_INFO +
 			sizeof(g_eeprom_param.pid_trans_info_area.table[0]) * chan_idx;
 		trace_info("#%d pid trans info eeprom offset %#x", chan_idx, off);
-		eeprom_write(off,
-			&g_eeprom_param.pid_trans_info_area.table[chan_idx].data,
-			g_eeprom_param.pid_trans_info_area.table[chan_idx].data.data_len + 2);
+		eeprom_write(off, info, info->data_len + 2);
 		usleep(100000);
 	}
 }
@@ -365,10 +361,10 @@ static void build_pid_trans_info()
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		d = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
 
-		d->data_len = offsetof(struct pid_trans_info_snmp_data, programs) - 2 +
-			sizeof(struct xmux_program_info_with_csc) * 8;
-		d->update_flag_and_chan_num = chan_idx;
 		d->nprogs = 8;
+		d->data_len = offsetof(struct pid_trans_info_snmp_data, programs) - 2 +
+			sizeof(struct xmux_program_info_with_csc) * d->nprogs;
+		d->update_flag_and_chan_num = chan_idx;
 		SELECT_PROGRAM(d, 1);
 		SELECT_PROGRAM(d, 3);
 		SELECT_PROGRAM(d, 4);
