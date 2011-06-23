@@ -26,10 +26,15 @@ int xmux_config_init()
 
 	trace_info("xmux eeprom size %#x, param size %#x",
 		EEPROM_SIZE, sizeof(struct xmux_eeprom_param));
-	trace_info("offset in eeprom: %#x, %#x, %#x, %#x, %#x, %#x, %#x, %#x",
-		EEPROM_OFF_PID_TRANS_INFO, EEPROM_OFF_PID_MAP_TABLE,
-		EEPROM_OFF_OUTPUT_PSI, EEPROM_OFF_SYS, EEPROM_OFF_NET,
-		EEPROM_OFF_USER, EEPROM_OFF_MNG_MODE, EEPROM_OFF_MUX_PROG_INFO);
+	trace_info("data layout in eeprom:");
+	trace_info("Sys:            %#08x", EEPROM_OFF_SYS);
+	trace_info("Net:            %#08x", EEPROM_OFF_NET);
+	trace_info("User:           %#08x", EEPROM_OFF_USER);
+	trace_info("MNG_MODE:       %#08x", EEPROM_OFF_MNG_MODE);
+	trace_info("MUX_PROG_INFO:  %#08x", EEPROM_OFF_MUX_PROG_INFO);
+	trace_info("PID_TRANS_INFO: %#08x", EEPROM_OFF_PID_TRANS_INFO);
+	trace_info("PID_MAP_TABLE:  %#08x", EEPROM_OFF_PID_MAP_TABLE);
+	trace_info("OUTPUT_PSI:     %#08x", EEPROM_OFF_OUTPUT_PSI);
 
 	return 0;
 }
