@@ -100,7 +100,7 @@ static void parse_opt(int argc, char **argv)
 	if (argc <= 1)
 		return;
 
-	while ((c = getopt(argc, argv, "?hvd:")) != EOF) {
+	while ((c = getopt(argc, argv, "?htvd:")) != EOF) {
 		switch (c) {
 		case 'v':
 			trace_info("version %s", XMUX_VERSION_STR);
@@ -118,6 +118,11 @@ static void parse_opt(int argc, char **argv)
 		case '?':
 			trace_info("xmux support %d channels, %d programs",
 				CHANNEL_MAX_NUM, PROGRAM_MAX_NUM);
+			exit(0);
+			break;
+		case 't':
+			xmux_config_init();
+			xmux_config_write_test_data();
 			exit(0);
 			break;
 		default:
