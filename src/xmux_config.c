@@ -355,3 +355,100 @@ static void eeprom_rw_test_1()
 }
 #endif
 
+static void build_pid_trans_info()
+{
+	struct pid_trans_info_snmp_data *d;
+	struct xmux_program_info *prog;
+	struct xmux_program_info_with_csc *prog_csc;
+	uint8_t chan_idx, prog_idx, pid_idx;
+
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		d = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
+
+		d->data_len = sizeof(*d) - 2;
+		d->update_flag_and_chan_num = chan_idx;
+		d->nprogs = 8;
+		SELECT_PROGRAM(d, 1);
+		SELECT_PROGRAM(d, 3);
+		SELECT_PROGRAM(d, 4);
+		SELECT_PROGRAM(d, 6);
+		for (prog_idx = 0; prog_idx < d->nprogs; prog_idx++) {
+			uint16_t pids[3];
+			prog = &d->programs[prog_idx];
+			prog_csc = &d->programs[prog_idx];
+			prog->prog_num = 100 + prog_idx;
+			prog->pmt.in = 64 + 10 * prog_idx + 0;
+			prog->pmt.out = prog->pmt.in;
+			prog->pcr.in = 64 + 10 * prog_idx + 1;
+			prog->data[0].in = (64 + 10 * prog_idx + 2);
+			prog->data[1].in = (64 + 10 * prog_idx + 3);
+
+			pids[0] = prog->pcr.in;
+			pids[1] = (prog->data[0].in);
+			pids[2] = (prog->data[1].in);
+
+			prog->pcr.out = prog->pcr.in;
+			prog->data[0].out = prog->data[0].in;
+			prog->data[1].out = prog->data[1].in;
+
+			for (pid_idx = 2; pid_idx < PROGRAM_DATA_PID_MAX_NUM; pid_idx++) {
+				prog->data[pid_idx].in = DATA_PID_PAD_VALUE;
+				prog->data[pid_idx].out = DATA_PID_PAD_VALUE;
+			}
+			prog->prog_name[0][0] = sprintf(&prog->prog_name[0][1],
+				"CCTV%d", prog_idx);
+			prog_csc->csc = wu_csc((uint8_t *)prog_csc, sizeof(*prog_csc) - 1);
+		}
+	}
+}
+
+static void build_pid_map_table()
+{
+	struct xmux_pid_map_table *pid_map;
+	uint8_t chan_idx, pid_idx;
+	struct pid_map_entry *ent;
+
+	pid_map = &g_eeprom_param.pid_map_table_area.pid_map_table;
+	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+		for (pid_idx = 0; pid_idx < 2; pid_idx++) {
+			ent= &pid_map->chans[chan_idx].ents[pid_idx];
+			ent->input_pid = 64 + 10 * chan_idx + pid_idx;
+			ent->output_pid = ent->input_pid;
+		}
+		for (pid_idx = 2; pid_idx < FPGA_PID_MAP_TABLE_CHAN_PIDS; pid_idx++) {
+			ent= &pid_map->chans[chan_idx].ents[pid_idx];
+			ent->input_pid = PID_MAP_TABLE_PAD_PID;
+			ent->output_pid = PID_MAP_TABLE_PAD_PID;
+		}
+	}
+}
+
+void xmux_config_write_test_data()
+{
+	/* pid map table */
+	{
+	struct xmux_pid_map_table *t;
+
+	t = &g_eeprom_param.pid_map_table_area.pid_map_table;
+	build_pid_map_table();
+	eeprom_write(EEPROM_OFF_PID_MAP_TABLE, t, sizeof(*t));
+	}
+
+	/* psi */
+	{
+	struct xmux_output_psi_data *data;
+	data = &g_eeprom_param.output_psi_area.output_psi;
+	data->pkt_nr = 10;
+	data->psi_ents[0].offset = 0;
+	data->psi_ents[0].nr_ts_pkts = 10;
+	memset(data->ts_pkts, 0x47, 10);
+	xmux_config_save_output_psi_data();
+	}
+
+	/* pid trans info */
+	{
+	build_pid_trans_info();
+	xmux_config_save_pid_trans_info_all();
+	}
+}
+
