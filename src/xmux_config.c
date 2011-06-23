@@ -365,7 +365,8 @@ static void build_pid_trans_info()
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		d = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
 
-		d->data_len = sizeof(*d) - 2;
+		d->data_len = offsetof(struct pid_trans_info_snmp_data, programs) - 2 +
+			sizeof(struct xmux_program_info_with_csc) * 8;
 		d->update_flag_and_chan_num = chan_idx;
 		d->nprogs = 8;
 		SELECT_PROGRAM(d, 1);
