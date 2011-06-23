@@ -21,44 +21,7 @@ uint8_t management_mode = MANAGEMENT_MODE_SNMP;
 struct xmux_param_management_info g_param_mng_info;
 
 static void restore_work_field();
-
-static void parse_opt(int argc, char **argv)
-{
-	int c;
-
-	if (argc <= 1)
-		return;
-
-	while ((c = getopt(argc, argv, "?hvd:")) != EOF) {
-		switch (c) {
-		case 'v':
-			trace_info("version %s", XMUX_VERSION_STR);
-			exit(0);
-			break;
-		case 'd':
-		{
-			uint32_t off = strtol(optarg, NULL, 16);
-			xmux_config_init();
-			xmux_config_dump(off, 64);
-			exit(0);
-		}
-			break;
-		case 'h':
-		case '?':
-			trace_info("xmux support %d channels, %d programs",
-				CHANNEL_MAX_NUM, PROGRAM_MAX_NUM);
-			exit(0);
-			break;
-		default:
-			trace_warn("unsupport option '%c'", c);
-			break;
-		}
-	}
-
-	if (optind < argc) {
-		// last non option
-	}
-}
+static void parse_opt(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
@@ -128,5 +91,43 @@ static void restore_work_field()
 	/* set output bitrate and packet length */
 	hfpga_write_sys_output_bitrate(g_eeprom_param.sys.output_bitrate);
 	hfpga_write_sys_packet_length(g_eeprom_param.sys.format);
+}
+
+static void parse_opt(int argc, char **argv)
+{
+	int c;
+
+	if (argc <= 1)
+		return;
+
+	while ((c = getopt(argc, argv, "?hvd:")) != EOF) {
+		switch (c) {
+		case 'v':
+			trace_info("version %s", XMUX_VERSION_STR);
+			exit(0);
+			break;
+		case 'd':
+		{
+			uint32_t off = strtol(optarg, NULL, 16);
+			xmux_config_init();
+			xmux_config_dump(off, 64);
+			exit(0);
+		}
+			break;
+		case 'h':
+		case '?':
+			trace_info("xmux support %d channels, %d programs",
+				CHANNEL_MAX_NUM, PROGRAM_MAX_NUM);
+			exit(0);
+			break;
+		default:
+			trace_warn("unsupport option '%c'", c);
+			break;
+		}
+	}
+
+	if (optind < argc) {
+		// last non option
+	}
 }
 
