@@ -32,9 +32,9 @@ int xmux_config_init()
 	trace_info("User:           %#08x", EEPROM_OFF_USER);
 	trace_info("MNG_MODE:       %#08x", EEPROM_OFF_MNG_MODE);
 	trace_info("MUX_PROG_INFO:  %#08x", EEPROM_OFF_MUX_PROG_INFO);
-	trace_info("PID_TRANS_INFO: %#08x", EEPROM_OFF_PID_TRANS_INFO);
 	trace_info("PID_MAP_TABLE:  %#08x", EEPROM_OFF_PID_MAP_TABLE);
 	trace_info("OUTPUT_PSI:     %#08x", EEPROM_OFF_OUTPUT_PSI);
+	trace_info("PID_TRANS_INFO: %#08x", EEPROM_OFF_PID_TRANS_INFO);
 
 	return 0;
 }
