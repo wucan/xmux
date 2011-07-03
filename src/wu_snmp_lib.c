@@ -228,6 +228,7 @@ int pop_atom(uint8_t **pdata, uint16_t *psize, struct wu_snmp_atom *atom)
 		return -1;
 	} else if (size < 2) {
 		trace_err("pop atom: data size %#x too small!", size);
+		snmp_hex_dump("raw data", *pdata, MIN(*psize, 128));
 		return -1;
 	}
 	atom->tag = *data++;
