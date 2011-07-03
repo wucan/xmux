@@ -1,0 +1,14 @@
+building:
+=========
+
+download source from svn, and then configure and build it:
+#./autogen.sh
+#patch < patches/configure-fix-arm-elf-build.path
+#./build-arm.sh
+#make
+
+The generated bin is src/xmux, copy src/xmux to snapgear/romfs/home,
+and in the snapgear dir, emit:
+#make image
+to make the target image.2510.img
+
