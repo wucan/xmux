@@ -47,6 +47,8 @@ void xmux_system_param_init_default(struct xmux_system_param *sys)
 	snprintf(sys->vendor_info, sizeof(sys->vendor_info), "%s", XMUX_VENDOR);
 	sys->version = XMUX_VERSION_NUM;
 	sys->update_time = XMUX_UPDATE_TIME;
+
+	eeprom_write(EEPROM_OFF_SYS, sys, sizeof(*sys));
 }
 
 void xmux_system_param_dump(struct xmux_system_param *sys)

@@ -96,7 +96,6 @@ static bool xmux_eeprom_param_validate(struct xmux_eeprom_param *p)
 		trace_err("system param invalidate!");
 		hex_dump("sys", &p->sys, sizeof(p->sys));
 		xmux_system_param_init_default(&p->sys);
-		eeprom_write(EEPROM_OFF_SYS, &p->sys, sizeof(p->sys));
 	}
 
 	/*

@@ -264,6 +264,7 @@ static int cmd_sys_handler(struct fp_cmd_header *cmd_header, int is_read,
 			xmux_net_param_init_default(&g_eeprom_param.net);
 			xmux_net_set(&g_eeprom_param.net);
 			xmux_user_param_init_default(&g_eeprom_param.user);
+			xmux_system_param_init_default(&g_eeprom_param.sys);
 			return 1;
 			break;
 		default:
