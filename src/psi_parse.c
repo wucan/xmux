@@ -271,6 +271,7 @@ int uvSI_psi_parse()
 	int rc;
 	uint16_t ts_status;
 
+	disable_snmp_connection_check();
 	clear_section_data();
 	sg_si_param.cur_stat = &All_Channel_Psi_Status;
 	for (k = 0; k < CHANNEL_MAX_NUM; k++) {
@@ -323,6 +324,7 @@ channel_analyse_done:
 	}
 
 	request_stop_parse = false;
+	enable_snmp_connection_check();
 
 	return 0;
 }
