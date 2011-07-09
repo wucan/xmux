@@ -517,6 +517,7 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 	struct wu_oid_object *obj;
 	struct wu_snmp_value v;
 	static wu_oid_t load_oid[] = {XMUX_ROOT_OID, 100};
+	int instance = vb->oid[vb->oid_len];
 
 	if (clien->readonly) {
 		vb->error = readOnly;
@@ -553,7 +554,7 @@ static void set_request_process_var_bind(struct wu_snmp_client *clien,
 
 	v.data = vb->value.data.string;
 	v.size = vb->value.len;
-	trace_info("%s set, data %d bytes", oid_str(obj), v.size);
+	trace_info("%s.%d,  set, data %d bytes", oid_str(obj), instance, v.size);
 	hex_dump("snmp set", v.data, MIN(v.size, 48));
 	if (!obj->setter) {
 		vb->error = readOnly;
