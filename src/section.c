@@ -122,3 +122,52 @@ int ts_to_section(uint8_t *ts, uint8_t *sec)
 	return sec_len;
 }
 
+/*
+ * return section data length
+ */
+short ts_pop_section(uint8_t **p_ts, int *p_ts_pkts, uint8_t *sec)
+{
+	int i;
+	uint8_t *ts = *p_ts;
+	int ts_pkts = *p_ts_pkts;
+	short sec_len, sec_left_len, copy_len, sec_copy_tot_len = 0;
+	int payload_len;
+	int sec_start = 0;
+	short cur_pid, pid;
+
+	for (i = 0; i < ts_pkts; i++, ts += 188) {
+		if (!sec_start) {
+			if (!(ts[1] & 0x40)) {
+				continue;
+			}
+			cur_pid = ((ts[1] & 0x1F) << 8) | ts[2];
+			sec_len = ((ts[6] & 0xF) << 8) | ts[7] + 3;
+			sec_left_len = sec_len;
+			payload_len = TS_PACKET_BYTES - 5;
+		} else {
+			pid = ((ts[1] & 0x1F) << 8) | ts[2];
+			if (pid != cur_pid) {
+				sec_start = 0;
+				continue;
+			}
+			payload_len = TS_PACKET_BYTES - 4;
+		}
+
+		copy_len = MIN(sec_left_len, payload_len);
+		memcpy(sec + sec_copy_tot_len,
+			&ts[TS_PACKET_BYTES - payload_len], copy_len);
+		sec_copy_tot_len += copy_len;
+		sec_left_len -= copy_len;
+		if (sec_left_len <= 0) {
+			*p_ts = ts + 188;
+			*p_ts_pkts -= i + 1;
+			return sec_len;
+		}
+	}
+
+	*p_ts = ts;
+	*p_ts_pkts = 0;
+
+	return 0;
+}
+
