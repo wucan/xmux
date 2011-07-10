@@ -28,16 +28,10 @@ void pid_map_table_clear(struct xmux_pid_map_table *pid_map)
 	}
 }
 
-void fpga_pid_map_table_clear(ACCESS_HFPGA_PID_MAP *pid_map)
+static void fpga_pid_map_table_clear(ACCESS_HFPGA_PID_MAP *pid_map)
 {
 	pid_map_table_clear((struct xmux_pid_map_table *)&pid_map->pid_map);
 	pid_map->cha = CHANNEL_ALL_BITMAP;
-}
-
-void pid_map_table_reset()
-{
-	fpga_pid_map_table_clear(&tmp_pid_map);
-	hfpga_write_pid_map(&tmp_pid_map);
 }
 
 int pid_map_table_apply(struct xmux_pid_map_table *pid_map_data)

@@ -224,7 +224,6 @@ static int cmd_sys_handler(struct fp_cmd_header *cmd_header, int is_read,
 			}
 			break;
 		case FP_SYS_CMD_START_ANALYSE_PSI:
-			pid_map_table_reset();
 			psi_worker_request_parse_psi(0, NULL, MANAGEMENT_MODE_FP);
 			break;
 		case FP_SYS_CMD_READ_MAP_ANALYSE_STATUS:
