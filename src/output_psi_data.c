@@ -8,6 +8,7 @@
 #include "gen_dvb_si_api.h"
 #include "hfpga.h"
 #include "section.h"
+#include "psi_parse.h"
 
 
 extern uv_dvb_io hfpga_dev;
@@ -183,5 +184,57 @@ int psi_apply_from_output_psi()
 	dvbSI_Stop(&hfpga_dev);
 
 	return 0;
+}
+
+void output_psi_2_snmp_section()
+{
+	struct xmux_output_psi_data *psi_data = &g_eeprom_param.output_psi_area.output_psi;
+	struct output_psi_data_entry *ent;
+	short sec_len;
+	int left_pkts;
+	uint8_t *ts;
+	int psi_type;
+
+	for (psi_type = 0; psi_type < OUTPUT_PSI_TYPE_MAX_NUM; psi_type++) {
+		ent = &psi_data->psi_ents[psi_type];
+		left_pkts = ent->nr_ts_pkts;
+		ts = &psi_data->ts_pkts[ent->offset];
+		if (left_pkts) {
+			if (psi_type == PSI_TYPE_PAT) {
+				/* PAT */
+				sec_len = ts_pop_section(&ts, &left_pkts,
+					&sg_mib_pat[CHANNEL_MAX_NUM][2]);
+				memcpy(sg_mib_pat[CHANNEL_MAX_NUM], &sec_len, 2);
+			} else if (psi_type == PSI_TYPE_PMT) {
+				/* PMT */
+				uint8_t prog_idx = 0;
+				while (left_pkts) {
+					sec_len = ts_pop_section(&ts, &left_pkts,
+						&sg_mib_pmt[CHANNEL_MAX_NUM][prog_idx][2]);
+					memcpy(sg_mib_pmt[CHANNEL_MAX_NUM][prog_idx], &sec_len, 2);
+					prog_idx++;
+				}
+			} else if (psi_type == PSI_TYPE_CAT) {
+				/* CAT */
+				sec_len = ts_pop_section(&ts, &left_pkts,
+					&sg_mib_cat[CHANNEL_MAX_NUM][2]);
+				memcpy(sg_mib_cat[CHANNEL_MAX_NUM], &sec_len, 2);
+			} else if (psi_type == PSI_TYPE_SDT) {
+				int sec_idx = 0;
+				/* SDT */
+				while (left_pkts) {
+					sec_len = ts_pop_section(&ts, &left_pkts,
+						&sg_mib_sdt[CHANNEL_MAX_NUM][sec_idx][2]);
+					memcpy(sg_mib_sdt[CHANNEL_MAX_NUM][sec_idx], &sec_len, 2);
+					sec_idx++;
+				}
+			} else if (psi_type == PSI_TYPE_NIT) {
+				/* NIT */
+				sec_len = ts_pop_section(&ts, &left_pkts,
+					&sg_mib_nit[CHANNEL_MAX_NUM][2]);
+				memcpy(sg_mib_nit[CHANNEL_MAX_NUM], &sec_len, 2);
+			}
+		}
+	}
 }
 
