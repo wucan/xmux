@@ -236,6 +236,10 @@ int ctrl_mcu_send_and_recv_cmd(uint8_t *send_data, int send_data_len,
 	static uint8_t recv_buf[256];
 
 	hex_dump("ctrl muc send", send_data, send_data_len);
+	/* flush input buffer */
+	do {
+		nlen = read(fd, recv_buf, 256);
+	} while (nlen > 0);
 	rc = write(fd, send_data, send_data_len);
 	if (rc < send_data_len) {
 		trace_err("send failed! rc %d\n", rc);
