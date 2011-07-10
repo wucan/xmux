@@ -19,7 +19,7 @@ static void build_pid_trans_info()
 	uint8_t chan_idx, prog_idx, pid_idx;
 
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
-		d = &eeprom.pid_trans_info_area.pid_trans_info[chan_idx];
+		d = &eeprom.pid_trans_info_area.table[chan_idx].data;
 
 		d->data_len = sizeof(*d) - 2;
 		d->update_flag_and_chan_num = chan_idx;
