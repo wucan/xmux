@@ -75,6 +75,7 @@ typedef struct
 typedef struct
 {
    unsigned char cha; // 0 - 7 
+   unsigned char mode; // 0: output pid map, 1 temp filter
    pid_map_S pid_map[256];  // 8 * 32
 } ACCESS_HFPGA_PID_MAP, *PACCESS_HFPGA_PID_MAP;
 

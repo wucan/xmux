@@ -80,6 +80,7 @@ int hfpga_pid_map(void* p_pid_map)
 	}
 	dbg_prt("[TEST-HFPGA-RW] ID: %02x \n", hregs.data);
 
+	((ACCESS_HFPGA_PID_MAP *)(&p_pid_map))->mode = 0;
 	retval = ioctl(dvb_io_dev.hdev, UV_HFPGA_IOCTL_CMD_WRITE_PID_MAP, &p_pid_map);
 	if(0 > retval)
 	{
@@ -125,6 +126,7 @@ static int _hfpga_readn(unsigned char *p_buf, unsigned int len, void *p_param,in
 			pid_map.pid_map[chno*32+i].in_pid = i_pid;
 			pid_map.pid_map[chno*32+i].out_pid = o_pid;
 		}
+		pid_map.mode = 1;
 		retval = ioctl(dvb_io_dev.hdev, UV_HFPGA_IOCTL_CMD_WRITE_PID_MAP, &pid_map);
 		//dbg_prt("retval_001=%d\n",retval);
 		if(0 > retval)

@@ -136,6 +136,7 @@ static int __write_pids_map(int hdev, ACCESS_HFPGA_PID_MAP *pid_map)
 #endif
 
 	trace_info("write pid map table ...");
+	pid_map->mode = 0;
 	retval = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_PID_MAP, pid_map);
 	if (0 > retval) {
 		trace_err("write PID_MAP failed! rc %d!", retval);
