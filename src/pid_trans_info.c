@@ -85,6 +85,7 @@ bool pid_trans_info_validate(struct pid_trans_info_snmp_data *data)
 		prog = &data->programs[prog_idx];
 		if (prog->csc != wu_csc(prog, sizeof(*prog) - 1)) {
 			trace_err("program #%d csc error!", prog_idx);
+			hex_dump("program data", prog, sizeof(*prog) - 1);
 			return false;
 		}
 	}
@@ -100,9 +101,11 @@ void pid_trans_info_dump(uint8_t chan_idx, struct pid_trans_info_snmp_data *data
 	int prog_name_len;
 
 	trace_info("channel #%d pid trans info:", chan_idx);
-	trace_info("len %02d, chan %d, update flag %d, nprogs %d, status %#x",
+	hex_dump("pid_trans_info", data, 64);
+	trace_info("len %02d, chan %d, update flag %d, nprogs %d",
 		data->data_len, data->update_flag_and_chan_num & 0x07,
-		data->update_flag_and_chan_num >> 7, data->nprogs, data->sel_status);
+		data->update_flag_and_chan_num >> 7, data->nprogs);
+	hex_dump("select status", &data->sel_status, 8);
 
 	/*
 	 * program info
