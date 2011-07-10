@@ -356,6 +356,9 @@ int fp_psi_parse()
 	memset(&g_chan_num, 0, sizeof(g_chan_num));
 	clear_prog_info_table();
 
+	/* clear snmp psi_parse state data */
+	clean_snmp_psi_parse_data();
+
 	for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
 		progs = parse_channel(chan_idx);
 		trace_info("channel #%d had %d programs", chan_idx, progs);

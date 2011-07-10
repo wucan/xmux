@@ -100,6 +100,10 @@ static void clear_section_data()
 	for (chan_id = 0; chan_id < CHANNEL_MAX_NUM; chan_id++)
 		clear_channel_section_data(chan_id);
 }
+void clean_snmp_psi_parse_data()
+{
+	clear_section_data();
+}
 static int parse_pat()
 {
 	int i, rc;
