@@ -187,6 +187,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 				goto channel_analyse_done;
 			}
 
+#if CHANNEL_MAX_NUM == 1
 			/*
 			 * pmt descriptors
 			 * if we found CA_Descriptor, then it's scrambled!
@@ -199,6 +200,7 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 					prog_info->status |= FP_STATUS_SCRAMBLED;
 				}
 			}
+#endif
 
 			/*
 			 * scan PCR and data PIDs and we'll use them do pid remap
