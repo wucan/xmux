@@ -186,7 +186,7 @@ static int eit_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
  */
 static int pid_trans_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
-	uint8_t trans_idx = obj->oid[obj->oid_len - 1 - 1];
+	uint8_t trans_idx = obj->oid[obj->oid_len - 1] - 1;
 
 	pid_trans_info_read_data_snmp(trans_idx, v);
 
