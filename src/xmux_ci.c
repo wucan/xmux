@@ -23,7 +23,7 @@ void xmux_ci_apply()
 
 	pid_trans_info = &g_eeprom_param.pid_trans_info_area.table[0].data;
 	for (prog_idx = 0; prog_idx < pid_trans_info->nprogs; prog_idx++) {
-		if (pid_trans_info->scramble_status & (1 << prog_idx) &&
+		if (wu_bitmap_test_bit(pid_trans_info->scramble_status, prog_idx) &&
 			PROGRAM_SELECTED(pid_trans_info->sel_status, prog_idx)) {
 			memcpy(&sec_len, g_eeprom_param.input_pmt_sec[prog_idx], 2);
 			if (sec_len > 0 && sec_len < (INPUT_PMT_SEC_MAX_LEN - 2)) {

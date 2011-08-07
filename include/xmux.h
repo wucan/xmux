@@ -104,7 +104,7 @@ struct pid_trans_info_snmp_data {
 	uint8_t nprogs;
 	WU_BITMAP_DECLARE(sel_status, PROGRAM_MAX_NUM);
 #if CHANNEL_MAX_NUM == 1
-	uint32_t scramble_status;
+	WU_BITMAP_DECLARE(scramble_status, PROGRAM_MAX_NUM);
 #endif
 	struct xmux_program_info_with_csc programs[PROGRAM_MAX_NUM];
 } __attribute__((packed));

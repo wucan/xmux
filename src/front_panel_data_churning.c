@@ -113,7 +113,7 @@ void pid_trans_info_2_prog_info_of_channel(uint8_t chan_idx)
 			FP_DESELECT_PROG(prog);
 
 #if CHANNEL_MAX_NUM == 1
-		if (pid_trans_info->scramble_status & (1 << prog_idx))
+		if (wu_bitmap_test_bit(pid_trans_info->scramble_status, prog_idx))
 			prog->status |= FP_STATUS_SCRAMBLED;
 		else
 			prog->status &= ~FP_STATUS_SCRAMBLED;
@@ -162,9 +162,9 @@ void prog_info_2_pid_trans_info_of_channel(uint8_t chan_idx)
 
 #if CHANNEL_MAX_NUM == 1
 		if (prog->status & FP_STATUS_SCRAMBLED)
-			pid_trans_info->scramble_status |= (1 << prog_idx);
+			wu_bitmap_set_bit(pid_trans_info->scramble_status, prog_idx);
 		else
-			pid_trans_info->scramble_status &= ~(1 << prog_idx);
+			wu_bitmap_clear_bit(pid_trans_info->scramble_status, prog_idx);
 #endif
 
 		memcpy(xmux_prog, &prog->info, sizeof(struct xmux_program_info));
