@@ -9,7 +9,7 @@ typedef struct wu_bitmap_t {
 } wu_bitmap_t;
 
 #define WU_BITMAP_DECLARE(name, nbits)		\
-	wu_bitmap_t name; uint8_t name_bytes[nbits / 8];
+	wu_bitmap_t name; uint8_t name##_bytes[nbits / 8];
 
 #define wu_bitmap_set_bit(bmp, bit) \
 	bmp.bytes[bit / 8] |= (1 << (bit % 8))
