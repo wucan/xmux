@@ -16,6 +16,7 @@ AM_CFLAGS = $(CFLAGS) $(DVBPSI_CFLAGS) \
 
 if BUILD_FOR_ARM
 xmux_LDADD = \
+	libci/libci.la \
 	imp/libimp.la \
 	imp/fpga/libimpfpga.la \
 	$(top_srcdir)/extern-arm-libs/libuvpsi.a \
@@ -24,6 +25,7 @@ xmux_LDADD = \
 	-lm -lpthread
 else
 xmux_LDADD = $(NETSNMP_LIBS) -lm \
+	libci/libci.la \
 	imp/libimp.la \
 	imp/fpga/libimpfpga.la \
 	libwu/libwu.la \
@@ -81,5 +83,5 @@ xmux_SOURCES = \
 	$(SIM_SRC) \
 	$(NULL_FILE)
 
-SUBDIRS = imp libwu
+SUBDIRS = imp libwu libci
 
