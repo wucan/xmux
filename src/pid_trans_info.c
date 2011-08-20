@@ -144,6 +144,13 @@ void pid_trans_info_dump(uint8_t chan_idx, struct pid_trans_info_snmp_data *data
 void pid_trans_info_save_check()
 {
 	if (save_pid_trans_info) {
+		/* update with the new ones */
+		uint8_t chan_idx;
+		struct pid_trans_info_snmp_data *dst_info;
+		for (chan_idx = 0; chan_idx < CHANNEL_MAX_NUM; chan_idx++) {
+			dst_info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
+			memcpy(dst_info, &sg_mib_pid_trans_info[chan_idx], sizeof(*dst_info));
+		}
 		xmux_config_save_pid_trans_info_all();
 		save_pid_trans_info = 0;
 	}
