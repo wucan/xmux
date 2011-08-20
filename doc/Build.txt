@@ -1,0 +1,30 @@
+xmux building and deploying
+============================
+
+1. Get source from svn reop
+#svn co https://192.168.1.126/svn/复用器/软件源码/xmux xmux
+
+2. Then go into the source directory
+#cd xmux
+
+3. prepare the building enviroment
+#./autogen.sh
+#patch -p 0 < patches/configure-fix-arm-elf-build.patch
+#./build-arm.sh
+
+4. compiling it
+#make
+
+5. build image for burning to 2510
+After a success build of above, there will be a binary file src/xmux, you should copy it to snapgear/romfs/home/, replace the old one, and then in the snapgear directory, issue command to build the image:
+#make image
+and the generate image is /tftpboot/image.2510.img
+
+6. write to 2510
+In the armboot of 2510 sheel, at first download the image from tftp server:
+#tftp
+And then write it to flash:
+#flwrite 81000000 1
+If you just want the image run from memory but not burn to flash(test mode):
+#bootm
+
