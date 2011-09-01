@@ -229,7 +229,7 @@ static int cmd_sys_handler(struct fp_cmd_header *cmd_header, int is_read,
 		case FP_SYS_CMD_READ_MAP_ANALYSE_STATUS:
 		{
 			int nlen;
-			cmd_header->len = sizeof(CHN_NUM_T);
+			cmd_header->len = CHANNEL_MAX_NUM;
 			nlen = cmd_header->len + sizeof(struct fp_cmd_header);
 			*p_resp_msg_len = nlen + FP_MSG_CRC_SIZE;
 			fp_cmd_header_2_buf(cmd_header, resp_msg_buf);
