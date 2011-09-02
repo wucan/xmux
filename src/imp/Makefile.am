@@ -15,7 +15,9 @@ libimp_la_SOURCES = \
 	rs232.c \
 	hfpga.c \
 	fake_hfpga.c \
-	ci_card.c
+	ci_card.c \
+	up_gpio.c \
+	tuner_device.c
 
 libimp_la_LIBADD =
 
