@@ -12,3 +12,5 @@ and in the snapgear dir, emit:
 #make image
 to make the target image.2510.img
 
+More detail information please ref doc/Build.txt.
+

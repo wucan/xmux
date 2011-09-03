@@ -8,6 +8,8 @@ xmux building and deploying
 #cd xmux
 
 3. prepare the building enviroment
+SNAPGEAR in build-arm.sh must be correct set to you snapgear path.
+
 #./autogen.sh
 #patch -p 0 < patches/configure-fix-arm-elf-build.patch
 #./build-arm.sh <channel number, default is 8, suuport:1, 4, 8>

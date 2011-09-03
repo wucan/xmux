@@ -28,6 +28,14 @@ AC_ARG_WITH([build-target],
 		[build_target=i386])
 AC_DEFINE_UNQUOTED(BUILD_TARGET, [$build_target], [build target])
 
+dnl the snapgear directory
+AC_ARG_WITH(snapgear-dir,
+		AC_HELP_STRING([--with-snapgear-dir=DIR],
+			[snapgear directory [[default=/snapgear]]]),
+		[SNAPGEAR="$withval"],
+		[SNAPGEAR="/snapgear"])
+AC_SUBST([SNAPGEAR])
+
 if test x$build_target = xarm; then
 	AC_DEFINE(BUILD_FOR_ARM, 1, [build for arm real hardware])
 fi

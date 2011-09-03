@@ -15,5 +15,5 @@ ChangeLog:
 dist-hook: ChangeLog INSTALL
 
 image:
-	cp src/xmux /home/wucan/workdir/x/snapgear/romfs/home
-	make -C /home/wucan/workdir/x/snapgear image
+	cp src/xmux $(SNAPGEAR)/romfs/home
+	make -C $(SNAPGEAR) image
