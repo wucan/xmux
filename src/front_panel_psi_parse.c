@@ -35,8 +35,6 @@ static unsigned char p_es_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 static uint16_t es_num = 0;
 
-static uv_nit_data nit;
-static uv_descriptor nit_descr[5];
 static unsigned char p_nit_data[5][UV_DESCR_LEN];
 static uv_nit_stream_data stream[PROGRAM_MAX_NUM];
 static uv_descriptor stream_descr[PROGRAM_MAX_NUM][5];
@@ -50,17 +48,6 @@ static uv_descriptor serv_descr[PROGRAM_MAX_NUM][5];
 static unsigned char p_serv_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
 
 static uint16_t serv_num = 0;
-
-static uv_eit_data eit;
-static uv_eit_event_data event[PROGRAM_MAX_NUM];
-static uv_descriptor event_descr[PROGRAM_MAX_NUM][5];
-static unsigned char p_event_data[PROGRAM_MAX_NUM][5][UV_DESCR_LEN];
-
-static uint16_t event_num = 0;
-
-static uv_descriptor cat_descr[5];
-static unsigned char p_cat_descr_data[5][UV_DESCR_LEN];
-static uint16_t cat_descr_num;
 
 static void clear_prog_info_table();
 
@@ -116,23 +103,18 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 	int nr_pids;
 
 	pmt.p_descr = pmt_descr;
-	nit.p_descr = nit_descr;
 	for (i = 0; i < 5; i++) {
 		pmt_descr[i].p_data = p_pmt_data[i];
-		nit_descr[i].p_data = p_nit_data[i];
-		cat_descr[i].p_data = p_cat_descr_data[i];
 	}
 
 	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
 		es[i].p_descr = es_descr[i];
 		stream[i].p_descr = stream_descr[i];
 		serv[i].p_descr = serv_descr[i];
-		event[i].p_descr = event_descr[i];
 		for (j = 0; j < 5; j++) {
 			es_descr[i][j].p_data = p_es_data[i][j];
 			stream_descr[i][j].p_data = p_stream_data[i][j];
 			serv_descr[i][j].p_data = p_serv_data[i][j];
-			event_descr[i][j].p_data = p_event_data[i][j];
 		}
 	}
 
@@ -283,20 +265,6 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 				j, serv[j].i_serv_id);
 		}
 	}
-
-#if 0
-	trace_info("decode CAT ... ");
-	sg_si_param.tbl_type = EUV_TBL_CAT;
-	dvbSI_Dec_CAT(cat_descr, &cat_descr_num);
-
-	trace_info("decode NIT ... ");
-	sg_si_param.tbl_type = EUV_TBL_NIT;
-	dvbSI_Dec_NIT(&nit, stream, &stream_num);
-
-	trace_info("decode EIT ... ");
-	sg_si_param.tbl_type = EUV_TBL_EIT;
-	dvbSI_Dec_EIT(&eit, event, &event_num);
-#endif
 
 channel_analyse_done:
 	dvbSI_Stop();
