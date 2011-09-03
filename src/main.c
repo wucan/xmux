@@ -13,6 +13,7 @@
 #include "psi_gen.h"
 #include "pid_map_table.h"
 #include "ctrl_mcu.h"
+#include "tuner_device.h"
 
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "main"};
@@ -45,6 +46,9 @@ int main(int argc, char **argv)
 	leave_fp_management_mode();
 
 	ctrl_mcu_open();
+#if CHANNEL_MAX_NUM == 1
+	tuner_device_open();
+#endif
 
 	/*
 	 * restore all system to work again!
@@ -79,6 +83,9 @@ int main(int argc, char **argv)
 	psi_worker_close();
 	front_panel_close();
 	ctrl_mcu_close();
+#if CHANNEL_MAX_NUM == 1
+	tuner_device_close();
+#endif
 
 	exit(EXIT_SUCCESS);
 }
