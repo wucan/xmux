@@ -185,6 +185,12 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 #endif
 
 			/*
+			 * clip max es number
+			 */
+			if (es_num > PROGRAM_DATA_PID_MAX_NUM)
+				es_num = PROGRAM_DATA_PID_MAX_NUM;
+
+			/*
 			 * scan PCR and data PIDs and we'll use them do pid remap
 			 */
 			nr_pids = scan_program_pids(&pmt, &es, es_num, pids);
@@ -206,22 +212,21 @@ static int do_parse_channel(PROG_INFO_T *chan_prog_info, uint8_t * p_chan_prog_c
 			for (j = 0; j < es_num; j++) {
 				trace_info("es %d, type %#x, pid %#x",
 					j, es[j].i_type, es[j].i_pid);
-				if (j < PROGRAM_DATA_PID_MAX_NUM) {
-					prog_info->info.data[j].type = es[j].i_type;
-					if (es[j].i_pid != pmt.i_pcr_pid) {
-						prog_info->info.data[j].in = es[j].i_pid;
-						prog_info->info.data[j].out =
-							pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
-								DSW_PID_VIDEO, es[j].i_pid, pids, nr_pids);
-					} else {
-						prog_info->info.data[j].in = es[j].i_pid;
-						prog_info->info.data[j].out = prog_info->info.pcr.out;
-						/* correct pcr type */
-						if (es_is_video(es[j].i_type))
-							prog_info->info.pcr.type = PID_TYPE_PCR_VIDEO;
-						else
-							prog_info->info.pcr.type = PID_TYPE_PCR_AUDIO;
-					}
+
+				prog_info->info.data[j].type = es[j].i_type;
+				if (es[j].i_pid != pmt.i_pcr_pid) {
+					prog_info->info.data[j].in = es[j].i_pid;
+					prog_info->info.data[j].out =
+						pid_map_rule_map_psi_pid(chan_idx, prog_cnt - 1,
+							DSW_PID_VIDEO, es[j].i_pid, pids, nr_pids);
+				} else {
+					prog_info->info.data[j].in = es[j].i_pid;
+					prog_info->info.data[j].out = prog_info->info.pcr.out;
+					/* correct pcr type */
+					if (es_is_video(es[j].i_type))
+						prog_info->info.pcr.type = PID_TYPE_PCR_VIDEO;
+					else
+						prog_info->info.pcr.type = PID_TYPE_PCR_AUDIO;
 				}
 
 				for (k = 0; k < es[j].i_descr_num; k++) {
