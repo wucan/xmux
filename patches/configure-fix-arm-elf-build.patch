@@ -1,6 +1,6 @@
---- configure	2010-12-01 16:47:26.561091208 +0800
-+++ configure.ok	2010-12-01 16:45:47.859433960 +0800
-@@ -3177,16 +3177,6 @@ else
+--- configure.old	2011-09-03 17:14:36.492620105 +0800
++++ configure	2011-09-03 17:16:04.981058567 +0800
+@@ -3072,16 +3072,6 @@ else
    ac_file=''
  fi
  if test -z "$ac_file"; then :
@@ -12,7 +12,7 @@
 -{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 -$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 -as_fn_error 77 "C compiler cannot create executables
--See \`config.log' for more details" "$LINENO" 5 ; }
+-See \`config.log' for more details" "$LINENO" 5; }
 -else
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
  $as_echo "yes" >&6; }
