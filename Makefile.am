@@ -14,6 +14,8 @@ ChangeLog:
 
 dist-hook: ChangeLog INSTALL
 
+if BUILD_TARGET_ARM
 image:
 	cp src/xmux $(SNAPGEAR)/romfs/home
 	make -C $(SNAPGEAR) image
+endif

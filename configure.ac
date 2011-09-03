@@ -27,6 +27,7 @@ AC_ARG_WITH([build-target],
 		[build_target=$withval],
 		[build_target=i386])
 AC_DEFINE_UNQUOTED(BUILD_TARGET, [$build_target], [build target])
+AM_CONDITIONAL(BUILD_TARGET_ARM, [test "x$build_target" = xarm])
 
 dnl the snapgear directory
 AC_ARG_WITH(snapgear-dir,
