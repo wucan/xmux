@@ -1,6 +1,7 @@
 #ifndef _XMUX_H_
 #define _XMUX_H_
 
+#include "config.h"
 #include "wu/wu_base_type.h"
 #include "wu/wu_bitmap.h"
 #include "mpegts.h"
@@ -16,11 +17,6 @@
 
 #define SDT_SECTION_NUM					5
 #define EIT_SECTION_NUM					8
-
-/*
- * configure macros
- */
-#define CHANNEL_MAX_NUM					8
 
 #define PROGRAM_NAME_SIZE				33
 #define PROGRAM_MAX_NUM					64

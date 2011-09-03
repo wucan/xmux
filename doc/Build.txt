@@ -10,7 +10,7 @@ xmux building and deploying
 3. prepare the building enviroment
 #./autogen.sh
 #patch -p 0 < patches/configure-fix-arm-elf-build.patch
-#./build-arm.sh
+#./build-arm.sh <channel number, default is 8, suuport:1, 4, 8>
 
 4. compiling it
 #make

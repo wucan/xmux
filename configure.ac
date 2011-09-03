@@ -12,6 +12,14 @@ AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_LIBTOOL
 
+dnl which xmux machine we'll building for
+AC_ARG_WITH([channel],
+		AC_HELP_STRING([--with-channel=CHANNEL],
+			[Set the xmux channel: 1, 4, 8 (default is 8)]),
+		[channel=$withval],
+		[channel=8])
+AC_DEFINE_UNQUOTED(CHANNEL_MAX_NUM, [$channel], [channel])
+
 dnl build for real hardware or pc test running
 AC_ARG_WITH([build-target],
 		AC_HELP_STRING([--with-build-target=TARGET],
