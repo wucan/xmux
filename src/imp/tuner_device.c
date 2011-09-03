@@ -9,6 +9,7 @@
 
 
 #define TUNER_DEV			"tuner"
+#define TUNER_DEV1			"/dev/tuner"
 #define TUNER_W_ADDR		0xD0
 #define TUNER_R_ADDR		0xD1
 #define RESET_GPIO			50
@@ -30,8 +31,12 @@ int tuner_device_open()
 
 	fd = open(TUNER_DEV, O_RDWR);
 	if (fd < 0) {
-		printf("can't open device %s\n", TUNER_DEV);
-		return -1;
+		printf("can't open device %s! try %s\n", TUNER_DEV, TUNER_DEV1);
+		fd = open(TUNER_DEV1, O_RDWR);
+		if (fd < 0) {
+			printf("can't open device %s!\n", TUNER_DEV1);
+			return -1;
+		}
 	}
 
 	return 0;
