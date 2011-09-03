@@ -8,3 +8,4 @@ Makefile
 .deps
 src/xmux
 *.svn
+*.gdb
