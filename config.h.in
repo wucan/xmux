@@ -6,6 +6,9 @@
 /* build target */
 #undef BUILD_TARGET
 
+/* channel */
+#undef CHANNEL_MAX_NUM
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
