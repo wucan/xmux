@@ -10,6 +10,20 @@
 SNAPGEAR=/home/wucan/workdir/x/snapgear
 
 #
+# check the snapgear is really we wanted
+#
+echo "Check snapgear path ${SNAPGEAR} ..."
+if [ ! -d ${SNAPGEAR}/romfs ]; then
+	echo "Try default snapgear path in parent directory ..."
+	SNAPGEAR=`dirname $PWD`
+	if [ ! -d ${SNAPGEAR}/romfs ]; then
+		echo "Please specify correct snapgear path by set SNAPGEAR in $0!"
+		exit 1
+	fi
+fi
+echo "Use snapgear path ${SNAPGEAR}"
+
+#
 # setup channel numbers
 #
 CHANNEL=8
