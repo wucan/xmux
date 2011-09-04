@@ -1,16 +1,13 @@
-building:
-=========
+First of all, the SNAPGEAR in build-arm.sh must be set to you snapgear path.
 
-download source from svn, and then configure and build it:
-#./autogen.sh
-#patch < patches/configure-fix-arm-elf-build.path
-#./build-arm.sh
+Then configure which mux channel we wanted:
+#./build-arm.sh <channel number, default is 8, support:1, 4, 8>
+
+And build the source:
 #make
 
-The generated bin is src/xmux, copy src/xmux to snapgear/romfs/home,
-and in the snapgear dir, emit:
+At last generate the target image.2510.img in /tftpboot:
 #make image
-to make the target image.2510.img
 
 More detail information please ref doc/Build.txt.
 
