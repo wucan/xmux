@@ -95,6 +95,9 @@ int main(int argc, char **argv)
 
 static void restore_work_field()
 {
+#if CHANNEL_MAX_NUM == 1
+	xmux_ci_apply();
+#endif
 	/* download psi and pid map table */
 	pid_map_table_apply(&g_eeprom_param.pid_map_table_area.pid_map_table);
 	psi_apply_from_output_psi();
