@@ -512,6 +512,8 @@ static void loop_query_ci(void* param)
 	  
 	  
 	#if 1
+	printf("card status %d, send_pmt_en0 %d, send_pmt_status0 %d, pmt_indexA %d\n",
+		status->card_status[CARD_A_SELECTED], send_pmt_en0, send_pmt_status0, pmt_indexA);
 
 	if((CARD_IS_EXIST == status->card_status[CARD_A_SELECTED])
 	    ||(CARD_IS_READY == status->card_status[CARD_A_SELECTED]))
@@ -549,7 +551,7 @@ static void loop_query_ci(void* param)
 			{
 				if(CARD_IS_READY == status->card_status[CARD_A_SELECTED])
 				{
-					//printf("card A start work!\n");
+					printf("card A start work, index %d!\n", pmt_indexA);
 					if((pmt_indexA<ci_max_cnt[INPUT0])&&(pmt_indexA<cur_section.programtotal))
 					SendCIPMT(CARD_A_SELECTED,pmtA,pmt_indexA,cur_section.section[pmt_indexA].len,INPUT0);
 				}
@@ -557,6 +559,7 @@ static void loop_query_ci(void* param)
 		}
                else
                {
+			usleep(100000);
 			continue;
 		 }
 	}
@@ -575,6 +578,8 @@ static unsigned int try_to_dcas(unsigned int card_sel_index,
     unsigned char buff[0x100];
     unsigned int ret = 0;
 
+    printf("%s: pmt index %d, section len %d, input %d\n",
+        __func__, pmt_index, len, input);
     //maxchannel=GetCardMaxChannel();
 //printf("maxchannel=%d\n",maxchannel);
   if(input==INPUT0)
@@ -747,6 +752,24 @@ void update_ci_dcas_list(pmtsectin* pmtinfo )
    
 }
 
+static void ci_set_pmt_section(void *sec, int len)
+{
+	status->dcas_cnt[0] = 0;
+	cur_section.programtotal = 1;
+	cur_section.index = 0;
+	cur_section.section[0].len = len;
+	memcpy(&cur_section.section[0].buf, sec, len);
+}
 
+void libci_test()
+{
+	uint8_t pmt_section[188] = {0x47, 0x40, 0xFF};
 
+	ci_set_pmt_section(pmt_section, 188);
+	CIStart();
+
+	while (1) {
+		sleep(1);
+	}
+}
 
