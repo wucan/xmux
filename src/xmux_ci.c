@@ -6,7 +6,7 @@
 static msgobj mo = {MSG_INFO, ENCOLOR, "ci"};
 
 
-static bool xmux_ci_download_pmt_section(uint8_t *sec, int sec_len)
+static bool xmux_ci_download_pmt_section(uint8_t *sec[], int sec_len[], int num, int total_num)
 {
 	/* TODO */
 
@@ -20,6 +20,8 @@ void xmux_ci_apply()
 	uint8_t prog_idx;
 	uint16_t sec_len;
 	int down_cnt = 0;
+	uint8_t *secs[PROGRAM_MAX_NUM];
+	int lens[PROGRAM_MAX_NUM];
 
 	pid_trans_info = &g_eeprom_param.pid_trans_info_area.table[0].data;
 	for (prog_idx = 0; prog_idx < pid_trans_info->nprogs; prog_idx++) {
@@ -29,8 +31,8 @@ void xmux_ci_apply()
 			if (sec_len > 0 && sec_len < (INPUT_PMT_SEC_MAX_LEN - 2)) {
 				trace_info("program #%d download pmt section, len %d",
 					prog_idx, sec_len);
-				xmux_ci_download_pmt_section(
-					g_eeprom_param.input_pmt_sec[prog_idx] + 2, sec_len);
+				secs[down_cnt] = g_eeprom_param.input_pmt_sec[prog_idx] + 2;
+				lens[down_cnt] = sec_len;
 				down_cnt++;
 			} else {
 				trace_err("program #%d pmt section invalide!, len %d",
@@ -39,6 +41,7 @@ void xmux_ci_apply()
 		}
 	}
 	trace_info("total %d pmt section had download to ci", down_cnt);
+	xmux_ci_download_pmt_section(secs, lens, down_cnt, pid_trans_info->nprogs);
 #endif
 }
 
