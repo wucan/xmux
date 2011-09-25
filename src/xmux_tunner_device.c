@@ -3,6 +3,13 @@
 #include "tuner_device.h"
 
 
+int tunner_device_init()
+{
+	/* TODO: init stuff here */
+
+	return 0;
+}
+
 int tunner_device_get_param(int id, struct tunner_param *param)
 {
 	/* FIXME: direct get from storage? */
