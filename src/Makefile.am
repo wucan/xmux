@@ -83,5 +83,11 @@ xmux_SOURCES = \
 	$(SIM_SRC) \
 	$(NULL_FILE)
 
+if CHANNEL_1
+xmux_SOURCES += \
+	xmux_tunner_device.c \
+	$(NULL_FILE)
+endif
+
 SUBDIRS = imp libwu libci
 

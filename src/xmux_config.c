@@ -293,6 +293,20 @@ void xmux_config_save_mux_program_info(struct xmux_mux_program_info *info)
 	eeprom_write(EEPROM_OFF_MUX_PROG_INFO, info, sizeof(*info));
 }
 
+#if CHANNEL_MAX_NUM == 1
+void xmux_config_get_tunner_param(int id, struct tunner_param *param)
+{
+	*param = g_eeprom_param.tunner[id];
+}
+
+void xmux_config_put_tunner_param(int id, struct tunner_param *param)
+{
+	g_eeprom_param.tunner[id] = *param;
+	eeprom_write(EEPROM_OFF_TUNNER, param, sizeof(*param));
+}
+#endif
+
+
 #if 0
 static void eeprom_rw_test()
 {

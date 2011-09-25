@@ -22,6 +22,8 @@ void xmux_config_save_output_psi_data();
 void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t);
 #if CHANNEL_MAX_NUM == 1
 void xmux_config_save_input_pmt_section();
+void xmux_config_get_tunner_param(int id, struct tunner_param *param);
+void xmux_config_put_tunner_param(int id, struct tunner_param *param);
 #endif
 void xmux_config_save_net_param(struct xmux_net_param *net);
 void xmux_config_save_mux_program_info(struct xmux_mux_program_info *info);

@@ -19,6 +19,7 @@ AC_ARG_WITH([channel],
 		[channel=$withval],
 		[channel=8])
 AC_DEFINE_UNQUOTED(CHANNEL_MAX_NUM, [$channel], [channel])
+AM_CONDITIONAL(CHANNEL_1, [test "x$channel" = x1])
 
 dnl build for real hardware or pc test running
 AC_ARG_WITH([build-target],

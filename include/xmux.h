@@ -5,6 +5,7 @@
 #include "wu/wu_base_type.h"
 #include "wu/wu_bitmap.h"
 #include "mpegts.h"
+#include "xmux_tunner.h"
 
 
 /*
@@ -288,6 +289,8 @@ struct xmux_eeprom_param {
 #if CHANNEL_MAX_NUM == 1
 	uint8_t input_pmt_sec[PROGRAM_MAX_NUM][INPUT_PMT_SEC_MAX_LEN] EEPROM_PAGE_ALIGN;
 	uint8_t input_pmt_sect_tail[EEPROM_PAGE_SIZE];
+	struct tunner_param tunner[TUNNER_MAX_NUM];
+	uint8_t tunner_tail[EEPROM_PAGE_SIZE];
 #endif
 };
 
@@ -299,6 +302,7 @@ struct xmux_eeprom_param {
 #define EEPROM_OFF_OUTPUT_PSI				(offsetof(struct xmux_eeprom_param, output_psi_area))
 #if CHANNEL_MAX_NUM == 1
 #define EEPROM_OFF_INPUT_PMT_SEC			(offsetof(struct xmux_eeprom_param, input_pmt_sec))
+#define EEPROM_OFF_TUNNER					(offsetof(struct xmux_eeprom_param, tunner))
 #endif
 #define EEPROM_OFF_SYS						(offsetof(struct xmux_eeprom_param, sys))
 #define EEPROM_OFF_NET						(offsetof(struct xmux_eeprom_param, net))
