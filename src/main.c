@@ -34,12 +34,12 @@ int main(int argc, char **argv)
 
 	mem_init_size(1024 * 1024 * 3);
 
-	libci_test();
-
 	xmux_config_init();
 	xmux_config_load_from_eeprom();
 
 	xmux_net_restore();
+
+	libci_test();
 
 	/*
 	 * prepare the correct data for fp

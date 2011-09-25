@@ -21,7 +21,7 @@
 //  
 #include "ci_define.h"
 
-#ifdef ENABLE_CI
+//#ifdef ENABLE_CI
 
 //#define CIPMT_DEBUG_ENABLE
 //#define CIPMT_DUMP_ENABLE
@@ -34,19 +34,19 @@
 
 // *************************************************************
 // externals
-BYTE  PMTBuf[MAX_LEN_CA_PMT];
-WORD  wPMTLen = 0;
+//BYTE  PMTBuf[MAX_LEN_CA_PMT];
+//WORD  wPMTLen = 0;
 
 
 #ifndef __SI_ENGINE_H
-BYTE *GetPMTDescriptor(BYTE *pBuf,BYTE bTag,BYTE index);
-BYTE* GetPMTESDescriptor(BYTE *pBuf,BYTE bESEntry,BYTE bTag,BYTE index);
-BOOL GetPMTESEntry(BYTE *pBuf,BYTE bESEntry,BYTE *pbStreamType,WORD *pwElementaryPID);
+//BYTE *GetPMTDescriptor(BYTE *pBuf,BYTE bTag,BYTE index);
+//BYTE* GetPMTESDescriptor(BYTE *pBuf,BYTE bESEntry,BYTE bTag,BYTE index);
+//BOOL GetPMTESEntry(BYTE *pBuf,BYTE bESEntry,BYTE *pbStreamType,WORD *pwElementaryPID);
 #endif
-typedef unsigned char BOOL;
-typedef unsigned char BYTE;
-typedef unsigned short WORD;
-typedef unsigned int DWORD;
+//typedef unsigned char BOOL;
+//typedef unsigned char BYTE;
+//typedef unsigned short WORD;
+//typedef unsigned int DWORD;
 #define PROGFIRST 0
 #define PROGMORE 1
 #define PROGLAST 2
@@ -59,6 +59,9 @@ typedef unsigned int DWORD;
 
 #define MAX_CI_SLOTS 2
 #define MAX_CI_RESOURCES 10
+#define NULL 0
+BYTE PMTBuf[MAX_LEN_CA_PMT];
+WORD wPMTLen=0;
 typedef enum
 {
   CA_PMT_LIST_MANAGEMENT_MORE=0,
@@ -68,15 +71,6 @@ typedef enum
   CA_PMT_LIST_MANAGEMENT_ADD,
   CA_PMT_LIST_MANAGEMENT_UPDATE
 } CaPmtListManagement;
-
-typedef enum
-{
-  CA_PMT_CMD_ID_OK_DESCRAMBLING      = 0x01,
-  CA_PMT_CMD_ID_OK_MMI,
-  CA_PMT_CMD_ID_QUERY,
-  CA_PMT_CMD_ID_NOT_SELECTED
-} CaPmtCmdId;
-
 typedef struct
 {
 	unsigned long	UTC_Time;
@@ -145,7 +139,120 @@ BOOL IsCASysIdInList(WORD wCASysId)
     return 0;
 }
 
-WORD Generate_CA_PMT(BYTE *CAPMTBuf,BYTE *pBuf, uint dwLen,int Progtype)
+BYTE *GetPMTDescriptor(BYTE *pBuf,BYTE bTag,BYTE index)
+{
+	WORD wLen = ((pBuf[1]&0x0F)<<8)|pBuf[2];
+	WORD wLoopLen;
+	int hitcount = 0;
+	int i;
+
+	wLen-=1; // CRC
+	wLoopLen = ((pBuf[10]&0x0F)<<8)|pBuf[11];
+	i=12;
+	while(wLoopLen && (i<wLen))
+	{
+		if(pBuf[i]==bTag) {
+			if(hitcount == index)
+				return &pBuf[i];
+			hitcount++;
+		}
+		wLoopLen-=pBuf[i+1]+2;
+		i+=pBuf[i+1]+2;
+	}
+	return 0;
+}
+BYTE *GetPMTESDescriptor(BYTE *pSection,BYTE bESEntry,BYTE bDescriptorTag, BYTE bCount)
+{
+	WORD wSectionLength = ((pSection[1]&0x0F)<<8)|pSection[2];
+	WORD wProgInfoDescrLength;
+
+	int nPos = 10;
+	WORD wESLoopCount = 0;
+		WORD wESDescrLength;
+		int DescrEnd;
+		BYTE bHitCount;
+	wSectionLength-=1; // CRC
+
+	wProgInfoDescrLength = ((pSection[nPos]&0x0F)<<8) | pSection[nPos+1];		
+	nPos +=2;	
+	
+	// skip the program descriptors
+	nPos += wProgInfoDescrLength;
+	// stream loop
+	while(nPos < wSectionLength)
+	{
+		nPos +=3;
+		wESDescrLength = ((pSection[nPos]&0x0F)<<8) | pSection[nPos+1];
+		nPos +=2;
+		
+		DescrEnd = nPos + wESDescrLength;
+		bHitCount=0;
+		
+		if(bESEntry == wESLoopCount)
+		{
+			while((nPos <= DescrEnd) &&(nPos < wSectionLength-4)){
+				if(pSection[nPos]==bDescriptorTag){
+					if((bHitCount==bCount)&&(bESEntry == wESLoopCount))
+						return &pSection[nPos];
+					else
+						bHitCount++;
+				}
+				nPos+=pSection[nPos+1]+2;
+				
+			}
+		} else
+			nPos = DescrEnd;
+		
+		if(bESEntry == wESLoopCount)
+			return NULL;
+		wESLoopCount ++;
+	}
+	return NULL;}
+
+BOOL GetPMTESEntry(BYTE *pSection,BYTE bESEntry,BYTE *pStreamType, WORD *pPID)
+{
+	WORD wSectionLength = ((pSection[1]&0x0F)<<8)|pSection[2];
+	WORD wProgInfoDescrLength;
+
+	int nPos = 10;
+	WORD wESLoopCount = 0;
+	WORD wESDescrLength;
+	int DescrEnd;
+	BYTE bHitCount;
+	wSectionLength-=1; // CRC
+
+	wProgInfoDescrLength = ((pSection[nPos]&0x0F)<<8) | pSection[nPos+1];		
+	nPos +=2;	
+	
+	// skip the program descriptors
+	nPos += wProgInfoDescrLength;
+	// stream loop
+	while(nPos < wSectionLength)
+	{
+		*pStreamType = pSection[nPos];
+		*pPID = ((pSection[nPos+1]<<8)|pSection[nPos+2])&0x1FFF;
+		nPos +=3;
+		wESDescrLength = ((pSection[nPos]&0x0F)<<8) | pSection[nPos+1];
+		nPos +=2;
+		
+		DescrEnd = nPos + wESDescrLength;
+		bHitCount=0;
+		
+		if(bESEntry == wESLoopCount)
+			return TRUE;
+		else
+			nPos = DescrEnd;
+		
+		if(bESEntry == wESLoopCount)
+			return FALSE;
+		wESLoopCount ++;
+	}
+	return FALSE;
+}
+
+
+
+WORD Generate_CA_PMT(BYTE *CAPMTBuf,BYTE *pBuf, unsigned int  dwLen,int Progtype)
 {
 	WORD wSizePtr;
 	WORD wLoopSizePtr;
@@ -254,6 +361,7 @@ WORD Generate_CA_PMT(BYTE *CAPMTBuf,BYTE *pBuf, uint dwLen,int Progtype)
 			CAPMTBuf[wTotalLen] = bStreamType;
 			CAPMTBuf[wTotalLen+1] = wElementaryPid>>8;
 			CAPMTBuf[wTotalLen+2] = wElementaryPid;
+                        printf("streamtype:%d,pid:%d\n",bStreamType,wElementaryPid);
 			wLoopSizePtr = wTotalLen+3;
 			CAPMTBuf[wTotalLen+3] = 0; // looplen
 			CAPMTBuf[wTotalLen+4] = 0;
@@ -321,7 +429,7 @@ void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
 	Frame[0]=ConnId;
 	//printf("SendTransportPacket %08X\r\n",pBuf);
 	Frame[1]=0;
-	memcpy(Frame+2,pData,dwLen);s
+	memcpy(Frame+2,pData,dwLen);
 	dwLen=dwLen+2;
 	#if 1
  	read_ci(IO_CARDB,buff); 
@@ -341,6 +449,13 @@ void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
     }
     else
     {
+       printf("_______________________________________\n");
+       for(i=0;i<dwLen;i++)
+       {
+	 printf("0x%x,",Frame[i]);
+       } 
+       printf("\n_______________________________________\n");
+
     	if(write_card_io(0,Frame, dwLen) != dwLen)
     	{
         	printf("cannot write to CAM device\n");
@@ -397,14 +512,19 @@ void CaSupport_SendPMT(BYTE *pData,DWORD dwLen)
 	ca_support_sid,pData,dwLen);		
 	
 }
-unsigned char CA_Send_PMT(unsigned char *pBuf, unsigned int dwLen,int type)
+unsigned char CA_SEND_PMT(unsigned char *pBuf, unsigned int dwLen,int type)
 {
 	static unsigned char  CAPMTBuf[MAX_LEN_CA_PMT];
 	unsigned short  wCAPMTLen;
-	//int i;
+//	printf("CA send pmt dwlen:%d\n",dwLen);
+//       printf("pBuf:0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",pBuf[0],pBuf[1],pBuf[2],pBuf[3],pBuf[4],pBuf[5]);
+          printf("CA send pmt dwlen:%d\n",dwLen);
+
+        //int i;
 	// If the CI lib detects a module it re-uses the buffer ptr
 	if(dwLen==0)
 	return FALSE;
+  //   printf("test0\n");
 	if(PMTBuf != pBuf) 
 	{
 		if(dwLen > 1024)
@@ -412,15 +532,16 @@ unsigned char CA_Send_PMT(unsigned char *pBuf, unsigned int dwLen,int type)
 		memcpy(PMTBuf,pBuf,dwLen);
 		wPMTLen = (WORD)dwLen;
 	}
-	
+//	printf("test1\n");
 	// generate the correct PMT for the modules
 	// some module(s) require CA-ID based filtering
 	//for(i=0; i<=g_dwNumPCMCIASlots; i++)
 	{
 		wCAPMTLen = Generate_CA_PMT(CAPMTBuf,pBuf,dwLen,type);
+                printf("wCAPMTLen:%d\n",wCAPMTLen);
 		CaSupport_SendPMT(CAPMTBuf,wCAPMTLen);
 	}
 }
 
 
-#endif //ENABLE_CI
+//#endif //ENABLE_CI

@@ -45,10 +45,11 @@ static unsigned char ci_work_status;
 system_ids_t sys_ids[2];
 static unsigned char send_pmt_status0=0;
 static unsigned char send_pmt_status1=0;
-static unsigned char send_pmt_en0=1;
-static unsigned char send_pmt_en1=1;
+static unsigned char send_pmt_en0=0;
+static unsigned char send_pmt_en1=0;
 unsigned int fpgaswitchmode=0;
 unsigned int ci_max_cnt[2];
+unsigned char curpmt[1024];
 //static cards_status* status;
 #define status ((cards_status*)(&all_card_status))
 
@@ -73,7 +74,7 @@ extern unsigned int MenuStringSend(uint32_t cardtype,unsigned char conn_id,
                               unsigned short session_id,char*str, uint32_t len);
 
 void SendCIPMT( unsigned int  cardtype,char* pmt,unsigned int pmt_index,unsigned int len,unsigned int input);
-extern unsigned char CA_Send_PMT(unsigned char *pBuf, unsigned int dwLen,int type);
+extern unsigned char CA_SEND_PMT(unsigned char *pBuf, unsigned int dwLen,int type);
 unsigned int init_pmt_setA=0;
 unsigned int init_pmt_setB=0;
 //static void SendCIPMT( uint32_t cardtype,dvbpsi_pmt_t pmt,unsigned int pmt_index,unsigned int len,unsigned int input);
@@ -99,7 +100,20 @@ void set_ci_max_cnt(unsigned int cnt,unsigned int input)
 {
 	ci_max_cnt[input]=cnt;
 }
-
+void loadPMT(uint8_t *sec[], int sec_len[], int num)
+{
+	int i;
+      stop_send_pmt(0);
+      clean_ci_dcas_list(0);
+      cur_section.index=0;
+      cur_section.programtotal=num;
+	 status->dcas_cnt[0] = 0;
+       for(i=0;i<num;i++)
+       {
+       	memcpy(cur_section.section[i].buf,sec[i],sec_len[i]);
+       }
+	   start_send_pmt(0);
+}
  void PrintMenuInfo(unsigned char*str,int len)
 {
 	int i;
@@ -152,10 +166,11 @@ static void handle_apdu(uint32_t cardtype,xpdu_content* xpdu)
 
 	     printf("card A ready!\n",status->current_sel);
 		send_t_data_last(cardtype,conn_id); 
+             send_pmt_en0=1;
             break;
       case DATETIMEINFO:
 	//printf("DATETIMEINFO\n");
-	send_t_data_last(cardtype,conn_id);
+        send_t_data_last(cardtype,conn_id);
 	//send_datetime_response(cardtype,conn_id, date_time_sid);
     //    len=read_ci(cardtype,buff);
      //           parse_readci(cardtype,buff,len);
@@ -298,16 +313,17 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
         case MMI:
             sid = mmi_sid;
 		send_s_open_response(cardtype,conn_id, sid, xpdu->spdu.res_id);
-    		//len=read_ci(cardtype,buff);
-             // parse_readci(cardtype,buff,len);
+//    		len=read_ci(cardtype,buff);
+  //              parse_readci(cardtype,buff,len);
             	
 
-    		//send_s_mmiinfo_connect(cardtype,conn_id, sid, query_apdu_tag);
+    //		send_s_mmiinfo_connect(cardtype,conn_id, sid, query_apdu_tag);
     		//len=read_ci(cardtype,buff);
             	
             break;
 
         default:
+           send_s_close_session(cardtype,conn_id,xpdu->spdu.session_number);
             break;
     }
 
@@ -444,12 +460,20 @@ static void loop_query_ci(void* param)
 int cardasend=0;  
 int cardbsend=0;  
 #if 1
-int get_pmt(char* buff)
+int get_pmt(void)
 {
-	buff=cur_section.section[cur_section.index].buf;
+//	printf("get pmt cursection index:%d,total:%d\n",cur_section.index,cur_section.programtotal);
+//	buff=cur_section.section[cur_section.index].buf;
+  //      printf("0x%x,0x%x,0x%x,0x%x\n",buff[0],buff[1],buff[2],buff[3]);
 	if(cur_section.index<cur_section.programtotal)
 	{
-		cur_section.index+=1;
+		printf("getpmt0\n");
+		//cur_section.index+=1;
+	        memcpy(curpmt,cur_section.section[cur_section.index].buf,cur_section.section[cur_section.index].len);
+               // memcpy(curpmt,cur_section.section[0].buf,cur_section.section[0].len);
+        //         printf("0x%x,0x%x,0x%x,0x%x\n",curpmt[0],curpmt[1],curpmt[2],curpmt[3]);
+                // printf("0x%x,0x%x,0x%x,0x%x\n",cur_section.section[0].buf[0],cur_section.section[0].buf[1],cur_section.section[0].buf[2],cur_section.section[0].buf[3]);
+                cur_section.index+=1;
 		return cur_section.index-1;
 	}
 	else
@@ -469,7 +493,7 @@ static void loop_query_ci(void* param)
     unsigned int pmt_indexA;
     unsigned int ret = 0;
     int i;
-	
+    send_pmt_en0=0;	
     while(ci_work_status)
     {
      	
@@ -486,7 +510,7 @@ static void loop_query_ci(void* param)
 	  if((init_pmt_setA==1)&&(send_pmt_en0==1))
 	  {
 
-			printf("card0 pmt set start\n");
+               		//printf("card0 pmt set start\n");
 	  		send_pmt_status0=1;
 			status->dcas_cnt[0] = 0;
     			//status->dcas_cnt[1] = 0;
@@ -495,13 +519,14 @@ static void loop_query_ci(void* param)
 	  if((send_pmt_status0==1)&&(send_pmt_en0==1))
          {
 
-	        	pmt_indexA = get_pmt(pmtA);
+	        	pmt_indexA = get_pmt();
+                        //printf("start pmtA:0x%x,0x%x,0x%x\n",curpmt[0],curpmt[1],curpmt[2]);
 	 		if(pmt_indexA==-1)
                         {
 				send_pmt_status0=0;
-				printf("card0 pmt set finish\n");
+				//printf("card0 pmt set finish\n");
 			}
-			//else
+			//else``
 			//printf("pmt_indexA=%d\n",pmt_indexA);
 	  }
 	  else
@@ -512,8 +537,8 @@ static void loop_query_ci(void* param)
 	  
 	  
 	#if 1
-	printf("card status %d, send_pmt_en0 %d, send_pmt_status0 %d, pmt_indexA %d\n",
-		status->card_status[CARD_A_SELECTED], send_pmt_en0, send_pmt_status0, pmt_indexA);
+//	printf("card status %d, send_pmt_en0 %d, send_pmt_status0 %d, pmt_indexA %d\n",
+//		status->card_status[CARD_A_SELECTED], send_pmt_en0, send_pmt_status0, pmt_indexA);
 
 	if((CARD_IS_EXIST == status->card_status[CARD_A_SELECTED])
 	    ||(CARD_IS_READY == status->card_status[CARD_A_SELECTED]))
@@ -553,8 +578,10 @@ static void loop_query_ci(void* param)
 				{
 					printf("card A start work, index %d!\n", pmt_indexA);
 					if((pmt_indexA<ci_max_cnt[INPUT0])&&(pmt_indexA<cur_section.programtotal))
-					SendCIPMT(CARD_A_SELECTED,pmtA,pmt_indexA,cur_section.section[pmt_indexA].len,INPUT0);
-				}
+					{
+						printf("pmtA:0x%x,0x%x,0x%x,0x%x,0x%x\n",curpmt[0],curpmt[1],curpmt[2],curpmt[3],curpmt[4]);
+						SendCIPMT(CARD_A_SELECTED,&curpmt,pmt_indexA,cur_section.section[pmt_indexA].len,INPUT0);}
+					}
 			}
 		}
                else
@@ -603,8 +630,10 @@ static unsigned int try_to_dcas(unsigned int card_sel_index,
 //pmt->i_program_number,pmt->i_pcr_pid,channel_psiinfo[input].nr_program,pmt_index);
 	if(CARD_IS_READY == status->card_status[card_sel_index])
     {
+            //printf("test1\n");
         	if(0 == status->dcas_cnt[card_sel_index])
         	{
+		       // printf("test2 cur_section.programtotal:%d\n",cur_section.programtotal);
 	   		if(cur_section.programtotal==1)
 	   		{
 		 		printf("nr_program=1.CA_PMT_LIST_ONLY\n ");
@@ -654,7 +683,8 @@ static unsigned int try_to_dcas(unsigned int card_sel_index,
 
         	if(status->dcas_cnt[card_sel_index] <ci_max_cnt[input])
         	{
-               	CA_Send_PMT(pmt,len,capmt_list_mg);
+                // printf("CA SEND PMT\n");
+               	CA_SEND_PMT(pmt,len,capmt_list_mg);
                 	sleep(1);
                 	status->dcas_cnt[card_sel_index]++;
             	}
@@ -673,7 +703,8 @@ static unsigned int try_to_dcas(unsigned int card_sel_index,
 void SendCIPMT( uint32_t cardtype,char* pmt,unsigned int pmt_index,unsigned int len,unsigned int input)
 {
 	unsigned int ret = 0;
- 	 ret = try_to_dcas(cardtype, &pmt,pmt_index,len,input);
+       // printf("pmt section:0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",pmt[0],pmt[1],pmt[2],pmt[3],pmt[4],pmt[5]);
+ 	 ret = try_to_dcas(cardtype, pmt,pmt_index,len,input);
         usleep(1000);
 	
 	//sleep(1);
@@ -714,9 +745,21 @@ else
 unsigned int start_query_ci(void)
 {
     unsigned ret = 0;
-
+    unsigned char buf[44]={
+0x02,0xb0,0x29,0x03,0x7a,0xcf,0x00,0x00,0xe7,0xcf,
+0xf0,0x06,0x09,0x04,0x4a,0x02,0xf7,0xdf,0x02,0xe3,
+0xea,0xf0,0x06,0x09,0x04,0x4a,0x02,0xf7,0xdf,0x04,
+0xe3,0xeb,0xf0,0x06,0x09,0x04,0x4a,0x02,0xf7,0xdf,
+0xa7,0xc2,0x1b,0xd2
+};
     ci_work_status = 1;
-   
+  printf("\n\nci thread start\n\n"); 
+     ci_max_cnt[0]=6;
+     cur_section.programtotal=1;
+     cur_section.index=0;
+     cur_section.section[0].len=44;
+     memcpy(cur_section.section[0].buf,buf,44);
+    printf("pmt init 0x%x,0x%x,0x%x\n",cur_section.section[0].buf[0],cur_section.section[0].buf[1],cur_section.section[0].buf[2]);
     ret = pthread_create(&query_ci_thread, 
                          NULL, 
                          (void *)loop_query_ci, 
@@ -763,13 +806,6 @@ static void ci_set_pmt_section(void *sec, int len)
 
 void libci_test()
 {
-	uint8_t pmt_section[188] = {0x47, 0x40, 0xFF};
-
-	ci_set_pmt_section(pmt_section, 188);
 	CIStart();
-
-	while (1) {
-		sleep(1);
-	}
 }
 

@@ -8,7 +8,7 @@ static msgobj mo = {MSG_INFO, ENCOLOR, "ci"};
 
 static bool xmux_ci_download_pmt_section(uint8_t *sec[], int sec_len[], int num, int total_num)
 {
-	/* TODO */
+	loadPMT(sec, sec_len, num);
 
 	return true;
 }
