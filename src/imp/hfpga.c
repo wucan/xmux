@@ -22,8 +22,9 @@ static int __get_ts_status(int hdev, uint16_t *ts_status)
 {
 	ACCESS_HFPGA_REGS hregs;
 	int retval;
+	unsigned short id, version;
 
-	trace_info("get ts status ...");
+	trace_dbg("get ts status ...");
 	*ts_status = 0;
 
 	hregs.reg = HFPGA_REG_ADDR_SYS_ID;
@@ -32,7 +33,8 @@ static int __get_ts_status(int hdev, uint16_t *ts_status)
 		trace_err("read SYS_ID failed! rc %d!", retval);
 		return -1;
 	}
-	trace_info("read HFPGA ID %#x", hregs.data);
+	trace_dbg("read HFPGA ID %#x", hregs.data);
+	id = hregs.data;
 
 	hregs.reg = HFPGA_REG_ADDR_SYS_VER;
 	retval = ioctl(hdev, UV_HFPGA_IOCTL_CMD_READ_REGS, &hregs);
@@ -40,7 +42,8 @@ static int __get_ts_status(int hdev, uint16_t *ts_status)
 		trace_err("read SYS_VER failed! rc %d!", retval);
 		return -1;
 	}
-	trace_info("read HFPGA Version %#x", hregs.data);
+	trace_dbg("read HFPGA Version %#x", hregs.data);
+	version = hregs.data;
 
 	hregs.reg = HFPGA_REG_ADDR_TS_STATUS;
 	retval = ioctl(hdev, UV_HFPGA_IOCTL_CMD_READ_REGS, &hregs);
@@ -48,8 +51,11 @@ static int __get_ts_status(int hdev, uint16_t *ts_status)
 		trace_err("read TS_STATUS failed! rc %d!", retval);
 		return -1;
 	}
-	trace_info("read TS Status %#x", hregs.data);
+	trace_dbg("read TS Status %#x", hregs.data);
 	*ts_status = hregs.data;
+
+	trace_info("HFPGA ID %#x, Version %#x, TS Status %#x",
+			id, version, *ts_status);
 
 	return 0;
 }
