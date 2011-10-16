@@ -48,6 +48,7 @@ int main(int argc, char **argv)
 	ctrl_mcu_open();
 #if CHANNEL_MAX_NUM == 1
 	tuner_device_open();
+	tunner_device_init();
 #endif
 
 	/*
