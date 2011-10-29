@@ -30,6 +30,17 @@
 #define CHANNEL_ALL_BITMAP	((1 << CHANNEL_MAX_NUM) - 1)
 
 /*
+ * pid trans info mib node defines, NODE_NUM per channel
+ */
+#if PROGRAM_MAX_NUM == 32
+#define NODE_NUM				4
+#define NODE_MAX_SIZE			1194
+#elif PROGRAM_MAX_NUM == 64
+#define NODE_NUM				8
+#define NODE_MAX_SIZE			1194
+#endif
+
+/*
  * front panel
  */
 #define FP_RECV_MSG_MAX_SIZE			1200

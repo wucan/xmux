@@ -705,7 +705,7 @@ static void register_input_trans_oids()
 {
 	int i;
 
-	for (i = 0; i < PROGRAM_MAX_NUM; i++) {
+	for (i = 0; i < (CHANNEL_MAX_NUM * NODE_NUM); i++) {
 		pid_trans_info_obj.oid[7] = i + 1;
 		wu_snmp_agent_register(&pid_trans_info_obj);
 	}
