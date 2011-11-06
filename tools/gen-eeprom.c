@@ -101,7 +101,7 @@ static void build_test_param()
 
 	/* user */
 
-	eeprom.mng_mode = MANAGEMENT_MODE_SNMP;
+	eeprom.misc.mng_mode = MANAGEMENT_MODE_SNMP;
 }
 
 int main(int argc, char **argv)

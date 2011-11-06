@@ -30,7 +30,7 @@ int xmux_config_init()
 	trace_info("Sys:            %#08x", EEPROM_OFF_SYS);
 	trace_info("Net:            %#08x", EEPROM_OFF_NET);
 	trace_info("User:           %#08x", EEPROM_OFF_USER);
-	trace_info("MNG_MODE:       %#08x", EEPROM_OFF_MNG_MODE);
+	trace_info("Misc:       	%#08x", EEPROM_OFF_MISC);
 	trace_info("MUX_PROG_INFO:  %#08x", EEPROM_OFF_MUX_PROG_INFO);
 	trace_info("PID_MAP_TABLE:  %#08x", EEPROM_OFF_PID_MAP_TABLE);
 	trace_info("OUTPUT_PSI:     %#08x", EEPROM_OFF_OUTPUT_PSI);
@@ -183,7 +183,7 @@ void xmux_config_load_from_eeprom()
 	 * force to snmp management mode always in startup! else if we are starting
 	 * and in fp management mode, if the fp is malfunction, then out of control!
 	 */
-	g_eeprom_param.mng_mode = MANAGEMENT_MODE_SNMP;
+	g_eeprom_param.misc.mng_mode = MANAGEMENT_MODE_SNMP;
 	/* checkint */
 	if (!xmux_eeprom_param_validate(&g_eeprom_param)) {
 		trace_err("invalidate xmux root param load from eeprom, fallback to default!");
@@ -219,9 +219,9 @@ void xmux_config_save_packet_format(uint8_t fmt)
 
 void xmux_config_save_management_mode()
 {
-	g_eeprom_param.mng_mode = management_mode;
+	g_eeprom_param.misc.mng_mode = management_mode;
 	/* don't save again */
-	//eeprom_write(EEPROM_OFF_MNG_MODE, &g_eeprom_param.mng_mode, 1);
+	//eeprom_write(EEPROM_OFF_MISC, &g_eeprom_param.misc, sizeof(g_eeprom_param.misc));
 }
 
 void xmux_config_save_pid_trans_info_all()

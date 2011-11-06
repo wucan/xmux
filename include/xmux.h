@@ -243,6 +243,13 @@ struct xmux_user_param {
 } __attribute__((packed));
 
 /*
+ * misc parameter
+ */
+struct xmux_misc_param {
+	uint8_t mng_mode;
+} __attribute__((packed));
+
+/*
  * output mux program info
  */
 struct xmux_mux_program_info {
@@ -275,7 +282,7 @@ struct xmux_eeprom_param {
 	struct xmux_system_param sys EEPROM_PAGE_ALIGN;
 	struct xmux_net_param net EEPROM_PAGE_ALIGN;
 	struct xmux_user_param user EEPROM_PAGE_ALIGN;
-	uint8_t mng_mode EEPROM_PAGE_ALIGN;
+	struct xmux_misc_param misc EEPROM_PAGE_ALIGN;
 
 	struct xmux_mux_program_info mux_prog_info EEPROM_PAGE_ALIGN;
 
@@ -318,7 +325,7 @@ struct xmux_eeprom_param {
 #define EEPROM_OFF_SYS						(offsetof(struct xmux_eeprom_param, sys))
 #define EEPROM_OFF_NET						(offsetof(struct xmux_eeprom_param, net))
 #define EEPROM_OFF_USER						(offsetof(struct xmux_eeprom_param, user))
-#define EEPROM_OFF_MNG_MODE					(offsetof(struct xmux_eeprom_param, mng_mode))
+#define EEPROM_OFF_MISC						(offsetof(struct xmux_eeprom_param, misc))
 #define EEPROM_OFF_MUX_PROG_INFO			(offsetof(struct xmux_eeprom_param, mux_prog_info))
 
 #define EEPROM_OFF_SYS_OUTPUT_BITRATE \
