@@ -168,6 +168,26 @@ static int cmd_net_handler(struct fp_cmd_header *cmd_header, int is_read,
 	return 1;
 }
 
+static int cmd_ci_info_handler(struct fp_cmd_header *cmd_header, int is_read,
+				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
+				uint16_t *p_resp_msg_len)
+{
+	struct ci_info_param ci_info;
+
+	if (is_read) {
+		ci_info = g_eeprom_param.misc.ci_info;
+		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
+			&ci_info, sizeof(ci_info));
+		return 1;
+	}
+
+	memcpy(&ci_info, recv_msg_buf + sizeof(struct fp_cmd_header), sizeof(ci_info));
+	xmux_config_save_ci_info(&ci_info);
+	xmux_ci_info_update(&ci_info);
+
+	return 1;
+}
+
 static void _apply_pid_map_table_and_psi()
 {
 	pid_map_table_gen_and_apply_from_fp();
@@ -322,6 +342,10 @@ int __parse_mcu_cmd(uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 	case FP_CMD_TUNNER2_STATUS:
 	case FP_CMD_BCM3033:
 		return xmux_4_channel_rf_cmds_handler(&cmd_header, is_read,
+			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
+		break;
+	case FP_CMD_CI_INFO:
+		return cmd_ci_info_handler(&cmd_header, is_read,
 			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
 		break;
 	default:

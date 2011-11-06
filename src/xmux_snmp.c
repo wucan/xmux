@@ -443,6 +443,26 @@ static int bcm3033_param_set(struct wu_oid_object *obj,
 	return 0;
 }
 /*
+ * ci info
+ */
+static int ci_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
+{
+	v->size = sizeof(struct ci_info_param);
+	v->data = &g_eeprom_param.misc.ci_info;
+
+	return 0;
+}
+static int ci_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
+{
+	struct ci_info_param ci_info;
+
+	memcpy(&ci_info, v->data, sizeof(ci_info));
+	xmux_config_save_ci_info(&ci_info);
+	xmux_ci_info_update(&ci_info);
+
+	return 0;
+}
+/*
  * LOAD INFO
  */
 static int load_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
@@ -630,6 +650,12 @@ static struct wu_oid_object solo_oid_objs[] = {
 	 0, OID_STATUS_RWRITE,
 	 bcm3033_param_get, bcm3033_param_set,
 	 sizeof(struct bcm3033_param),
+	},
+	// ci info
+	{"CI_INFO", {XMUX_ROOT_OID, 24}, 7,
+	 0, OID_STATUS_RWRITE,
+	 ci_info_get, ci_info_set,
+	 sizeof(struct ci_info_param),
 	},
 
 	// LOAD INFO

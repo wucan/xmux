@@ -245,8 +245,14 @@ struct xmux_user_param {
 /*
  * misc parameter
  */
+struct ci_info_param {
+	uint8_t ci_max_descramble_num;
+	char ci_name[20];
+} __attribute__((packed));
+
 struct xmux_misc_param {
 	uint8_t mng_mode;
+	struct ci_info_param ci_info;
 } __attribute__((packed));
 
 /*

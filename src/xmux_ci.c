@@ -42,3 +42,8 @@ void xmux_ci_apply()
 #endif
 }
 
+void xmux_ci_info_update(struct ci_info_param *ci_info)
+{
+	// TODO
+}
+
