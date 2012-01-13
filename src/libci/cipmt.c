@@ -449,12 +449,12 @@ void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
     }
     else
     {
-       printf("_______________________________________\n");
+       printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&len=%d\n",dwLen);
        for(i=0;i<dwLen;i++)
        {
 	 printf("0x%x,",Frame[i]);
        } 
-       printf("\n_______________________________________\n");
+    
 
     	if(write_card_io(0,Frame, dwLen) != dwLen)
     	{

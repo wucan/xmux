@@ -83,6 +83,11 @@ unsigned int start_send_pmt(unsigned int input);
 void stop_send_pmt(unsigned int input);
 void clean_ci_dcas_list(unsigned int input);
 //void update_ci_dcas_list(struct psi_info* psiinfo,unsigned int input);
+unsigned char ciname[20]={0};
+void  get_ci_name(char* str)
+{
+	memcpy(str,ciname,20);
+}
 void  parse_readci(uint32_t cardtype,unsigned char* buff,unsigned int len)
 {
 	int ret=0;
@@ -102,17 +107,28 @@ void set_ci_max_cnt(unsigned int cnt,unsigned int input)
 }
 void loadPMT(uint8_t *sec[], int sec_len[], int num)
 {
-	int i;
+      int i,j;
+#if 1
+      printf("loadPMT:prog total:%d\n",num);
       stop_send_pmt(0);
       clean_ci_dcas_list(0);
       cur_section.index=0;
       cur_section.programtotal=num;
+      printf("loadPMT:programnum=%d\n", cur_section.programtotal);
 	 status->dcas_cnt[0] = 0;
        for(i=0;i<num;i++)
        {
-       	memcpy(cur_section.section[i].buf,sec[i],sec_len[i]);
+        	memcpy(cur_section.section[i].buf,sec[i],sec_len[i]);
+                cur_section.section[i].len=sec_len[i];
+                printf("program[%d]\n");
+                for(j=0;j<sec_len[i];j++)
+		{
+                   printf("0x%x,",cur_section.section[i].buf[j]);
+		}
+                printf("\n");
        }
 	   start_send_pmt(0);
+#endif
 }
  void PrintMenuInfo(unsigned char*str,int len)
 {
@@ -153,7 +169,14 @@ static void handle_apdu(uint32_t cardtype,xpdu_content* xpdu)
             break;
 
         case APPLACATION:
+           PrintMenuInfo(xpdu->apdu_buff, xpdu->apdu.apdu_len);
 		send_t_data_last(cardtype,conn_id);
+            if(xpdu->apdu_buff[5]>20)
+            xpdu->apdu_buff[5]=20;
+          // printf("%s\n",xpdu->apdu_buff+6);
+            memcpy(ciname,xpdu->apdu_buff+6,xpdu->apdu_buff[5]);
+             printf("%s\n",ciname);
+
 	  // MenuEnterSend(0,conn_id,app_inf_sid);
 	  //read_ci(cardtype,buff);
             break;
@@ -520,14 +543,14 @@ static void loop_query_ci(void* param)
          {
 
 	        	pmt_indexA = get_pmt();
-                        //printf("start pmtA:0x%x,0x%x,0x%x\n",curpmt[0],curpmt[1],curpmt[2]);
 	 		if(pmt_indexA==-1)
                         {
 				send_pmt_status0=0;
-				//printf("card0 pmt set finish\n");
 			}
-			//else``
-			//printf("pmt_indexA=%d\n",pmt_indexA);
+                        else
+			{
+				printf("pmt_indexA:%d\n",pmt_indexA);
+			}
 	  }
 	  else
 	  {
@@ -628,10 +651,11 @@ static unsigned int try_to_dcas(unsigned int card_sel_index,
 
 //printf("programnumber=%d,pcrpid=%d,progcnt=%d,pmt_index=%d\n ",
 //pmt->i_program_number,pmt->i_pcr_pid,channel_psiinfo[input].nr_program,pmt_index);
+printf("program total:%d,index:%d\n",cur_section.programtotal,pmt_index);
 	if(CARD_IS_READY == status->card_status[card_sel_index])
     {
             //printf("test1\n");
-        	if(0 == status->dcas_cnt[card_sel_index])
+        	if(0 == pmt_index)
         	{
 		       // printf("test2 cur_section.programtotal:%d\n",cur_section.programtotal);
 	   		if(cur_section.programtotal==1)
@@ -651,7 +675,7 @@ static unsigned int try_to_dcas(unsigned int card_sel_index,
            		}
         	}
 #if 1
-        	else if(status->dcas_cnt[card_sel_index]+1 ==ci_max_cnt[input])
+        	else if(pmt_index+1 ==ci_max_cnt[input])
         	{
 	     		printf("CA_PMT_LIST_LAST\n ");
             		capmt_list_mg = CA_PMT_LIST_LAST;
@@ -659,29 +683,16 @@ static unsigned int try_to_dcas(unsigned int card_sel_index,
 #endif
 		else if(pmt_index+1==cur_section.programtotal)
         	{
-			if((cur_section.programtotal==1)||(cur_section.programtotal==ci_max_cnt[input]+1))
-			{
-		    		printf("CA_PMT_LIST_ONLY\n ");
-            	    		capmt_list_mg = CA_PMT_LIST_ONLY;
-			}
-                	else
-			{
-				printf("CA_PMT_LIST_LAST\n ");
-            			capmt_list_mg = CA_PMT_LIST_LAST;
-			}
+			printf("CA_PMT_LIST_LAST\n ");
+            		capmt_list_mg = CA_PMT_LIST_LAST;
 		}
-      		else if(status->dcas_cnt[card_sel_index] >=ci_max_cnt[input])
-        	{
-             		ret = 4;
-	    		 return ret;
-        	}
         	else
         	{
 	    		printf("CA_PMT_LIST_MORE\n ");
             		capmt_list_mg = CA_PMT_LIST_ADD;
         	}
 
-        	if(status->dcas_cnt[card_sel_index] <ci_max_cnt[input])
+        	if(pmt_index+1 <ci_max_cnt[input])
         	{
                 // printf("CA SEND PMT\n");
                	CA_SEND_PMT(pmt,len,capmt_list_mg);
@@ -740,8 +751,20 @@ else
 
 
 
+int get_cicard_maxcnt()
+{
+   int ret;
+   ret=ci_max_cnt[0];
+   return ret;
+}
+void get_ciname(char*name)
+{
+}
 
-
+void set_cicard_maxcnt(int num)
+{
+    ci_max_cnt[0]=num;
+}
 unsigned int start_query_ci(void)
 {
     unsigned ret = 0;
@@ -754,11 +777,11 @@ unsigned int start_query_ci(void)
 };
     ci_work_status = 1;
   printf("\n\nci thread start\n\n"); 
-     ci_max_cnt[0]=6;
-     cur_section.programtotal=1;
+     //ci_max_cnt[0]=6;
+     //cur_section.programtotal=1;
      cur_section.index=0;
-     cur_section.section[0].len=44;
-     memcpy(cur_section.section[0].buf,buf,44);
+     //cur_section.section[0].len=44;
+    //memcpy(cur_section.section[0].buf,buf,44);
     printf("pmt init 0x%x,0x%x,0x%x\n",cur_section.section[0].buf[0],cur_section.section[0].buf[1],cur_section.section[0].buf[2]);
     ret = pthread_create(&query_ci_thread, 
                          NULL, 
