@@ -143,8 +143,8 @@ void pid_trans_info_save_check()
 			dst_info = &g_eeprom_param.pid_trans_info_area.table[chan_idx].data;
 			memcpy(dst_info, &sg_mib_pid_trans_info[chan_idx], sizeof(*dst_info));
 		}
-		xmux_config_save_pid_trans_info_all();
 		save_pid_trans_info = 0;
+		xmux_config_save_pid_trans_info_all();
 	}
 }
 

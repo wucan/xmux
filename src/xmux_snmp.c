@@ -342,6 +342,8 @@ static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	 * save raw input pmt section for descramble use
 	 */
 	xmux_config_save_input_pmt_section();
+	while (save_pid_trans_info)
+		usleep(10000);
 	xmux_ci_apply();
 #endif
 
