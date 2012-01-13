@@ -17,6 +17,7 @@ AM_CFLAGS = $(CFLAGS) $(DVBPSI_CFLAGS) \
 if BUILD_FOR_ARM
 xmux_LDADD = \
 	libci/libci.la \
+	libtunner/libtunner.la \
 	imp/libimp.la \
 	imp/fpga/libimpfpga.la \
 	$(top_srcdir)/extern-arm-libs/libuvpsi.a \
@@ -25,7 +26,7 @@ xmux_LDADD = \
 	-lm -lpthread
 else
 xmux_LDADD = $(NETSNMP_LIBS) -lm \
-	libci/libci.la \
+	libtunner/libtunner.la \
 	imp/libimp.la \
 	imp/fpga/libimpfpga.la \
 	libwu/libwu.la \
@@ -89,5 +90,5 @@ xmux_SOURCES += \
 	$(NULL_FILE)
 endif
 
-SUBDIRS = imp libwu libci
+SUBDIRS = imp libwu libci libtunner
 
