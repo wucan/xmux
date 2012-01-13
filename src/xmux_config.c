@@ -234,6 +234,12 @@ void xmux_config_save_ci_info(struct ci_info_param *ci_info)
 			&g_eeprom_param.misc, sizeof(g_eeprom_param.misc));
 }
 
+void xmux_config_save_misc_param()
+{
+	eeprom_write(EEPROM_OFF_MISC,
+			&g_eeprom_param.misc, sizeof(g_eeprom_param.misc));
+}
+
 void xmux_config_save_pid_trans_info_all()
 {
 	uint8_t chan_idx;
