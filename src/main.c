@@ -98,6 +98,7 @@ static void restore_work_field()
 {
 #if CHANNEL_MAX_NUM == 1
 	xmux_ci_apply();
+	tunner_device_do_set_param(0, &g_eeprom_param.tunner[0]);
 #endif
 	/* download psi and pid map table */
 	pid_map_table_apply(&g_eeprom_param.pid_map_table_area.pid_map_table);

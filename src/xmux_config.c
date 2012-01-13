@@ -177,6 +177,9 @@ void xmux_config_load_from_eeprom()
 	eeprom_read(EEPROM_OFF_INPUT_PMT_SEC,
 		(uint8_t *)&g_eeprom_param.input_pmt_sec,
 		sizeof(g_eeprom_param.input_pmt_sec));
+	eeprom_read(EEPROM_OFF_TUNNER,
+		(uint8_t *)&g_eeprom_param.tunner,
+		sizeof(g_eeprom_param.tunner));
 #endif
 
 	/*
@@ -309,7 +312,8 @@ void xmux_config_get_tunner_param(int id, struct tunner_param *param)
 void xmux_config_put_tunner_param(int id, struct tunner_param *param)
 {
 	g_eeprom_param.tunner[id] = *param;
-	eeprom_write(EEPROM_OFF_TUNNER, param, sizeof(*param));
+	eeprom_write(EEPROM_OFF_TUNNER, g_eeprom_param.tunner,
+		sizeof(g_eeprom_param.tunner));
 }
 #endif
 
