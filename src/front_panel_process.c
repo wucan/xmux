@@ -189,6 +189,26 @@ static int cmd_ci_info_handler(struct fp_cmd_header *cmd_header, int is_read,
 	return 1;
 }
 
+static int cmd_sel_src_handler(struct fp_cmd_header *cmd_header, int is_read,
+				uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
+				uint16_t *p_resp_msg_len)
+{
+	uint8_t sel_src = g_eeprom_param.misc.sel_src;
+
+	if (is_read) {
+		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf,
+			cmd_header, &sel_src, sizeof(sel_src));
+		return 1;
+	}
+
+	memcpy(&sel_src, recv_msg_buf + sizeof(struct fp_cmd_header), sizeof(sel_src));
+	g_eeprom_param.misc.sel_src = sel_src;
+	select_input_source_1ch();
+	xmux_config_save_misc_param();
+
+	return 1;
+}
+
 static void _apply_pid_map_table_and_psi()
 {
 	pid_map_table_gen_and_apply_from_fp();
@@ -347,6 +367,10 @@ int __parse_mcu_cmd(uint8_t *recv_msg_buf, uint8_t *resp_msg_buf,
 		break;
 	case FP_CMD_CI_INFO:
 		return cmd_ci_info_handler(&cmd_header, is_read,
+			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
+		break;
+	case FP_CMD_SEL_SRC:
+		return cmd_sel_src_handler(&cmd_header, is_read,
 			recv_msg_buf, resp_msg_buf, p_resp_msg_len);
 		break;
 	default:

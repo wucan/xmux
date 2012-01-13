@@ -22,6 +22,7 @@ enum {
 	FP_CMD_TUNNER2_STATUS,
 	FP_CMD_BCM3033,
 	FP_CMD_CI_INFO,
+	FP_CMD_SEL_SRC, // select asi or rf source, for 1 channel mode
 };
 
 enum FP_SYS_CMD {

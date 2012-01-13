@@ -4,6 +4,7 @@
 #include "wu/message.h"
 
 #include "xmux.h"
+#include "xmux_config.h"
 #include "fpga_api.h"
 
 
@@ -75,8 +76,20 @@ int hfpga_get_ts_status(int chan_idx, uint16_t *ts_status_para)
 	close(hdev);
 	if (retval == 0) {
 		*ts_status_para = ts_status;
+#if CHANNEL_MAX_NUM == 1
+		if (g_eeprom_param.misc.sel_src) {
+			// ASI
+			if (ts_status & (1 << 0))
+				retval = 1;
+		} else {
+			// RF
+			if (ts_status & (1 << 2))
+				retval = 1;
+		}
+#else
 		if (ts_status & (0x01 << chan_idx))
 			retval = 1;
+#endif
 	}
 
 	return retval;
@@ -241,6 +254,28 @@ int hfpga_write_sys_packet_length(uint16_t pkt_len)
 
 	return 0;
 }
+int hfpga_write_select_channel(uint8_t chan)
+{
+	ACCESS_HFPGA_REGS hregs;
+	int rc;
+	int hdev;
+
+	hdev = open(UV_HFPGA_DEV_PATH, O_RDWR);
+	if (-1 == hdev) {
+		trace_err("failed to open HFPGA dev, path %s!", UV_HFPGA_DEV_PATH);
+		return -1;
+	}
+	hregs.reg = HFPGA_REG_ADDR_CHA_SEL;
+	hregs.data = chan;
+	rc = ioctl(hdev, UV_HFPGA_IOCTL_CMD_WRITE_REGS, &hregs);
+	close(hdev);
+	if (rc < 0) {
+		trace_err("write CHA_SEL reg failed! rc %d!", rc);
+		return -1;
+	}
+
+	return 0;
+}
 #else
 int hfpga_get_ts_status(int chan_idx, uint16_t *ts_status_para)
 {
@@ -272,6 +307,12 @@ int hfpga_write_sys_output_bitrate(uint32_t bitrate)
 int hfpga_write_sys_packet_length(uint16_t pkt_len)
 {
 	trace_info("%s: pkt_len %d", __func__, pkt_len);
+
+	return 0;
+}
+int hfpga_write_select_channel(uint8_t chan)
+{
+	trace_info("%s: select channel %d", __func__, chan);
 
 	return 0;
 }

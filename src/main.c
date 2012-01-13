@@ -101,6 +101,9 @@ int main(int argc, char **argv)
 static void restore_work_field()
 {
 #if CHANNEL_MAX_NUM == 1
+	/* switch to the correct input source */
+	select_input_source_1ch();
+
 	tunner_device_do_set_param(0, &g_eeprom_param.tunner[0]);
 #endif
 	/* download psi and pid map table */

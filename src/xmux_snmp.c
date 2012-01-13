@@ -466,6 +466,24 @@ static int ci_info_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	return 0;
 }
 /*
+ * select asi or rf input, for 1 channel mode only
+ */
+static int sel_src_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
+{
+	v->size = sizeof(uint8_t);
+	v->data = &g_eeprom_param.misc.sel_src;
+
+	return 0;
+}
+static int sel_src_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
+{
+	memcpy(&g_eeprom_param.misc.sel_src, v->data, sizeof(uint8_t));
+	select_input_source_1ch();
+	xmux_config_save_misc_param();
+
+	return 0;
+}
+/*
  * LOAD INFO
  */
 static int load_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
@@ -659,6 +677,12 @@ static struct wu_oid_object solo_oid_objs[] = {
 	 0, OID_STATUS_RWRITE,
 	 ci_info_get, ci_info_set,
 	 sizeof(struct ci_info_param),
+	},
+	// select asi or rf input source for 1 channel mode only
+	{"SEL_SRC", {XMUX_ROOT_OID, 25}, 7,
+	 0, OID_STATUS_RWRITE,
+	 sel_src_get, sel_src_set,
+	 sizeof(uint8_t),
 	},
 
 	// LOAD INFO

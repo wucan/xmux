@@ -252,6 +252,7 @@ struct ci_info_param {
 
 struct xmux_misc_param {
 	uint8_t mng_mode;
+	uint8_t sel_src; // 0 RF, 1 ASI
 	struct ci_info_param ci_info;
 } __attribute__((packed));
 
