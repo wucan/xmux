@@ -447,6 +447,7 @@ static int bcm3033_param_set(struct wu_oid_object *obj,
  */
 static int ci_info_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
+	get_ci_name(g_eeprom_param.misc.ci_info.ci_name);
 	v->size = sizeof(struct ci_info_param);
 	v->data = &g_eeprom_param.misc.ci_info;
 

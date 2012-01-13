@@ -176,6 +176,7 @@ static int cmd_ci_info_handler(struct fp_cmd_header *cmd_header, int is_read,
 
 	if (is_read) {
 		ci_info = g_eeprom_param.misc.ci_info;
+		get_ci_name(ci_info.ci_name);
 		*p_resp_msg_len = fp_create_response_cmd(resp_msg_buf, cmd_header,
 			&ci_info, sizeof(ci_info));
 		return 1;
