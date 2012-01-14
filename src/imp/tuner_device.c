@@ -223,7 +223,7 @@ void tuner_device_pol(unsigned char mode)
         else
         {
 	    printf("POL:H\n");
-            gpio_output_low(POL_GPIO);
+            gpio_output_high(POL_GPIO);
         }
 }
 void tuner_device_lnb(unsigned char mode)
