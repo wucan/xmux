@@ -187,7 +187,7 @@ void T6110_TEST(void)
 	for(i=0;i<8;i++)
 	{
 		dat = ChipGetOneRegister_E(chipaddress,STCHIP_MODE_SUBADR_8, TRUE,i, 0, 1);
-	      printf("6110 reg:%d,value:0x%x\n",i,dat);
+	      //printf("6110 reg:%d,value:0x%x\n",i,dat);
 	}
 	#endif
 }
@@ -302,17 +302,19 @@ void GetTunerRegister_E(void)
                 ChipSetOneRegister_E(0xd0,1,FALSE,0xf12a,0x0); 
 	//	printf("0x%x,",databuf[i]);
 	}
+#if 0
         for(i=0;i<8;i++)
         {
 		printf("0x%x,",databuf[i]);
         }
         printf("\n");
+#endif
 }
 void tuner_port_test(void)
 {
 U8 	ChipID;
 ChipID=ChipGetOneRegister_E(0xd0,STCHIP_MODE_SUBADR_16,FALSE,RSTV0903_MID,0,0);
-printf("ChipID:%x\n",ChipID);
+//printf("ChipID:%x\n",ChipID);
 //GetTunerRegister_E();
 }
 
@@ -358,8 +360,8 @@ void Set_Tuner_Dvbs(U32 	Frequency, U32 	LOFrequency,U32 SymbolRate)
 	 unsigned char freq[11]={'f','r','e','g',':'};
 	 unsigned char txt[2]={'\n'};
 	 unsigned char txt2[11]={'S','e','t','t','u','n','e','r','0','\n'};
-	  printf("Freqency:%d;LOFrequency;%d;SymbolRate:%d\n",Frequency,
-            LOFrequency,SymbolRate);
+	 //printf("Freqency:%d;LOFrequency;%d;SymbolRate:%d\n",Frequency,
+         //  LOFrequency,SymbolRate);
 	 tuner_hw_reset();
 		//Delay_ms(10);  
 	 tuner_init();
@@ -457,9 +459,9 @@ void Get_CN_String(long CNVal,unsigned char Standard)
 	//unsigned char txtcn[3]={'c','n','='};
 	//unsigned char txt3[2]={'\n'};
 	unsigned int val;
-	hex_dump("CNVAL", &CNVal, 4);
+	//hex_dump("CNVAL", &CNVal, 4);
 	val=CNVal;
-        printf("CNVal:%d\n",val);
+        //printf("CNVal:%d\n",val);
 	//hex_out(&val, 2);
 	if(val==1000)
 	val=500;
@@ -470,13 +472,13 @@ void Get_CN_String(long CNVal,unsigned char Standard)
 	str[0]+=0x30;
 	str[1]+=0x30;
 	str[3]+=0x30;
-	hex_dump("str", str, 4);
+	//hex_dump("str", str, 4);
 	p[0] = str[0];
 	p[1] = str[1];
 	p[2] = str[2];
 	p[3] = str[3];
-	hex_dump("p", p, 4);
-        printf("CN:%s\n",&dvbsstatus.CN);
+	//hex_dump("p", p, 4);
+        //printf("CN:%s\n",&dvbsstatus.CN);
 	//text_out(txtcn,3);
 			//text_out(&dvbsstatus[input].CN,4); 
 			//text_out(str,4); 
@@ -505,11 +507,13 @@ void	GetSignalInfo()
 			
 			if(dat&0x08)
 			{
-				dvbsstatus.Lock=1;
+			     dvbsstatus.Lock=1;
+                           //  printf("tuner lock!dat=0x%x\n",dat);
 			}
 			else
 			{
-				dvbsstatus.Lock=0;
+			     dvbsstatus.Lock=0;
+                            // printf("tuner unlock!dat=0x%x\n",dat);
 			}
 			
                     dvbsstatus.Level=(char)FE_STV0903_GetRFLevel_E();
@@ -538,13 +542,13 @@ void	GetSignalInfo()
 			{
 				dvbsstatus.CN=FE_STV0903_CarrierGetQuality_E(&FE_STV0903_S2_CN_LookUp);
 				Get_CN_String(dvbsstatus.CN,FE_SAT_DVBS2_STANDARD);
-				hex_dump("dvbstatus", &dvbsstatus, sizeof(tunerstatus));
+				//hex_dump("dvbstatus", &dvbsstatus, sizeof(tunerstatus));
 			}
 			else /*DVBS1/DSS*/
 			{
 				dvbsstatus.CN=FE_STV0903_CarrierGetQuality_E(&FE_STV0903_S1_CN_LookUp);
 				Get_CN_String(dvbsstatus.CN,FE_SAT_DVBS1_STANDARD);
-				hex_dump("dvbstatus", &dvbsstatus, sizeof(tunerstatus));
+				//hex_dump("dvbstatus", &dvbsstatus, sizeof(tunerstatus));
 			}
                     #endif
 			//text_out(txtber,4);

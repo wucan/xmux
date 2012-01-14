@@ -2,8 +2,6 @@
 #include "xmux_config.h"
 #include "xmux_tunner.h"
 #include "tuner_device.h"
-
-
 /*
  * struct ang variable ref libtuner
  */
@@ -27,8 +25,22 @@ typedef struct {
 
 extern tunerinfo dvbstunerinfo;
 extern tunerstatus dvbsstatus;
-
-
+unsigned tunergetflag=0;
+unsigned int GettunerI2cbusy(void)
+{
+	printf("getbusy:%d\n",tunergetflag);
+	return tunergetflag;
+}
+void Set_TunerI2c_Busy(void)
+{
+	tunergetflag=1;
+       printf("tunergetflag:%d\n",tunergetflag);
+}
+void Set_TunerI2c_Free(void)
+{
+	tunergetflag=0;
+        printf("tunergetflag:%d\n",tunergetflag);
+}
 int tunner_device_init()
 {
 	tuner_device_open();
@@ -49,6 +61,17 @@ int tunner_device_get_param(int id, struct tunner_param *param)
 
 int tunner_device_do_set_param(int id, struct tunner_param *param)
 {
+       unsigned int flag;
+//       flag=GettunerI2cbusy();
+ //      while(flag)
+  //     {
+   //        flag=GettunerI2cbusy();
+    //       usleep(1000);
+     //      if(flag==0)
+      //     break;     
+       // }
+      // Set_TunerI2c_Busy();
+
 	memcpy(&dvbstunerinfo, param, sizeof(tunerinfo));
 	Set_Polarization(dvbstunerinfo.Polarization);
 	Set_Lnb(dvbstunerinfo.LNB);
@@ -57,39 +80,70 @@ int tunner_device_do_set_param(int id, struct tunner_param *param)
 	GetTunerRegister_E();
 	Set_Tuner_Dvbs(dvbstunerinfo.Frequency, dvbstunerinfo.LOFrequency, dvbstunerinfo.SymbolRate);
 	tuner_port_test();
-
+       // Set_TunerI2c_Free();
 	return 0;
+}
+
+int tunner_device_do_set_info(int id, struct tunner_param *param)
+{
+        memcpy(&dvbstunerinfo, param, sizeof(tunerinfo));
+        FE_TUNER_SET();
+        GetTunerRegister_E();
+        Set_Tuner_Dvbs(dvbstunerinfo.Frequency, dvbstunerinfo.LOFrequency,
+         dvbstunerinfo.SymbolRate);
+        tuner_port_test();
+        return 0;
 }
 
 int tunner_device_set_param(int id, struct tunner_param *param)
 {
 	/* set param to tunner chip */
+        tunergetflag=1;
 	tunner_device_do_set_param(id, param);
 
-	/* save to storage */
+	/* save : storage */
 	xmux_config_put_tunner_param(id, param);
-
+         tunergetflag=0;
 	return 0;
 }
 
 int tunner_device_get_status(int id, struct tunner_status *status)
 {
+        unsigned int flag=0;
 	/* get status from tunner chip  */
-	GetSignalInfo();
-	memcpy(status, &dvbsstatus, sizeof(tunerstatus));
+      tunergetflag=1;
 
+	GetSignalInfo();
+      //  Set_TunerI2c_Free();
+        tunergetflag=0;
+	memcpy(status, &dvbsstatus, sizeof(tunerstatus));
 	return 0;
 }
 
 void tunner_device_check()
 {
 	struct tunner_status status;
-
+       unsigned int flag=0;
+       #if 0
+       flag=GettunerI2cbusy();
+       while(flag)
+       {
+	   flag=GettunerI2cbusy();
+           usleep(1000);
+           if(flag==0)
+           break;
+       }
+       #endif
+      // Set_TunerI2c_Busy();
+        if(tunergetflag==1)
+        return;
 	tunner_device_get_status(0, &status);
 	if (!status.lock) {
 		tuner_device_reset();
 		tunner_device_init();
-		tunner_device_do_set_param(0, &g_eeprom_param.tunner[0]);
+		tunner_device_do_set_info(0, &g_eeprom_param.tunner[0]);
 	}
-}
+      // Set_TunerI2c_Free();
+     //  tunergetflag=0;
+ }
 

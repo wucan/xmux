@@ -1302,7 +1302,7 @@ S32 FE_STV0903_CarrierGetQuality_E(FE_STV0903_LOOKUP_t *lookup)
 		}
 	}
 	
-     printf("c_n:%d\n",c_n);
+     //printf("c_n:%d\n",c_n);
        if(c_n==-100)
         c_n=0;
 	return c_n; 
