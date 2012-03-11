@@ -1690,12 +1690,14 @@ BOOL FE_STV0903_GetDemodLock_E(S32 TimeOut)
 
 	FE_STV0903_SEARCHSTATE_t	demodState;
 	U8 dat=0;
+        U8 dat1=0;
 	while((timer<TimeOut)&&(lock==0))
 	{
 		demodState=ChipGetField_E(STV0903_I2C_ADDRESS,STCHIP_MODE_SUBADR_16,FALSE,FSTV0903_HEADER_MODE);
 		dat=demodState;
 //		display_hex(dat,4);
 	//	while(1) {;}
+                printf("demodState:%d\n",demodState);
 		switch(demodState)
 		{
 			case FE_SAT_SEARCH://ËÑË÷×´Ì¬  0
@@ -1709,8 +1711,11 @@ BOOL FE_STV0903_GetDemodLock_E(S32 TimeOut)
 				lock = ChipGetField_E(STV0903_I2C_ADDRESS,STCHIP_MODE_SUBADR_16,FALSE,FSTV0903_LOCK_DEFINITIF);		
 			break;
 		}
-		
-		if(lock==0)
+		 dat1=ChipGetOneRegister_E(0xd0,STCHIP_MODE_SUBADR_16,FALSE,RSTV0903_DSTATUS,0,0);
+                printf("Lockreg:0x%x\n",dat1);
+     //     if(dat1==0xff)
+      //    lock=0;	
+ 	if(lock==0)
 			WAIT_N_MS(10);
 		timer+=10;
 	}
@@ -3512,6 +3517,7 @@ BOOL FE_STV0903_SWAlgo_E(
 		lock= FE_STV0903_SearchCarrierSwLoop_E(DemodSearchRange,MasterClock,freqIncrement,softStepTimeout,zigzag,maxSteps);
 		noSignal=FE_STV0903_CheckSignalPresence_E(DemodSearchRange,MasterClock);
 		trialCounter ++ ;
+                printf("sym trialcounter:%d\n",trialCounter);
 		/*run the SW search 2 times maximum*/
 		if (   (lock == TRUE)
 			|| (noSignal == TRUE)
@@ -3577,6 +3583,7 @@ BOOL FE_STV0903_GetDemodLockCold_E(FE_STV0903_InternalParams_t_E*pParams,S32 Dem
 	
 	U32 carrierStep=1200;
 	U8 dat=0;
+        U8 lockreg;
 	unsigned char txt0[10]={'s','e','a','r','c','h','=','0','\n'};
 	unsigned char txt1[12]={'s','e','a','r','c','h','l','o','c','k','\n'};
 	unsigned char txt2[14]={'s','e','a','r','c','h','U','N','l','o','c','k','\n'};
@@ -3586,6 +3593,10 @@ BOOL FE_STV0903_GetDemodLockCold_E(FE_STV0903_InternalParams_t_E*pParams,S32 Dem
 	{
 
 		lock = FE_STV0903_GetDemodLock_E((DemodTimeout/3)) ;	/* case cold start wait for demod lock */
+               lockreg=ChipGetOneRegister_E(0xd0,STCHIP_MODE_SUBADR_16,FALSE,RSTV0903_DSTATUS,0,0);
+     //          if(lockreg==0xff)
+      //         lock=0;
+                 printf("1.STV0903 get lock:0x%x\n",lockreg);
 		if(lock==FALSE)
 		{
 			if(FE_STV0903_CheckTimingLock_E()==TRUE)
@@ -3604,7 +3615,11 @@ BOOL FE_STV0903_GetDemodLockCold_E(FE_STV0903_InternalParams_t_E*pParams,S32 Dem
 
 	//   DemodTimeout¿¿¿¿¿lock¿¿
 		lock = FE_STV0903_GetDemodLock_E(DemodTimeout/2) ;	/* case cold start wait for demod lock */   
+                lockreg=ChipGetOneRegister_E(0xd0,STCHIP_MODE_SUBADR_16,FALSE,RSTV0903_DSTATUS,0,0);
+        //       if(lockreg==0xff)
+         //      lock=0;
 
+                  printf("2.STV0903 get lock:%d\n",lock);
 					
 		if(lock==FALSE)
 		{	//¿¿¿¿

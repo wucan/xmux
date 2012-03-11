@@ -43,6 +43,7 @@ void Set_TunerI2c_Free(void)
 }
 int tunner_device_init()
 {
+      printf("tuner init!\n");
 	tuner_device_open();
 	tuner_init();
 	tuner_port_test();
@@ -124,6 +125,8 @@ void tunner_device_check()
 {
 	struct tunner_status status;
        unsigned int flag=0;
+       unsigned int berval;
+       unsigned char cnval[4];
        #if 0
        flag=GettunerI2cbusy();
        while(flag)
@@ -138,11 +141,31 @@ void tunner_device_check()
         if(tunergetflag==1)
         return;
 	tunner_device_get_status(0, &status);
-	if (!status.lock) {
+//        printf("LockStatus:%d,Ber:%f\n",status.lock,status.ber);
+	if(!status.lock) {
+                printf("tuner set repeat!\n");
 		tuner_device_reset();
 		tunner_device_init();
 		tunner_device_do_set_info(0, &g_eeprom_param.tunner[0]);
 	}
+       // berval=(unsigned int )status.ber;
+        memcpy(cnval,&status.cn,4);
+       // printf("LockStatus:%d,Ber:%d\n",status.lock,status.ber);
+#if 0
+         if(status.ber==0.000000) {
+                printf("tuner set repeat!\n");
+                tuner_device_reset();
+                tunner_device_init();
+                tunner_device_do_set_info(0, &g_eeprom_param.tunner[0]);
+        }
+        printf("cnval:%d,%d,%d,%d\n",cnval[0],cnval[1],cnval[2],cnval[3]);
+         if((cnval[0]==0x30)&&(cnval[1]==0x30)) {
+                printf("tuner set repeat!\n");
+                tuner_device_reset();
+                tunner_device_init();
+                tunner_device_do_set_info(0, &g_eeprom_param.tunner[0]);
+        }
+#endif
       // Set_TunerI2c_Free();
      //  tunergetflag=0;
  }

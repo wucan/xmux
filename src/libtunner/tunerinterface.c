@@ -187,7 +187,7 @@ void T6110_TEST(void)
 	for(i=0;i<8;i++)
 	{
 		dat = ChipGetOneRegister_E(chipaddress,STCHIP_MODE_SUBADR_8, TRUE,i, 0, 1);
-	      //printf("6110 reg:%d,value:0x%x\n",i,dat);
+	      printf("6110 reg:%d,value:0x%x\n",i,dat);
 	}
 	#endif
 }
@@ -314,7 +314,7 @@ void tuner_port_test(void)
 {
 U8 	ChipID;
 ChipID=ChipGetOneRegister_E(0xd0,STCHIP_MODE_SUBADR_16,FALSE,RSTV0903_MID,0,0);
-//printf("ChipID:%x\n",ChipID);
+printf("ChipID:%x\n",ChipID);
 //GetTunerRegister_E();
 }
 
@@ -504,7 +504,8 @@ void	GetSignalInfo()
 			//return;
                     //WAIT_N_MS(10);
                   //    uartcmd_check_settiing();
-			
+//		if(dat==0xff)
+ //                dat=0;	
 			if(dat&0x08)
 			{
 			     dvbsstatus.Lock=1;
