@@ -203,7 +203,9 @@ static int cmd_sel_src_handler(struct fp_cmd_header *cmd_header, int is_read,
 
 	memcpy(&sel_src, recv_msg_buf + sizeof(struct fp_cmd_header), sizeof(sel_src));
 	g_eeprom_param.misc.sel_src = sel_src;
+#if CHANNEL_MAX_NUM == 1
 	select_input_source_1ch();
+#endif
 	xmux_config_save_misc_param();
 
 	return 1;

@@ -83,7 +83,9 @@ int main(int argc, char **argv)
 	while (1) {
 		xmux_snmp_check_connection();
 		pid_trans_info_save_check();
+#if CHANNEL_MAX_NUM == 1
 		tunner_device_check();
+#endif
 		sleep(1);
 	}
 

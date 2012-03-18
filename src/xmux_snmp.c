@@ -478,7 +478,9 @@ static int sel_src_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 static int sel_src_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	memcpy(&g_eeprom_param.misc.sel_src, v->data, sizeof(uint8_t));
+#if CHANNEL_MAX_NUM == 1
 	select_input_source_1ch();
+#endif
 	xmux_config_save_misc_param();
 
 	return 0;
