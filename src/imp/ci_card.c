@@ -8,6 +8,14 @@
 #define CI_MEM_BASE			0xC4000000
 #define CI_IO_BASE			0xC8000000
 
+static inline void delay()
+{
+	int i;
+
+	for (i = 0; i < 1024; i++) {
+		;;;
+	}
+}
 
 bool ci_card_actived()
 {
@@ -19,6 +27,7 @@ bool ci_card_actived()
 
 uint16_t ci_attr_mem_read_u16(int off)
 {
+	delay();
 	if (!ci_card_actived())
 		return 0;
 
@@ -27,6 +36,7 @@ uint16_t ci_attr_mem_read_u16(int off)
 
 bool ci_io_write_u8(int off, uint8_t v)
 {
+	delay();
 	if (!ci_card_actived())
 		return false;
 
@@ -37,6 +47,7 @@ bool ci_io_write_u8(int off, uint8_t v)
 
 uint8_t ci_io_read_u8(int off)
 {
+	delay();
 	if (!ci_card_actived())
 		return 0;
 
@@ -45,6 +56,7 @@ uint8_t ci_io_read_u8(int off)
 
 bool ci_mem_write_u16(int off, uint16_t v)
 {
+	delay();
 	if (!ci_card_actived())
 		return false;
 
@@ -55,6 +67,7 @@ bool ci_mem_write_u16(int off, uint16_t v)
 
 uint16_t ci_mem_read_u16(int off)
 {
+	delay();
 	if (!ci_card_actived())
 		return 0;
 
