@@ -166,6 +166,7 @@ int psi_apply_from_output_psi()
 		}
 	}
 
+	trace_info("do write to fpga ...");
 	/*
 	 * write to fpga
 	 */
@@ -174,14 +175,20 @@ int psi_apply_from_output_psi()
 		if (write_info[i].size <= 0)
 			continue;
 		howto = i;
+		trace_info("write #%d, size %d, howto %d to fpga ...", i,
+			write_info[i].size, howto);
 		hfpga_dev.write(write_info[i].pkts_buf, write_info[i].size, &howto);
 		free(write_info[i].pkts_buf);
 	}
 	enable_snmp_connection_check();
 
+	trace_info("readback psi ...");
+
 	dvb_io_dev.ioctl(0x11, NULL); // readback psi from fpga and dump it
 	dvbSI_GenSS(HFPGA_CMD_SI_START);
 	dvbSI_Stop(&hfpga_dev);
+
+	trace_info("apply psi to fpga done.");
 
 	return 0;
 }
