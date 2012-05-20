@@ -327,7 +327,6 @@ static int psi_status_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 /*
  * APPLY PSI
  */
-extern int save_pid_trans_info;
 static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	trace_info("apply psi...");
@@ -335,15 +334,13 @@ static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 	psi_gen_output_psi_from_sections();
 	psi_apply_from_output_psi();
 
-	save_pid_trans_info = 1;
+	pid_trans_info_request_save();
 
 #if CHANNEL_MAX_NUM == 1
 	/*
 	 * save raw input pmt section for descramble use
 	 */
 	xmux_config_save_input_pmt_section();
-	while (save_pid_trans_info)
-		usleep(10000);
 	xmux_ci_apply();
 #endif
 
