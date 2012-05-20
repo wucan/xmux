@@ -1697,7 +1697,7 @@ BOOL FE_STV0903_GetDemodLock_E(S32 TimeOut)
 		dat=demodState;
 //		display_hex(dat,4);
 	//	while(1) {;}
-                printf("demodState:%d\n",demodState);
+                //printf("demodState:%d\n",demodState);
 		switch(demodState)
 		{
 			case FE_SAT_SEARCH://ËÑË÷×´Ì¬  0
@@ -1712,7 +1712,7 @@ BOOL FE_STV0903_GetDemodLock_E(S32 TimeOut)
 			break;
 		}
 		 dat1=ChipGetOneRegister_E(0xd0,STCHIP_MODE_SUBADR_16,FALSE,RSTV0903_DSTATUS,0,0);
-                printf("Lockreg:0x%x\n",dat1);
+                //printf("Lockreg:0x%x\n",dat1);
      //     if(dat1==0xff)
       //    lock=0;	
  	if(lock==0)
