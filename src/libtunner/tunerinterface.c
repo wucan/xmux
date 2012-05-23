@@ -187,7 +187,7 @@ void T6110_TEST(void)
 	for(i=0;i<8;i++)
 	{
 		dat = ChipGetOneRegister_E(chipaddress,STCHIP_MODE_SUBADR_8, TRUE,i, 0, 1);
-	      printf("6110 reg:%d,value:0x%x\n",i,dat);
+	      //printf("6110 reg:%d,value:0x%x\n",i,dat);
 	}
 	#endif
 }
