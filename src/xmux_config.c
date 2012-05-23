@@ -175,10 +175,10 @@ void xmux_config_load_from_eeprom()
 
 #if CHANNEL_MAX_NUM == 1
 	eeprom_read(EEPROM_OFF_INPUT_PMT_SEC,
-		(uint8_t *)&g_eeprom_param.input_pmt_sec,
+		(uint8_t *)g_eeprom_param.input_pmt_sec,
 		sizeof(g_eeprom_param.input_pmt_sec));
 	eeprom_read(EEPROM_OFF_TUNNER,
-		(uint8_t *)&g_eeprom_param.tunner,
+		(uint8_t *)g_eeprom_param.tunner,
 		sizeof(g_eeprom_param.tunner));
 #endif
 
