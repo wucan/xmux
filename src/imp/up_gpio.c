@@ -8,6 +8,10 @@
 #include "up_gpio.h"
 
 
+#ifndef _UCLINUX_
+#define _USE_GTK_
+#endif
+
 void gpio_output_low (int gpio)
 {
 #ifndef _USE_GTK_
