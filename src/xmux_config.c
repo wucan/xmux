@@ -211,13 +211,15 @@ void xmux_config_dump(uint32_t off, int len)
 void xmux_config_save_output_bitrate(uint32_t bitrate)
 {
 	g_eeprom_param.sys.output_bitrate = bitrate;
-	eeprom_write(EEPROM_OFF_SYS_OUTPUT_BITRATE, &bitrate, sizeof(bitrate));
+	eeprom_write(EEPROM_OFF_SYS, &g_eeprom_param.sys,
+		sizeof(g_eeprom_param.sys));
 }
 
 void xmux_config_save_packet_format(uint8_t fmt)
 {
 	g_eeprom_param.sys.format = fmt;
-	eeprom_write(EEPROM_OFF_SYS_PACKET_FORMAT, &fmt, sizeof(fmt));
+	eeprom_write(EEPROM_OFF_SYS, &g_eeprom_param.sys,
+		sizeof(g_eeprom_param.sys));
 }
 
 void xmux_config_save_management_mode()

@@ -335,11 +335,6 @@ struct xmux_eeprom_param {
 #define EEPROM_OFF_MISC						(offsetof(struct xmux_eeprom_param, misc))
 #define EEPROM_OFF_MUX_PROG_INFO			(offsetof(struct xmux_eeprom_param, mux_prog_info))
 
-#define EEPROM_OFF_SYS_OUTPUT_BITRATE \
-	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, output_bitrate)))
-#define EEPROM_OFF_SYS_PACKET_FORMAT \
-	(EEPROM_OFF_SYS + (offsetof(struct xmux_system_param, format)))
-
 #define EEPROM_OFF_MISC_PARAM				0
 #define EEPROM_MISC_PARAM_SIZE \
 	(offsetof(struct xmux_eeprom_param, misc_param_tail))
