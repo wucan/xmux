@@ -42,8 +42,8 @@ int main(int argc, char **argv)
 #if CHANNEL_MAX_NUM == 1
 	xmux_ci_info_update(&g_eeprom_param.misc.ci_info);
 	xmux_ci_apply();
-#endif
 	libci_test();
+#endif
 
 	/*
 	 * prepare the correct data for fp
