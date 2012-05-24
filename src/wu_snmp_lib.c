@@ -249,8 +249,8 @@ int pop_atom(uint8_t **pdata, uint16_t *psize, struct wu_snmp_atom *atom)
 
 	atom_set_data(atom, data, atom->len);
 
+	*psize -= (data + atom->len) - *pdata;
 	*pdata = data + atom->len;
-	*psize -= 2 + atom->len;
 
 	return 0;
 }
