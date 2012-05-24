@@ -493,7 +493,6 @@ static void Send_T_DataLong(BYTE bConnId,BYTE *pData,DWORD dwLen)
 static void Send_SPDU_Data(BYTE bConnID,WORD wSessionNumber,BYTE *pData,DWORD dwLen)
 {
 	BYTE pFrame[1024];
-	//int offset;
 	if(dwLen>1024)
 	return;
 	pFrame[0]=CI_SESSION_DATA;
@@ -516,15 +515,9 @@ unsigned char CA_SEND_PMT(unsigned char *pBuf, unsigned int dwLen,int type)
 {
 	static unsigned char  CAPMTBuf[MAX_LEN_CA_PMT];
 	unsigned short  wCAPMTLen;
-//	printf("CA send pmt dwlen:%d\n",dwLen);
-//       printf("pBuf:0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",pBuf[0],pBuf[1],pBuf[2],pBuf[3],pBuf[4],pBuf[5]);
-          printf("CA send pmt dwlen:%d\n",dwLen);
-
-        //int i;
 	// If the CI lib detects a module it re-uses the buffer ptr
 	if(dwLen==0)
 	return FALSE;
-  //   printf("test0\n");
 	if(PMTBuf != pBuf) 
 	{
 		if(dwLen > 1024)
@@ -532,10 +525,8 @@ unsigned char CA_SEND_PMT(unsigned char *pBuf, unsigned int dwLen,int type)
 		memcpy(PMTBuf,pBuf,dwLen);
 		wPMTLen = (WORD)dwLen;
 	}
-//	printf("test1\n");
 	// generate the correct PMT for the modules
 	// some module(s) require CA-ID based filtering
-	//for(i=0; i<=g_dwNumPCMCIASlots; i++)
 	{
 		wCAPMTLen = Generate_CA_PMT(CAPMTBuf,pBuf,dwLen,type);
                 printf("wCAPMTLen:%d\n",wCAPMTLen);
