@@ -4,6 +4,7 @@
 
 #include "wu/wu_byte_stream.h"
 #include "wu/wu_csc.h"
+#include "wu/thread.h"
 
 #include "front_panel.h"
 #include "front_panel_intstr.h"
@@ -397,13 +398,20 @@ static void fp_gtk_ui_create()
 	gtk_widget_show_all(window);
 }
 
+static int gtk_main_thread(void *data)
+{
+	gtk_main();
+	g_print("sim_fp: main loop quit\n");
+
+	return 0;
+}
+
 void sim_fp_run()
 {
 	g_print("sim_fp: run\n");
 	g_thread_init(NULL);
 	gtk_init(NULL, NULL);
 	fp_gtk_ui_create();
-	gtk_main();
-	g_print("sim_fp: main loop quit\n");
+	thread_create(gtk_main_thread, NULL);
 }
 
