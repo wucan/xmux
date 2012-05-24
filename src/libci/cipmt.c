@@ -19,6 +19,10 @@
 //
 //  This file contains the portable CI Lib CA-PMT Generator
 //  
+
+#include <string.h>
+#include <stdio.h>
+
 #include "ci_define.h"
 
 //#ifdef ENABLE_CI
@@ -419,44 +423,50 @@ static WORD Generate_CA_PMT(BYTE *CAPMTBuf,BYTE *pBuf, unsigned int  dwLen,int P
 	return wTotalLen;
 }
 
+struct ca_send_data_block {
+    int data_len;
+    int total_len;
 
-static void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
+    unsigned char *txpkt_header;
+    unsigned char *t_data_header;
+
+    unsigned char txpkt_and_t_data_headers[7];
+    unsigned char spdu_header[4];
+    unsigned char data[1024];
+} __attribute__((packed));
+
+static void SendTransportPacket(BYTE ConnId,struct ca_send_data_block *db)
 {
-	BYTE Frame[512];
 	unsigned char buff[0x100] = {0};
- 	uint8_t p_data1[512];
+ 	uint8_t back[2];
 	int i;
-	Frame[0]=ConnId;
-	//printf("SendTransportPacket %08X\r\n",pBuf);
-	Frame[1]=0;
-	memcpy(Frame+2,pData,dwLen);
-	dwLen=dwLen+2;
+	DWORD dwLen;
+
+	db->txpkt_header[0]=ConnId;
+	db->txpkt_header[1]=0;
+	db->total_len += 2;
+	dwLen=db->total_len;
 	#if 1
  	read_ci(IO_CARDB,buff, sizeof(buff)); 
 
     	if(dwLen>128)
     	{
-    		write_card_io(0,Frame, 128);
-	p_data1[0]=0x01;
-	p_data1[1]=0x00;
-	memcpy(p_data1+2,Frame+128,dwLen-128+2);
+    		write_card_io(0,db->txpkt_header, 128);
+	back[0] = db->txpkt_header[126];
+	back[1] = db->txpkt_header[127];
+	db->txpkt_header[126]=0x01;
+	db->txpkt_header[127]=0x00;
 	for(i=0;i<4;i++)
 	{
        	ci_io_read_u8(0x01);	
 	}
-	write_card_io(0,p_data1, dwLen-128+2);
-	
+	write_card_io(0,&db->txpkt_header[126], dwLen-128+2);
+	db->txpkt_header[126]=back[0];
+	db->txpkt_header[127]=back[1];
     }
     else
     {
-       printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&len=%d\n",dwLen);
-       for(i=0;i<dwLen;i++)
-       {
-	 printf("0x%x,",Frame[i]);
-       } 
-    
-
-    	if(write_card_io(0,Frame, dwLen) != dwLen)
+    	if(write_card_io(0,db->txpkt_header, dwLen) != dwLen)
     	{
         	printf("cannot write to CAM device\n");
     	}
@@ -466,71 +476,75 @@ static void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
 
 }
 
-static void Send_T_DataLong(BYTE bConnId,BYTE *pData,DWORD dwLen)
+static void Send_T_DataLong(BYTE bConnId,struct ca_send_data_block *db)
 {
-	BYTE Msg[1024];	
+	DWORD dwLen = db->total_len;
+
 	if(dwLen+3>=0x80)
 	{
-		Msg[0]=CI_T_DATALAST;
-		Msg[1]=0x82;
-		Msg[2]=(BYTE)(dwLen+1)>>8;
-		Msg[3]=(BYTE)(dwLen+1)&0xFF;
-		Msg[4]=bConnId;
-		memcpy(Msg+5,pData,dwLen);
-		SendTransportPacket(bConnId,Msg,dwLen+5);
+		db->t_data_header = &db->txpkt_and_t_data_headers[2];
+		db->txpkt_header = &db->txpkt_and_t_data_headers[0];
+
+		db->t_data_header[0]=CI_T_DATALAST;
+		db->t_data_header[1]=0x82;
+		db->t_data_header[2]=(BYTE)(dwLen+1)>>8;
+		db->t_data_header[3]=(BYTE)(dwLen+1)&0xFF;
+		db->t_data_header[4]=bConnId;
+		db->total_len += 5;
+		SendTransportPacket(bConnId,db);
 	}
 	else
 	{
 		// small 
-		Msg[0]=CI_T_DATALAST;
-		Msg[1]=(BYTE)(dwLen+1);
-		Msg[2]=bConnId;
-		if(dwLen)
-			memcpy(Msg+3,pData,dwLen);
-		SendTransportPacket(bConnId,Msg,3+dwLen);
+		db->t_data_header = &db->txpkt_and_t_data_headers[4];
+		db->txpkt_header = &db->txpkt_and_t_data_headers[2];
+
+		db->t_data_header[0]=CI_T_DATALAST;
+		db->t_data_header[1]=(BYTE)(dwLen+1);
+		db->t_data_header[2]=bConnId;
+		db->total_len += 3;
+		SendTransportPacket(bConnId,db);
 	}
 }
-static void Send_SPDU_Data(BYTE bConnID,WORD wSessionNumber,BYTE *pData,DWORD dwLen)
+static void Send_SPDU_Data(BYTE bConnID,WORD wSessionNumber,struct ca_send_data_block *db)
 {
-	BYTE pFrame[1024];
-	if(dwLen>1024)
+	if(db->data_len>1024)
 	return;
-	pFrame[0]=CI_SESSION_DATA;
-	pFrame[1]=2;
-	pFrame[2]=(BYTE)(wSessionNumber>>8);
-	pFrame[3]=(BYTE)(wSessionNumber);
-	if(dwLen)
-		memcpy(pFrame+4,pData,dwLen);
+	db->spdu_header[0]=CI_SESSION_DATA;
+	db->spdu_header[1]=2;
+	db->spdu_header[2]=(BYTE)(wSessionNumber>>8);
+	db->spdu_header[3]=(BYTE)(wSessionNumber);
+	db->total_len += 4;
 
-	Send_T_DataLong(bConnID,pFrame,dwLen+4);
+	Send_T_DataLong(bConnID,db);
 }
-static void CaSupport_SendPMT(BYTE *pData,DWORD dwLen)
+static void CaSupport_SendPMT(struct ca_send_data_block *db)
 {
 	
           Send_SPDU_Data(0x01,
-	ca_support_sid,pData,dwLen);		
+	ca_support_sid,db);
 	
 }
 unsigned char CA_SEND_PMT(unsigned char *pBuf, unsigned int dwLen,int type)
 {
-	static unsigned char  CAPMTBuf[MAX_LEN_CA_PMT];
-	unsigned short  wCAPMTLen;
+    static struct ca_send_data_block db;
+
 	// If the CI lib detects a module it re-uses the buffer ptr
 	if(dwLen==0)
 	return FALSE;
-	if(PMTBuf != pBuf) 
+	if(db.data != pBuf) 
 	{
 		if(dwLen > 1024)
 		return FALSE;
-		memcpy(PMTBuf,pBuf,dwLen);
+		memcpy(db.data,pBuf,dwLen);
 		wPMTLen = (WORD)dwLen;
 	}
 	// generate the correct PMT for the modules
 	// some module(s) require CA-ID based filtering
 	{
-		wCAPMTLen = Generate_CA_PMT(CAPMTBuf,pBuf,dwLen,type);
-                printf("wCAPMTLen:%d\n",wCAPMTLen);
-		CaSupport_SendPMT(CAPMTBuf,wCAPMTLen);
+		db.data_len = Generate_CA_PMT(db.data,pBuf,dwLen,type);
+		db.total_len = db.data_len;
+		CaSupport_SendPMT(&db);
 	}
 }
 
