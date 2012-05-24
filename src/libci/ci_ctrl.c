@@ -661,19 +661,10 @@ static unsigned char create_link(uint32_t cardtype)
 {
     int ret = 0;
     unsigned char buff[0x100] = {0};
-  printf("create_link\n");
-  #if 0
-    if(test_read_bit(cardtype))
-    {
-        read_ci(cardtype,buff);
-    }
-	#endif
-      printf("create_link send\n");
     ret = send_t_create_pdu(cardtype,conn_id);
-	printf("ret=%d\n",ret);
     if(ret)
     {
-        ret = read_ci(cardtype,buff);
+        ret = read_ci(cardtype,buff, sizeof(buff));
     }
     
     return ret;

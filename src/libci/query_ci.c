@@ -144,13 +144,13 @@ static void handle_apdu(uint32_t cardtype,xpdu_content* xpdu)
     {
         case PROFILE_ENQ:
             send_profile_response(cardtype,conn_id, res_mng_sid);
-           // len=read_ci(cardtype,buff);
+           // len=read_ci(cardtype,buff, sizeof(buff));
            //     parse_readci(cardtype,buff,len);
             break;
 
         case PROFILE:
             send_s_change_profile(cardtype,conn_id, res_mng_sid);
-          // len=read_ci(cardtype,buff);
+          // len=read_ci(cardtype,buff, sizeof(buff));
            //     parse_readci(cardtype,buff,len);
             break;
 
@@ -167,7 +167,7 @@ static void handle_apdu(uint32_t cardtype,xpdu_content* xpdu)
              printf("%s\n",ciname);
 
 	  // MenuEnterSend(0,conn_id,app_inf_sid);
-	  //read_ci(cardtype,buff);
+	  //read_ci(cardtype,buff, sizeof(buff));
             break;
 
         case CA_INFO:
@@ -184,17 +184,17 @@ static void handle_apdu(uint32_t cardtype,xpdu_content* xpdu)
 	//printf("DATETIMEINFO\n");
         send_t_data_last(cardtype,conn_id);
 	//send_datetime_response(cardtype,conn_id, date_time_sid);
-    //    len=read_ci(cardtype,buff);
+    //    len=read_ci(cardtype,buff, sizeof(buff));
      //           parse_readci(cardtype,buff,len);
 		// MenuEnterSend(0,conn_id,app_inf_sid);
-	   //read_ci(cardtype,buff);
+	   //read_ci(cardtype,buff, sizeof(buff));
 	break;
         case CA_PMT_REPLY:
             break;
 
         case DISPLAY_CTRL:
             send_s_display_ctrl_response(cardtype,conn_id, mmi_sid);
-       //   len=read_ci(cardtype,buff);
+       //   len=read_ci(cardtype,buff, sizeof(buff));
       //          parse_readci(cardtype,buff,len);
             break;
 
@@ -219,7 +219,7 @@ static void handle_apdu(uint32_t cardtype,xpdu_content* xpdu)
         if((xpdu->apdu.apdu_tag>>8)&0xffff==0x9f88)
         	{
         		//send_s_menu_answ(cardtype,conn_id, mmi_sid);
-            		//read_ci(cardtype,buff);
+            		//read_ci(cardtype,buff, sizeof(buff));
         		 memcpy(status->card_munu_info, xpdu->apdu_buff, xpdu->apdu.apdu_len);
 		       status->card_munu_info[xpdu->apdu.apdu_len]=0;
 		        printf("MENU OTHER:\n");
@@ -245,7 +245,7 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
             query_apdu_tag = PROFILE_ENQ;
 		//	usleep(10000);
 		send_s_open_response(cardtype,conn_id, sid, xpdu->spdu.res_id); 
-    		len=read_ci(cardtype,buff);
+    		len=read_ci(cardtype,buff, sizeof(buff));
                 //parse_readci(cardtype,buff,len);
              
 		for(i=0;i<17;i++)
@@ -254,7 +254,7 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
 		 	//printf("read  reg01:0x%x\n ",dat);
 		}
     		send_s_profile_connect(cardtype,conn_id, sid, query_apdu_tag);
-    		//len=read_ci(cardtype,buff);
+    		//len=read_ci(cardtype,buff, sizeof(buff));
                 //parse_readci(cardtype,buff,len);
 		
             break;
@@ -263,7 +263,7 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
             sid = app_inf_sid;
             query_apdu_tag = APPLACATION_ENQ;
 		send_s_open_response(cardtype,conn_id, sid, xpdu->spdu.res_id);
-    		 len=read_ci(cardtype,buff);
+    		 len=read_ci(cardtype,buff, sizeof(buff));
                 //parse_readci(cardtype,buff,len);
             	
                 for(i=0;i<17;i++)
@@ -272,7 +272,7 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
 		 	//printf("read  reg01:0x%x\n ",dat);
 		}
     		send_s_appinfo_connect(cardtype,conn_id, sid, query_apdu_tag);
-    		//len=read_ci(cardtype,buff);
+    		//len=read_ci(cardtype,buff, sizeof(buff));
                // parse_readci(cardtype,buff,len);
             	
             break;
@@ -281,7 +281,7 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
             	sid = ca_support_sid;
             	query_apdu_tag = CA_INFO_ENQ;
 		send_s_open_response(cardtype,conn_id, sid, xpdu->spdu.res_id);
-    		len=read_ci(cardtype,buff);
+    		len=read_ci(cardtype,buff, sizeof(buff));
               //  parse_readci(cardtype,buff,len);
             	
                  for(i=0;i<17;i++)
@@ -290,7 +290,7 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
 		 	//printf("read  reg01:0x%x\n ",dat);
 		}
     		send_s_cainfo_connect(cardtype,conn_id, sid, query_apdu_tag);
-    		//len=read_ci(cardtype,buff);
+    		//len=read_ci(cardtype,buff, sizeof(buff));
                 //parse_readci(cardtype,buff,len);
             	
             break;
@@ -298,11 +298,11 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
         case HOST_CONTROL:
             sid = host_ctrl_sid;
 			send_s_open_response(cardtype,conn_id, sid, xpdu->spdu.res_id);
-    		len=read_ci(cardtype,buff);
+    		len=read_ci(cardtype,buff, sizeof(buff));
                 parse_readci(cardtype,buff,len);
             	
     		send_s_query(cardtype,conn_id, sid, query_apdu_tag);
-    		len=read_ci(cardtype,buff);
+    		len=read_ci(cardtype,buff, sizeof(buff));
                 parse_readci(cardtype,buff,len);
             	
             break;
@@ -311,22 +311,22 @@ static void handle_open_session(uint32_t cardtype,xpdu_content* xpdu)
             sid = date_time_sid;
 			sid=sid-1;
 		send_s_open_response(cardtype,conn_id, sid, xpdu->spdu.res_id);
-    		len=read_ci(cardtype,buff);
+    		len=read_ci(cardtype,buff, sizeof(buff));
                 parse_readci(cardtype,buff,len);
             	
     		send_s_timeinfo_connect(cardtype,conn_id, sid, query_apdu_tag);
-    		//read_ci(cardtype,buff);
+    		//read_ci(cardtype,buff, sizeof(buff));
             break;
 
         case MMI:
             sid = mmi_sid;
 		send_s_open_response(cardtype,conn_id, sid, xpdu->spdu.res_id);
-//    		len=read_ci(cardtype,buff);
+//    		len=read_ci(cardtype,buff, sizeof(buff));
   //              parse_readci(cardtype,buff,len);
             	
 
     //		send_s_mmiinfo_connect(cardtype,conn_id, sid, query_apdu_tag);
-    		//len=read_ci(cardtype,buff);
+    		//len=read_ci(cardtype,buff, sizeof(buff));
             	
             break;
 
@@ -357,7 +357,7 @@ int len;
 
         case S_CLOSE_REQUEST:
             send_s_close_session(cardtype,conn_id, xpdu->spdu.session_number);
-           len=read_ci(cardtype,buff);
+           len=read_ci(cardtype,buff, sizeof(buff));
                 parse_readci(cardtype,buff,len);
             break;
 
@@ -480,7 +480,7 @@ static void loop_query_ci(void* param)
         		send_t_data_last(IO_CARDA,conn_id);
 			cardasend=1;
 		}
-        	read_byte = read_ci(IO_CARDA,buff);
+        	read_byte = read_ci(IO_CARDA,buff, sizeof(buff));
         	if(0 != read_byte)
         	{
            		 parser_xpdu(&xpdu, buff, read_byte);

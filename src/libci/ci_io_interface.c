@@ -91,7 +91,7 @@ unsigned int read_card_io(uint32_t cardtype,unsigned char* buff)
 
     return bsize;
 }
-unsigned int read_card_io_2(uint32_t cardtype,unsigned char* buff)
+unsigned int read_card_io_2(uint32_t cardtype,unsigned char* buff, int buf_len)
 {
     unsigned int i = 0;
     unsigned short Status_Reg = 0x00;
@@ -113,8 +113,8 @@ unsigned int read_card_io_2(uint32_t cardtype,unsigned char* buff)
         Size_Reg[1] = ci_io_read_u8(0x03);
 
         bsize = Size_Reg[0] | Size_Reg[1] << 8;
-      // printf("bsize=%d,",bsize); 
-		//bsize=2;
+        if (bsize > buf_len)
+            bsize = buf_len;
         for (i=0; i<bsize; i++)
         {
             buff[i] = (ci_io_read_u8(0x00)&0x00FF);

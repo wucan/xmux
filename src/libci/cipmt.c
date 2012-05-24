@@ -432,7 +432,7 @@ void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
 	memcpy(Frame+2,pData,dwLen);
 	dwLen=dwLen+2;
 	#if 1
- 	read_ci(IO_CARDB,buff); 
+ 	read_ci(IO_CARDB,buff, sizeof(buff)); 
 
     	if(dwLen>128)
     	{

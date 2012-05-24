@@ -141,19 +141,8 @@ static int TPDUSend( uint32_t cardtype,uint8_t tpdu_id, uint8_t i_tag,
 #endif
     printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&size= %d\n", i_size);
 
-// for(i=0;i<i_size;i++)
-// printf("0x%x,",p_data[i]);
-// printf("\n");
-//
-//p_data[9]=0x04;
-//p_data[18]|=0xc0;
-//p_data[19]=0xf0; 
-//len=read_ci(IO_CARDB,buff);
-   //     parse_readci(IO_CARDB,buff,len);
-      //  len=read_ci(IO_CARDB,buff);
-        //parse_readci(IO_CARDB,buff,len);
 #if 1
- read_ci(IO_CARDB,buff); 
+ read_ci(IO_CARDB,buff, sizeof(buff)); 
 
     if(i_size>128)
     {
@@ -178,23 +167,6 @@ static int TPDUSend( uint32_t cardtype,uint8_t tpdu_id, uint8_t i_tag,
      }
 	
 	#endif
-	//if(write_card_io(cardtype,p_data, i_size) != i_size)
-    	//{
-        //	printf("cannot write to CAM device\n");
-    	//}
-	//write_card_io(cardtype,capmt, 128);
-	//write_card_io(cardtype,capmtother, 21);
-	//read_ci(cardtype,buff);
-	//write_card_io(cardtype,capmt, 128);
-	//write_card_io(cardtype,capmtother, 21);
-/*
-    if ( write( p_sys->i_ca_handle, p_data, i_size ) != i_size )
-    {
-        msg_Err( p_access, "cannot write to CAM device (%s)",
-                 strerror(errno) );
-        return VLC_EGENERIC;
-    }
-*/
     return VLC_SUCCESS;
 }
 
