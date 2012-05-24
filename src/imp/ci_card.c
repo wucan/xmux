@@ -19,6 +19,10 @@ static inline void delay()
 
 bool ci_card_actived()
 {
+#ifndef _UCLINUX_
+	return false;
+#endif
+
 	if (sPCCARDCON.ACT)
 		return true;
 

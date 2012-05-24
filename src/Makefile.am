@@ -35,7 +35,7 @@ xmux_LDADD = $(NETSNMP_LIBS) -lm \
 
 AM_CFLAGS += $(gtk_CFLAGS)
 
-SIM_SRC = sim_fp.c sim_libci.c
+SIM_SRC = sim_fp.c
 endif
 
 
