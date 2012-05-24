@@ -73,7 +73,7 @@ void SendCIPMT(char* pmt,unsigned int pmt_index,unsigned int len);
 extern unsigned char CA_SEND_PMT(unsigned char *pBuf, unsigned int dwLen,int type);
 unsigned int init_pmt_setA=0;
 unsigned int init_pmt_setB=0;
-static unsigned int start_send_pmt();
+static void start_send_pmt();
 static void stop_send_pmt();
 void clean_ci_dcas_list();
 unsigned char ciname[20]={0};
@@ -623,11 +623,9 @@ void SendCIPMT(char* pmt,unsigned int pmt_index,unsigned int len)
 
 }
  
-static unsigned int start_send_pmt()
+static void start_send_pmt()
 {
-    unsigned ret = 0;
    send_pmt_en0=1;
-    return ret;
 }
 
 static void stop_send_pmt()
