@@ -124,7 +124,7 @@ typedef struct
 #define CI_SESSION_DATA				0x90
 extern system_ids_t sys_ids[];
 extern unsigned short ca_support_sid;
-BOOL IsCASysIdInList(WORD wCASysId)
+static BOOL IsCASysIdInList(WORD wCASysId)
 {
 	 int i = 0;
 
@@ -139,7 +139,7 @@ BOOL IsCASysIdInList(WORD wCASysId)
     return 0;
 }
 
-BYTE *GetPMTDescriptor(BYTE *pBuf,BYTE bTag,BYTE index)
+static BYTE *GetPMTDescriptor(BYTE *pBuf,BYTE bTag,BYTE index)
 {
 	WORD wLen = ((pBuf[1]&0x0F)<<8)|pBuf[2];
 	WORD wLoopLen;
@@ -161,7 +161,7 @@ BYTE *GetPMTDescriptor(BYTE *pBuf,BYTE bTag,BYTE index)
 	}
 	return 0;
 }
-BYTE *GetPMTESDescriptor(BYTE *pSection,BYTE bESEntry,BYTE bDescriptorTag, BYTE bCount)
+static BYTE *GetPMTESDescriptor(BYTE *pSection,BYTE bESEntry,BYTE bDescriptorTag, BYTE bCount)
 {
 	WORD wSectionLength = ((pSection[1]&0x0F)<<8)|pSection[2];
 	WORD wProgInfoDescrLength;
@@ -209,7 +209,7 @@ BYTE *GetPMTESDescriptor(BYTE *pSection,BYTE bESEntry,BYTE bDescriptorTag, BYTE 
 	}
 	return NULL;}
 
-BOOL GetPMTESEntry(BYTE *pSection,BYTE bESEntry,BYTE *pStreamType, WORD *pPID)
+static BOOL GetPMTESEntry(BYTE *pSection,BYTE bESEntry,BYTE *pStreamType, WORD *pPID)
 {
 	WORD wSectionLength = ((pSection[1]&0x0F)<<8)|pSection[2];
 	WORD wProgInfoDescrLength;
@@ -252,7 +252,7 @@ BOOL GetPMTESEntry(BYTE *pSection,BYTE bESEntry,BYTE *pStreamType, WORD *pPID)
 
 
 
-WORD Generate_CA_PMT(BYTE *CAPMTBuf,BYTE *pBuf, unsigned int  dwLen,int Progtype)
+static WORD Generate_CA_PMT(BYTE *CAPMTBuf,BYTE *pBuf, unsigned int  dwLen,int Progtype)
 {
 	WORD wSizePtr;
 	WORD wLoopSizePtr;
@@ -420,7 +420,7 @@ WORD Generate_CA_PMT(BYTE *CAPMTBuf,BYTE *pBuf, unsigned int  dwLen,int Progtype
 }
 
 
-void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
+static void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
 {
 	BYTE Frame[512];
 	unsigned char buff[0x100] = {0};
@@ -466,7 +466,7 @@ void SendTransportPacket(BYTE ConnId,BYTE *pData,DWORD dwLen)
 
 }
 
-void Send_T_DataLong(BYTE bConnId,BYTE *pData,DWORD dwLen)
+static void Send_T_DataLong(BYTE bConnId,BYTE *pData,DWORD dwLen)
 {
 	BYTE Msg[1024];	
 	if(dwLen+3>=0x80)
@@ -490,7 +490,7 @@ void Send_T_DataLong(BYTE bConnId,BYTE *pData,DWORD dwLen)
 		SendTransportPacket(bConnId,Msg,3+dwLen);
 	}
 }
-void Send_SPDU_Data(BYTE bConnID,WORD wSessionNumber,BYTE *pData,DWORD dwLen)
+static void Send_SPDU_Data(BYTE bConnID,WORD wSessionNumber,BYTE *pData,DWORD dwLen)
 {
 	BYTE pFrame[1024];
 	//int offset;
@@ -505,7 +505,7 @@ void Send_SPDU_Data(BYTE bConnID,WORD wSessionNumber,BYTE *pData,DWORD dwLen)
 
 	Send_T_DataLong(bConnID,pFrame,dwLen+4);
 }
-void CaSupport_SendPMT(BYTE *pData,DWORD dwLen)
+static void CaSupport_SendPMT(BYTE *pData,DWORD dwLen)
 {
 	
           Send_SPDU_Data(0x01,
