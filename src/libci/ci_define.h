@@ -97,8 +97,6 @@ typedef unsigned int DWORD;
 #define CARD_NOT_EXIST  0x00
 #define CARD_IS_EXIST   0x01
 #define CARD_IS_READY   0x03
-#define CARD_A_SELECTED 0x00
-#define CARD_B_SELECTED 0x01
 
 #define CARD_NO 0x00
 #define CARDA_ONLY 0x01
@@ -205,23 +203,16 @@ typedef struct system_ids_t_s
 unsigned short pi_system_ids[MAX_CASYSTEM_IDS + 1];
 } system_ids_t;
 
-#if 0
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-#endif
-
 //card status
 #define CARDS_STATUS_LEN sizeof(cards_status)
 typedef struct cards_status_s
 {
-unsigned char current_sel;
 unsigned char card_exist;
-unsigned char dcas_cnt[2];
-unsigned char max_dcas[2];
-unsigned char card_status[2];
-unsigned char card_munu_status[2];
-unsigned char card_munu_info[2][0x100];
+unsigned char dcas_cnt;
+unsigned char max_dcas;
+unsigned char card_status;
+unsigned char card_munu_status;
+unsigned char card_munu_info[0x100];
 } cards_status;
 
 #endif

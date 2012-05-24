@@ -139,10 +139,10 @@ typedef struct
 static char dvbciManufacturer[20];
 static char dvbciProduct[20];
 static bool dvbcicard_status=FALSE;
-cards_status all_card_status = {.current_sel = 0,
-                                       .dcas_cnt = {0, 0},
-                                       .max_dcas = {6, 6},
-                                       .card_status = {0, 0}};
+cards_status all_card_status = {
+                                       .dcas_cnt = 0,
+                                       .max_dcas = 6,
+                                       .card_status = 0};
 
 
 static unsigned char create_link(uint32_t cardtype);
@@ -717,16 +717,15 @@ unsigned int init_ci()
    usleep(100000);
    if(ci_card_actived()==TRUE)
    {
-   	all_card_status.card_status[CARD_A_SELECTED]=CARD_IS_EXIST;
+   	all_card_status.card_status=CARD_IS_EXIST;
    	all_card_status.card_exist=CARDA_ONLY;
-   	all_card_status.current_sel = CARD_A_SELECTED;
    }
    else
    {
    	return CI_NOT_EXIST;
    }
    init_card();
-   if(CARD_IS_EXIST == all_card_status.card_status[CARD_A_SELECTED])
+   if(CARD_IS_EXIST == all_card_status.card_status)
     {
         //sel_card_A();
 	printf("sel_card_A!\n");	
