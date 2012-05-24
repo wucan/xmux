@@ -11,6 +11,7 @@ void xmux_net_param_init_default(struct xmux_net_param *net);
 void xmux_net_param_dump(struct xmux_net_param *net);
 int xmux_net_set(struct xmux_net_param *net);
 int xmux_net_restore();
+void xmux_net_eeprom_dump(const char *context);
 
 
 #endif /* _XMUX_NET_H_ */

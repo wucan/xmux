@@ -98,3 +98,13 @@ int xmux_net_restore()
 	return 0;
 }
 
+void xmux_net_eeprom_dump(const char *context)
+{
+	struct xmux_net_param net;
+	char prefix[128];
+
+	sprintf(prefix, "[%s] EEPROM net", context);
+	eeprom_read(EEPROM_OFF_NET, &net, sizeof(net));
+	hex_dump(prefix, &net, sizeof(net));
+}
+
