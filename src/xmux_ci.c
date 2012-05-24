@@ -5,8 +5,6 @@
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "ci"};
 
-extern unsigned int ci_max_cnt[];
-
 static bool xmux_ci_download_pmt_section(uint8_t *sec[], int sec_len[], int num, int total_num)
 {
 	loadPMT(sec, sec_len, num);
@@ -50,6 +48,6 @@ void xmux_ci_info_update(struct ci_info_param *ci_info)
 {
 	if (ci_info->ci_max_descramble_num < 1)
 		ci_info->ci_max_descramble_num = 1;
-	ci_max_cnt[0] = ci_info->ci_max_descramble_num;
+	set_ci_max_cnt(ci_info->ci_max_descramble_num);
 }
 
