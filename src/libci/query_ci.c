@@ -72,7 +72,6 @@ extern unsigned int MenuStringSend(uint32_t cardtype,unsigned char conn_id,
 void SendCIPMT(char* pmt,unsigned int pmt_index,unsigned int len);
 extern unsigned char CA_SEND_PMT(unsigned char *pBuf, unsigned int dwLen,int type);
 unsigned int init_pmt_setA=0;
-unsigned int init_pmt_setB=0;
 static void start_send_pmt();
 static void stop_send_pmt();
 void clean_ci_dcas_list();
