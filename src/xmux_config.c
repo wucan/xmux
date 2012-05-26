@@ -30,11 +30,16 @@ int xmux_config_init()
 	trace_info("Sys:            %#08x", EEPROM_OFF_SYS);
 	trace_info("Net:            %#08x", EEPROM_OFF_NET);
 	trace_info("User:           %#08x", EEPROM_OFF_USER);
-	trace_info("Misc:       	%#08x", EEPROM_OFF_MISC);
+	trace_info("Misc:           %#08x", EEPROM_OFF_MISC);
 	trace_info("MUX_PROG_INFO:  %#08x", EEPROM_OFF_MUX_PROG_INFO);
 	trace_info("PID_MAP_TABLE:  %#08x", EEPROM_OFF_PID_MAP_TABLE);
 	trace_info("OUTPUT_PSI:     %#08x", EEPROM_OFF_OUTPUT_PSI);
 	trace_info("PID_TRANS_INFO: %#08x", EEPROM_OFF_PID_TRANS_INFO);
+
+#if CHANNEL_MAX_NUM == 1
+	trace_info("INPUT_PMT_SE:   %#08x", EEPROM_OFF_INPUT_PMT_SEC);
+	trace_info("TUNNER:         %#08x", EEPROM_OFF_TUNNER);
+#endif
 
 	return 0;
 }
