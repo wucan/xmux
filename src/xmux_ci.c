@@ -48,6 +48,6 @@ void xmux_ci_info_update(struct ci_info_param *ci_info)
 {
 	if (ci_info->ci_max_descramble_num < 1)
 		ci_info->ci_max_descramble_num = 1;
-	set_ci_max_cnt(ci_info->ci_max_descramble_num);
+	set_ci_max_cnt(ci_info->ci_max_descramble_num, 0);
 }
 
