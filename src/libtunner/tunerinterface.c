@@ -314,7 +314,6 @@ void tuner_port_test(void)
 {
 U8 	ChipID;
 ChipID=ChipGetOneRegister_E(0xd0,STCHIP_MODE_SUBADR_16,FALSE,RSTV0903_MID,0,0);
-printf("ChipID:%x\n",ChipID);
 //GetTunerRegister_E();
 }
 

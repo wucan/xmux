@@ -43,7 +43,6 @@ void Set_TunerI2c_Free(void)
 }
 int tunner_device_init()
 {
-      printf("tuner init!\n");
 	tuner_device_open();
 	tuner_init();
 	tuner_port_test();
@@ -143,7 +142,6 @@ void tunner_device_check()
 	tunner_device_get_status(0, &status);
 //        printf("LockStatus:%d,Ber:%f\n",status.lock,status.ber);
 	if(!status.lock) {
-                printf("tuner set repeat!\n");
 		tuner_device_reset();
 		tunner_device_init();
 		tunner_device_do_set_info(0, &g_eeprom_param.tunner[0]);
