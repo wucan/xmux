@@ -270,8 +270,20 @@ void xmux_config_save_pid_trans_info_all()
 	}
 }
 
+static int request_save_output_psi;
+
 void xmux_config_save_output_psi_data()
 {
+	request_save_output_psi = 1;
+}
+
+void check_and_save_output_psi_data()
+{
+	if (!request_save_output_psi)
+		return;
+
+	request_save_output_psi = 0;
+
 	trace_info("save output psi data, %d packets ...",
 		g_eeprom_param.output_psi_area.output_psi.pkt_nr);
 	output_psi_data_dump(&g_eeprom_param.output_psi_area.output_psi);

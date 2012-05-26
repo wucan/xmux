@@ -82,6 +82,7 @@ int main(int argc, char **argv)
 
 	while (1) {
 		xmux_snmp_check_connection();
+		check_and_save_output_psi_data();
 		pid_trans_info_save_check();
 #if CHANNEL_MAX_NUM == 1
 		check_and_save_input_pmt_sec();
