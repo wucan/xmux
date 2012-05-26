@@ -294,12 +294,20 @@ void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t)
 }
 
 #if CHANNEL_MAX_NUM == 1
+static int request_save_input_pmt_sec;
+void check_and_save_input_pmt_sec()
+{
+	if (request_save_input_pmt_sec) {
+		request_save_input_pmt_sec = 0;
+		eeprom_write(EEPROM_OFF_INPUT_PMT_SEC, g_eeprom_param.input_pmt_sec,
+			sizeof(g_input_pmt_sec));
+	}
+}
 void xmux_config_save_input_pmt_section()
 {
 	memcpy(g_eeprom_param.input_pmt_sec, g_input_pmt_sec,
 		sizeof(g_input_pmt_sec));
-	eeprom_write(EEPROM_OFF_INPUT_PMT_SEC, g_eeprom_param.input_pmt_sec,
-		sizeof(g_input_pmt_sec));
+	request_save_input_pmt_sec = 1;
 }
 #endif
 
