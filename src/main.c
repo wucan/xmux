@@ -112,7 +112,9 @@ static void restore_work_field()
 #endif
 	/* download psi and pid map table */
 	pid_map_table_apply(&g_eeprom_param.pid_map_table_area.pid_map_table);
+#if CHANNEL_MAX_NUM != 1
 	psi_apply_from_output_psi();
+#endif
 	/* set output bitrate and packet length */
 	hfpga_write_sys_output_bitrate(g_eeprom_param.sys.output_bitrate);
 	hfpga_write_sys_packet_length(g_eeprom_param.sys.format);

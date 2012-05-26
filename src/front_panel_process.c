@@ -216,10 +216,12 @@ static void _apply_pid_map_table_and_psi()
 	pid_map_table_gen_and_apply_from_fp();
 	g_param_mng_info.eeprom_pid_map_table_version++;
 
+#if CHANNEL_MAX_NUM != 1
 	/*
 	 * generate and download psi to fpga
 	 */
 	psi_gen_and_apply_from_fp();
+#endif
 
 	/*
 	 * and at last save pid_trans_info
