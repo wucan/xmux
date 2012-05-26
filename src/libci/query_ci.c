@@ -42,6 +42,8 @@ extern unsigned short low_speed_comm_sid;
 extern cards_status all_card_status;
 static unsigned char ci_work_status;
 
+int ci_in_busy_sending;
+
 system_ids_t sys_ids[2];
 static unsigned char send_pmt_status0=0;
 static unsigned char send_pmt_status1=0;
@@ -603,7 +605,9 @@ static void loop_query_ci(void* param)
 					if((pmt_indexA<ci_max_cnt[INPUT0])&&(pmt_indexA<cur_section.programtotal))
 					{
 						printf("pmtA:0x%x,0x%x,0x%x,0x%x,0x%x\n",curpmt[0],curpmt[1],curpmt[2],curpmt[3],curpmt[4]);
+						ci_in_busy_sending = 1;
 						SendCIPMT(CARD_A_SELECTED,&curpmt,pmt_indexA,cur_section.section[pmt_indexA].len,INPUT0);}
+						ci_in_busy_sending = 0;
 					}
 			}
 		}

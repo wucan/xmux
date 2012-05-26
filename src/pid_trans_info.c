@@ -14,7 +14,7 @@
 
 static msgobj mo = {MSG_INFO, ENCOLOR, "pid_trans_info"};
 
-static int save_pid_trans_info;
+int save_pid_trans_info;
 
 struct pid_trans_info_snmp_data sg_mib_pid_trans_info[CHANNEL_MAX_NUM];
 

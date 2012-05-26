@@ -324,12 +324,26 @@ static int psi_status_get(struct wu_oid_object *obj, struct wu_snmp_value *v)
 
 	return 0;
 }
+extern int save_pid_trans_info;
+#if CHANNEL_MAX_NUM == 1
+extern int request_save_input_pmt_sec;
+extern int ci_in_busy_sending;
+#endif
 /*
  * APPLY PSI
  */
 static int apply_psi_set(struct wu_oid_object *obj, struct wu_snmp_value *v)
 {
 	trace_info("apply psi...");
+
+	if (save_pid_trans_info)
+		return -1;
+
+#if CHANNEL_MAX_NUM == 1
+	if (request_save_input_pmt_sec || ci_in_busy_sending)
+		return -1;
+#endif
+
 	memcpy(&sg_mib_apply_psi, v->data, v->size);
 #if CHANNEL_MAX_NUM != 1
 	psi_gen_output_psi_from_sections();

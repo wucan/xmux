@@ -306,7 +306,7 @@ void xmux_config_save_pid_map_table(struct xmux_pid_map_table *t)
 }
 
 #if CHANNEL_MAX_NUM == 1
-static int request_save_input_pmt_sec;
+int request_save_input_pmt_sec;
 void check_and_save_input_pmt_sec()
 {
 	if (request_save_input_pmt_sec) {
