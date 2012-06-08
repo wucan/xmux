@@ -212,9 +212,9 @@ struct xmux_system_param {
 #define XMUX_VENDOR			"SOUKA"
 
 #define XMUX_VERSION_MAJOR	1
-#define XMUX_VERSION_MINOR	9
+#define XMUX_VERSION_MINOR	10
 #define XMUX_VERSION_NUM	((XMUX_VERSION_MAJOR << 16) | XMUX_VERSION_MINOR)
-#define XMUX_VERSION_STR	"1.09"
+#define XMUX_VERSION_STR	"1.10"
 
 #define XMUX_UPDATE_TIME	((2012 << 16) | (6 << 8) | 8)
 
